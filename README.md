@@ -1,4 +1,6 @@
 # yuru-archive
+![YuruArchive Logo](assets/yuruArchieve_Logo.png)
+
 SpringBootを利用して、質問掲示板を作りました。
 
 
