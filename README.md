@@ -10,7 +10,7 @@ SpringBootを利用して、質問掲示板を作りました。
 - PostgreSQL 16
 - H2 Database(ロカルテスト用)
 - Apache Tomcat 10.1
-- Vue.js 3
+- Thymeleaf
 - Docker / Docker Compose
 
 ## 特徴
