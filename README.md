@@ -7,7 +7,8 @@ SpringBootを利用して、質問掲示板を作りました。
 ## 技術スタック
 - Spring Boot 3.x
 - Java 17
-- MySQL 8
+- PostgreSQL 16
+- H2 Database(ロカルテスト用)
 - Vue.js 3
 - Docker / Docker Compose
 
