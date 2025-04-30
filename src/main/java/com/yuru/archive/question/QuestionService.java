@@ -29,11 +29,6 @@ import lombok.RequiredArgsConstructor;
 public class QuestionService {
 
 	private final QuestionRepository questionRepository;
-	/*
-	public QuestionService(QuestionRepository questionRepository) {
-		this.questionRepository = questionRepository;
-	}
-	*/
 
 	@SuppressWarnings("unused")
 	private Specification<Question> search(String kw) {

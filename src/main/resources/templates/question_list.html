@@ -2,22 +2,22 @@
 <div layout:fragment="content" class="container my-3">
 	<div class="row my-3">
 		<div class="col-6">
-			<a th:href="@{/question/create}" class="btn btn-primary">질문 등록하기</a>
+			<a th:href="@{/question/create}" class="btn btn-primary">質問 登録する</a>
 		</div>
 		<div class="col-6">
 			<div class="input-group">
 				<input type="text" id="search_kw" class="form-control" th:value="${kw}">
-				<button class="btn btn-outline-secondary" type="button" id="btn_search">찾기</button>
+				<button class="btn btn-outline-secondary" type="button" id="btn_search">探す</button>
 			</div>
 		</div>
 	</div>
 	<table class="table">
 		<thead class="table-dark">
 			<tr class="text-center">
-				<th>번호</th>
-				<th style="width:50%">제목</th>
-				<th>글쓴이</th>
-				<th>작성일시</th>
+				<th>番号</th>
+				<th style="width:50%">タイトル</th>
+				<th>作成者</th>
+				<th>作成日</th>
 			</tr>
 		</thead>
 		<tbody>
@@ -34,7 +34,7 @@
 			</tr>
 		</tbody>
 	</table>
-	<!-- 페이징처리 시작 -->
+	<!-- ページング処理 開始 -->
 	<div th:if="${!paging.isEmpty()}">
 		<ul class="pagination justify-content-center">
 			<li class="page-item" th:classappend="${!paging.hasPrevious} ? 'disabled'">
@@ -54,7 +54,7 @@
 			</li>
 		</ul>
 	</div>
-	<!-- 페이징처리 끝 -->
+	<!-- ページング処理 終了 -->
 	<form th:action="@{/question/list}" method="get" id="searchForm">
 		<input type="hidden" id="kw" name="kw" th:value="${kw}">
 		<input type="hidden" id="page" name="page" th:value="${paging.number}">
@@ -71,7 +71,7 @@
 	const btn_search = document.getElementById("btn_search");
 	btn_search.addEventListener('click', function () {
 		document.getElementById('kw').value = document.getElementById('search_kw').value;
-		document.getElementById('page').value = 0;  // 검색버튼을 클릭할 경우 0페이지부터 조회한다.
+		document.getElementById('page').value = 0;  // 検索ボタンをクリックすると０ページから照会する。
 		document.getElementById('searchForm').submit();
 	});
 </script>

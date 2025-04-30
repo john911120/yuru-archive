@@ -17,20 +17,6 @@ public class AnswerService {
 
 	private final AnswerRepository answerRepository;
 	
-	/**
-	 * AnswerService
-	 * 
-	 * 【修正理由】
-	 * - Java17以降では、final変数はコンストラクタで必ず初期化する必要があります。
-	 * - Java19から導入されたrecord型は自動初期化されますが、通常のクラスは対象外です。
-	 * - new演算子を使ってServiceを生成すると、SpringのDIコンテナ管理外になり、@Serviceや@Repositoryの機能が正常に動作しません。
-	 * - そのため、Springが管理するBeanをコンストラクタインジェクションで受け取る必要があります。
-	 */
-	/*
-	public AnswerService(AnswerRepository answerRepository) {
-		this.answerRepository = answerRepository;
-	}
-	 */
 	public Answer create(Question question, String content, SiteUser author) {
 		Answer answer = new Answer();
 		answer.setContent(content);
