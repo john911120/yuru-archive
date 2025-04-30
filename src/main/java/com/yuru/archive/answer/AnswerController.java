@@ -44,12 +44,6 @@ public class AnswerController {
 	private final AnswerService answerService;
 	private final UserService userService;
 
-	public AnswerController(QuestionService questionService, AnswerService answerService, UserService userService) {
-		this.questionService = questionService;
-		this.answerService = answerService;
-		this.userService = userService;
-	}
-	
     // @RequiredArgsConstructorにより、以下のコンストラクタが自動生成されます
     /*
     public AnswerController(QuestionService questionService, AnswerService answerService, UserService userService) {

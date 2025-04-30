@@ -26,10 +26,11 @@ public class AnswerService {
 	 * - new演算子を使ってServiceを生成すると、SpringのDIコンテナ管理外になり、@Serviceや@Repositoryの機能が正常に動作しません。
 	 * - そのため、Springが管理するBeanをコンストラクタインジェクションで受け取る必要があります。
 	 */
+	/*
 	public AnswerService(AnswerRepository answerRepository) {
 		this.answerRepository = answerRepository;
 	}
-
+	 */
 	public Answer create(Question question, String content, SiteUser author) {
 		Answer answer = new Answer();
 		answer.setContent(content);

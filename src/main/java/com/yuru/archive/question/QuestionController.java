@@ -32,11 +32,13 @@ public class QuestionController {
 	private final QuestionService questionService;
 	private final UserService userService;
 	
+	/*
 	public QuestionController(QuestionService questionService, UserService userService) {
 		this.questionService = questionService;
 		this.userService = userService;
 	}
-
+	*/
+	
 	@GetMapping("/list")
 	public String list(Model model, @RequestParam(value = "page", defaultValue = "0") int page,
 			@RequestParam(value = "kw", defaultValue = "") String kw) {
