@@ -22,16 +22,19 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 
 
+/*
+{@code AnswerController}
+Spring Bootにおける依存性注入（DI）の正しい実装方法に基づくコントローラです。
 
-/**
- * AnswerController
- * 
- * 【修正理由】
- * - Java17以降では、final変数はコンストラクタで必ず初期化する必要があります。
- * - Java19から導入されたrecord型は自動初期化されますが、通常のクラスは対象外です。
- * - new演算子を使ってServiceを生成すると、SpringのDIコンテナ管理外になり、@Serviceや@Repositoryの機能が正常に動作しません。
- * - そのため、Springが管理するBeanをコンストラクタインジェクションで受け取る必要があります。
- */
+【設計意図】
+{@code final}フィールドはコンストラクタインジェクションの対象です。
+{@code @RequiredArgsConstructor}により、必要なコンストラクタはLombokが自動生成します。
+Java 17以降では、{@code final}フィールドの未初期化は禁止されています。
+{@code new}演算子でServiceを手動生成すると、SpringのDI管理対象外となり、
+{@code @Service}, {@code @Repository}等の注釈が無効になります。
+このため、DIコンテナに登録されたBeanを安全かつ確実に注入するには、
+コンストラクタインジェクションを使用するのが最適です。 
+*/
 
 
 @RequestMapping("/answer")
@@ -39,12 +42,11 @@ import lombok.RequiredArgsConstructor;
 @Controller
 public class AnswerController {
 
-    // finalフィールドはコンストラクタインジェクション対象
 	private final QuestionService questionService;
 	private final AnswerService answerService;
 	private final UserService userService;
 
-    // @RequiredArgsConstructorにより、以下のコンストラクタが自動生成されます
+    // ↓ 以下のコンストラクタは @RequiredArgsConstructor により自動生成されるため省略
     /*
     public AnswerController(QuestionService questionService, AnswerService answerService, UserService userService) {
         this.questionService = questionService;
