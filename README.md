@@ -48,8 +48,10 @@ Spring Boot × PostgreSQLをベースに、
 ![ゆるアーカイブ初案_ERD](assets/ゆるアーカイブ初案_ERD.png)
 
 ### テーブル定義 (SQL)
-![ゆるアーカイブSQL ファイルリング](sql/ゆるアーカイブQuery.sql) <br>
+📎 [ゆるアーカイブ SQL ファイル](sql/ゆるアーカイブQuery.sql)
+
 各テーブルはEntityとDTOの設計を元に作成され、実際のサービス運用を想定しております。
+
 
 ## デモ (開発中です。)
 
