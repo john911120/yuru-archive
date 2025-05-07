@@ -27,5 +27,5 @@ INSERT INTO answers (question_id, user_id, content) VALUES
 -- comments Table Dummy Table
 INSERT INTO comments (user_id, answer_id, content) VALUES
 (2, 1, 'モモイまたお前だなぁ待ってろよ。'),
-(3, 3, 'お前あの店のバイトだなぁ？')
+(3, 3, 'お前あの店のバイトだなぁ？'),
 (3, 2, '理不尽すぎだろう。');

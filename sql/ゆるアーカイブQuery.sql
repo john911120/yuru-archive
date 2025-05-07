@@ -73,3 +73,18 @@ alter table answers
 alter column created_at set default now();
 
 commit;
+
+ 
+/*
+　スーパーアカウントで、間違えて、作ったテーブルを削除する
+ 一度作ったアカウントが本当にスーパーアカウントかを確認したうえて、下のコードを実行してください。
+ でもないと、復旧はできませんので、改めて再確認お願いします。
+*/
+DROP TABLE IF EXISTS QUESTIONS CASCADE;
+DROP TABLE IF EXISTS ANSWERS CASCADE;
+DROP TABLE IF EXISTS USERS CASCADE;
+DROP TABLE IF EXISTS COMMENTS CASCADE;
+DROP TABLE IF EXISTS USER_ROLES CASCADE;
+
+-- 先のテーブルが削除完了しましたら、コミットをしてください。
+commit;
