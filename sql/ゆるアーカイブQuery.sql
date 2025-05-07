@@ -1,10 +1,14 @@
+/*
+	-- default now()を入れてデータをInsertしたときに自動的に現在の時間が入れるようにしました。
+*/
+
 -- ユーザー情報を保存するテーブル (ユーザー1人の基本情報)
 CREATE TABLE users (
     id SERIAL PRIMARY KEY,  -- ユーザーID (主キー)
     username VARCHAR(255) NOT NULL UNIQUE, -- ユーザー名 (ユニーク制約あり)
     password VARCHAR(255) NOT NULL, -- パスワード (暗号化された文字列を保存)
     email VARCHAR(255) NOT NULL UNIQUE, -- メールアドレス (ユニーク制約あり)
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP -- 作成日時 (デフォルトで現在日時)
+    created_at TIMESTAMP DEFAULT now() -- 作成日時 (デフォルトで現在日時)
 );
 
 -- ユーザーの役割 (ロール) を保存するテーブル
@@ -22,7 +26,7 @@ CREATE TABLE questions (
     user_id INTEGER NOT NULL REFERENCES users(id) ON DELETE SET NULL, -- ユーザーID (外部キー / ユーザー削除時はNULL)
     title VARCHAR(255) NOT NULL, -- 質問タイトル
     content TEXT NOT NULL, -- 質問内容
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP -- 作成日時
+    created_at TIMESTAMP DEFAULT now() -- 作成日時
 );
 
 -- 回答内容を保存するテーブル
@@ -33,7 +37,7 @@ CREATE TABLE answers (
     question_id INTEGER NOT NULL REFERENCES questions(id) ON DELETE CASCADE, -- 質問ID (外部キー / 質問削除時は回答も削除)
     user_id INTEGER NOT NULL REFERENCES users(id) ON DELETE SET NULL, -- ユーザーID (外部キー / ユーザー削除時はNULL)
     content TEXT NOT NULL, -- 回答内容
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP -- 作成日時
+    created_at TIMESTAMP DEFAULT now() -- 作成日時
 );
 
 -- コメントを保存するテーブル
@@ -46,7 +50,7 @@ CREATE TABLE comments (
     question_id INTEGER REFERENCES questions(id) ON DELETE CASCADE, -- 質問ID (外部キー)
     answer_id INTEGER REFERENCES answers(id) ON DELETE CASCADE, -- 回答ID (外部キー)
     content TEXT NOT NULL, -- コメント内容
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP -- 作成日時
+    created_at TIMESTAMP DEFAULT now() -- 作成日時
 );
 
 -- コメント対象を制限する制約 (質問または回答のどちらかのみを指定する必要がある)
@@ -56,3 +60,16 @@ CHECK (
     (question_id IS NOT NULL AND answer_id IS NULL)
     OR (question_id IS NULL AND answer_id IS NOT NULL)
 );
+
+
+-- default now()を入れてデータをInsertしたときに自動的に現在の時間が入れるようにしました。
+alter table users 
+alter column created_at set default now();
+
+alter table questions
+alter column created_at set default now();
+
+alter table answers 
+alter column created_at set default now();
+
+commit;
