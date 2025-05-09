@@ -45,7 +45,7 @@ Spring Boot × PostgreSQLをベースに、
 本プロジェクトではPostgreSQLを使用しており、以下のようにテーブルを設計しております。
 
 ### ERD
-![ゆるアーカイブ初案_ERD](assets/ゆるアーカイブ初案_ERD.png)
+![ゆるアーカイブ初案_ERD](assets/ゆるアーカイブ修正1版_ERD.png)
 
 ### テーブル定義 (SQL)
 📎 [ゆるアーカイブ SQL ファイル](sql/ゆるアーカイブQuery.sql)
