@@ -55,10 +55,10 @@
 				<a href="javascript:void(0);" class="recommend btn btn-sm btn-outline-secondary"
 					th:data-uri="@{|/answer/vote/${answer.id}|}">
 					いいね
-					<span class="badge rounded-pill bg-success" th:text="${#lists.size(answer.voter)}"></span>
+					<span class="badge rounded-pill bg-success" th:text="${#sets.size(answer.voter)}">0</span>
 				</a>
 				<a th:href="@{|/answer/modify/${answer.id}|}" class="btn btn-sm btn-outline-secondary"
-					sec:authorize="isAuthenticated()"
+					sec:authorize="isAuthenticated()"	
 					th:if="${answer.author != null and #authentication.getPrincipal().getUsername() == answer.author.username}"
 					th:text="修正"></a>
 				<a href="javascript:void(0);" th:data-uri="@{|/answer/delete/${answer.id}|}"

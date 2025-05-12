@@ -1,23 +1,20 @@
 package com.yuru.archive.answer;
 
 import java.time.LocalDateTime;
+import java.util.HashSet;
 import java.util.Set;
 
 import com.yuru.archive.question.Question;
 import com.yuru.archive.user.SiteUser;
 
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
-import jakarta.persistence.ManyToMany;
-import jakarta.persistence.ManyToOne;
+import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
 
 @Getter
 @Setter
+//テーブル名 "answers" に合わせて明示的に指定（デフォルトは "answer" になるため）
+@Table(name = "answers") 
 @Entity
 public class Answer {
 	@Id
@@ -27,6 +24,7 @@ public class Answer {
 	@Column(columnDefinition = "TEXT")
 	private String content;
 
+	@Column(name = "created_at")
 	private LocalDateTime createDate;
 
 	@ManyToOne
@@ -35,8 +33,15 @@ public class Answer {
 	@ManyToOne
 	private SiteUser author;
 
+	@Column(name = "updated_at")
 	private LocalDateTime modifyDate;
 	
 	@ManyToMany
-    Set<SiteUser> voter;
+	@JoinTable(
+	    name = "answers_voter",
+	    joinColumns = @JoinColumn(name = "answer_id"),
+	    inverseJoinColumns = @JoinColumn(name = "voter_id")
+	)
+	private Set<SiteUser> voter = new HashSet<>();
+	
 }

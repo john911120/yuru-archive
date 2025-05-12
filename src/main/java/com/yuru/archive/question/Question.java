@@ -1,6 +1,7 @@
 package com.yuru.archive.question;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 
@@ -34,8 +35,8 @@ public class Question {
 	@JoinColumn(name = "user_id")
 	private SiteUser author;
 
-	@OneToMany(mappedBy = "question", cascade = CascadeType.REMOVE)
-	private List<Answer> answerList;
+	@OneToMany(mappedBy = "question", cascade = CascadeType.ALL)
+	private List<Answer> answerList = new ArrayList<>();
 
 	// DBには存在しませんが、後ほどの機能追加のために残しました。
 	// @Column(nullable = true)
