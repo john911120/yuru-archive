@@ -54,6 +54,11 @@ public class QuestionService {
 		List<Sort.Order> sorts = new ArrayList<>();
 		sorts.add(Sort.Order.desc("createDate"));
 		Pageable pageable = PageRequest.of(page, 10, Sort.by(sorts));
+		
+		if(kw == null || kw.trim().isEmpty()) {
+			return this.questionRepository.findAll(pageable);
+		}
+		
 		return this.questionRepository.findAllByKeyword(kw, pageable);
 	}
 
@@ -86,8 +91,5 @@ public class QuestionService {
 		this.questionRepository.delete(question);
 	}
 
-	public void vote(Question question, SiteUser siteUser) {
-		question.getVoter().add(siteUser);
-		this.questionRepository.save(question);
-	}
+	// 不使用の投票メソッド（vote）を削除しました
 }

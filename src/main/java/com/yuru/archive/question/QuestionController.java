@@ -103,13 +103,6 @@ public class QuestionController {
 		this.questionService.delete(question);
 		return "redirect:/";
 	}
+	// 投票用エンドポイントは不要のため削除済み
 
-	@PreAuthorize("isAuthenticated()")
-	@GetMapping("/vote/{id}")
-	public String questionVote(Principal principal, @PathVariable("id") Integer id) {
-		Question question = this.questionService.getQuestion(id);
-		SiteUser siteUser = this.userService.getUser(principal.getName());
-		this.questionService.vote(question, siteUser);
-		return String.format("redirect:/question/detail/%s", id);
-	}
 }
