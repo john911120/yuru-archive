@@ -230,4 +230,32 @@ CREATE TABLE uploaded_file (
 );
 ```
 
+📌 変更履歴 (20250512)<br>
+✅ answers テーブルの拡張<br>
+<li> author_id カラムを追加（回答者のユーザー情報を保持）</li>
+<li> updated_at カラムを追加（編集日時の追跡）</li>
 
+✅ 投票機能の実装<br>
+<li> answers_voter 中間テーブルを新規作成 </li>
+
+sql
+CREATE TABLE answers_voter (
+    answer_id BIGINT NOT NULL, -- 回答ID（外部キー、answersテーブルを参照）
+    voter_id BIGINT NOT NULL,  -- 投票ユーザーID（外部キー、site_userテーブルを参照）
+    PRIMARY KEY (answer_id, voter_id), -- 複合主キー（重複投票を防ぐ）
+    FOREIGN KEY (answer_id) REFERENCES answers(id) ON DELETE CASCADE,
+    FOREIGN KEY (voter_id) REFERENCES site_user(id) ON DELETE CASCADE
+);
+
+✅ バグ修正・Thymeleafの調整
+question_detail.html での answer.voter アクセスエラーを修正（getter追加）
+
+#lists.size() の変換問題を answer.voter.size() に修正
+
+✅ ERDとSQL定義の更新<br>
+<li> ER図に answers_voter テーブルを反映 </li>
+<li> DB初期化用SQLスクリプトに新テーブルとカラムを追加 </li>
+
+🧩 反省点
+プログラム開発を進める際には、事前にデータベースの構造設計をしっかりと完了させてから着手すべきでしたが、今回はそれを確認せずに先に開発を進めてしまったため、後からテーブル設計を一部追加する形となってしまいました。
+今後は事前にテーブル定義を確定させたうえで、画面側やロジックの実装に取りかかるようにします。
