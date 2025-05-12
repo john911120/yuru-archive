@@ -105,3 +105,24 @@ CREATE TABLE uploaded_file (
         REFERENCES users(id)
         ON DELETE CASCADE
 );
+
+-- Answer テーブルにカーラムを追加します。
+ALTER TABLE answers ADD COLUMN author_id INTEGER;
+ALTER TABLE answers ADD COLUMN updated_at TIMESTAMP;
+
+commit;
+
+-- ちゃんと反映されていることを確認してください。
+select * from answers;
+
+
+-- 回答に対する投票情報を保持する中間テーブル
+CREATE TABLE answers_voter (
+    answer_id BIGINT NOT NULL, -- 回答ID（外部キー、answersテーブルを参照）
+    voter_id BIGINT NOT NULL,  -- 投票ユーザーID（外部キー、site_userテーブルを参照）
+    PRIMARY KEY (answer_id, voter_id), -- 複合主キー（重複投票を防ぐ）
+    FOREIGN KEY (answer_id) REFERENCES answers(id) ON DELETE CASCADE, -- 回答削除時に関連投票も削除
+    FOREIGN KEY (voter_id) REFERENCES site_user(id) ON DELETE CASCADE  -- ユーザー削除時に関連投票も削除
+);
+-- ちゃんと追加されていることを確認してください。
+select * from answers_voter;
