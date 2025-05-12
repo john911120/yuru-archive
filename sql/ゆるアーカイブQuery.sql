@@ -126,3 +126,32 @@ CREATE TABLE answers_voter (
 );
 -- ちゃんと追加されていることを確認してください。
 select * from answers_voter;
+
+
+-- 重複や空のテーブルを削除する。
+-- 使われていないことを確認したうえで、行ってください。
+DROP TABLE IF EXISTS question;
+DROP TABLE IF EXISTS answer;
+DROP TABLE IF EXISTS answer_voter;
+
+-- FKの制約で削除できないときに使う方法
+-- 特定のテーブルに対して定義された制約（主キー、外部キーなど）を一覧表示する
+-- このクエリは 'question' テーブルに設定された制約情報を抽出するためのもの
+-- 外部キー制約であれば、参照されているテーブル名も取得される
+
+SELECT
+    conname AS constraint_name,          -- 制約名（例: 外部キーや主キーの名前）こっちです。
+    conrelid::regclass AS table_from,    -- 制約が定義されている元のテーブル名
+    confrelid::regclass AS table_to      -- 外部キーが参照しているテーブル名（外部キーでない場合はNULL）
+FROM
+    pg_constraint
+WHERE
+    conrelid::regclass::text = 'question'; -- 対象テーブル名（ここでは 'question'）
+
+-- FKを参照している制約名を削除します
+ALTER TABLE question DROP CONSTRAINT IF EXISTS "fkoI558t304fpmksa6mgxrkyg3";
+
+-- 削除出来なかったQueryに CASCADEを追加して、再実行します。
+-- 後は、ちゃんと削除できたのかをselect文のqueryを作成し、確認します。
+DROP TABLE IF EXISTS question CASCADE;    
+
