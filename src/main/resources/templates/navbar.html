@@ -1,5 +1,4 @@
 <nav th:fragment="navbarFragment" class="navbar navbar-expand-lg navbar-light bg-light border-bottom">
-		<div class="container-fluid" style="background:#00BFFF;">
 			<!-- 
 				モバイル環境で。見えるハンバーガーメニューボタンにマウスを当てると
 				色が変わります。
@@ -30,10 +29,10 @@
 		  <span class="navbar-toggler-icon"></span>
 		</button>
 		<div class="collapse navbar-collapse" id="navbarSupportedContent">
-			<ul class="navbar-nav me-auto mb-2 mb-lg-0">
+			<ul class="navbar-nav custom-toggler">
 				<li class="nav-item">
-					<a class="nav-link me-3" sec:authorize="isAnonymous()" th:href="@{/user/login}">ログイン</a>
-					<a class="nav-link me-3" sec:authorize="isAuthenticated()" th:href="@{/user/logout}">ログアウト</a>
+					<a class="nav-link" sec:authorize="isAnonymous()" th:href="@{/user/login}">ログイン</a>
+					<a class="nav-link" sec:authorize="isAuthenticated()" th:href="@{/user/logout}">ログアウト</a>
 				</li>
 				<li class="nav-item">
 					<a class="nav-link" th:href="@{/user/signup}">会員加入</a>
