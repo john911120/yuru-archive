@@ -1,4 +1,4 @@
-<html layout:decorate="~{layout}">
+<html lang="ja" xmlns:th="http://www.thymeleaf.org" data-bs-theme="light"　layout:decorate="~{layout}">
 <div layout:fragment="content" class="container my-3">
 	<div class="row my-3">
 		<div class="col-6">
@@ -58,6 +58,12 @@
 		<input type="hidden" id="kw" name="kw" th:value="${kw}">
 		<input type="hidden" id="page" name="page" th:value="${paging.number}">
 	</form>
+	
+	<!-- ダークモードボタン(헤더 또는 상단 nav 영역에 배치) -->
+	<div class="d-flex justify-content-end p-2">
+	  <button id="themeToggleBtn" class="btn btn-sm btn-outline-secondary">🌙 ダークモード</button>
+	</div>
+	
 </div>
 <script layout:fragment="script" type='text/javascript'>
 	const page_elements = document.getElementsByClassName("page-link");
@@ -73,6 +79,22 @@
 		document.getElementById('page').value = 0;  // 検索ボタンをクリックすると０ページから照会する。
 		document.getElementById('searchForm').submit();
 	});
+	
+	// DarkMode&LightMode Setting Script	
+	document.addEventListener("DOMContentLoaded", function () {
+	  const btn = document.getElementById("themeToggleBtn");
+	  const htmlTag = document.documentElement;
+
+	  btn.addEventListener("click", function () {
+	    const current = htmlTag.getAttribute("data-bs-theme");
+	    const newTheme = current === "dark" ? "light" : "dark";
+	    htmlTag.setAttribute("data-bs-theme", newTheme);
+
+	    //　ボタンテキストを変更する
+	    btn.innerText = newTheme === "dark" ? "☀️ ライトモード" : "🌙 ダークモード";
+	  });
+	});
+	
 </script>
 
 </html>
