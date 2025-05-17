@@ -59,7 +59,7 @@
 		<input type="hidden" id="page" name="page" th:value="${paging.number}">
 	</form>
 	
-	<!-- ダークモードボタン(헤더 또는 상단 nav 영역에 배치) -->
+	<!-- ダークモードボタン -->
 	<div class="d-flex justify-content-end p-2">
 	  <button id="themeToggleBtn" class="btn btn-sm btn-outline-secondary">🌙 ダークモード</button>
 	</div>
@@ -84,12 +84,21 @@
 	document.addEventListener("DOMContentLoaded", function () {
 	  const btn = document.getElementById("themeToggleBtn");
 	  const htmlTag = document.documentElement;
-
+	  
+	  // セーフしたテーマがあれば、復元します。
+	  const savedTheme = localStorage.getItem("theme");
+	  
+	  if (savedTheme){
+		htmlTag.setAttribute("data-bs-theme", savedTheme);
+		btn.innerText = savedTheme === "dark" ? "☀️ ライト" : "🌙 ダーク";
+	  }
+	  
+	  // ボタンをクリックしたときにテーマが転換設定をセーフします。
 	  btn.addEventListener("click", function () {
 	    const current = htmlTag.getAttribute("data-bs-theme");
 	    const newTheme = current === "dark" ? "light" : "dark";
 	    htmlTag.setAttribute("data-bs-theme", newTheme);
-
+		localStorage.setItem("theme", newTheme);
 	    //　ボタンテキストを変更する
 	    btn.innerText = newTheme === "dark" ? "☀️ ライトモード" : "🌙 ダークモード";
 	  });
