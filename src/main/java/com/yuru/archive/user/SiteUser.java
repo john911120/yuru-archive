@@ -25,4 +25,22 @@ public class SiteUser {
 
 	@Column(unique = true)
 	private String email;
+	
+    // 🏠 住所関連
+	// 郵便番号
+    @Column(length = 10)
+    private String zipcode;
+
+    // 都道府県
+    @Column(length = 50)
+    private String address1;
+
+	// 市区町村
+    @Column(length = 50)
+    private String address2;
+
+    // 町名
+    @Column(length = 50)
+    private String address3;
+
 }

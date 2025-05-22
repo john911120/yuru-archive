@@ -17,7 +17,7 @@
 	<nav th:replace="~{navbar :: navbarFragment}"></nav>
 	<!-- 基本テンプレートの中にインサートされるコンテンツ Start -->
 	
-	<!-- 다크모드 토글 버튼 (원하는 위치로 옮기세요) -->
+	<!-- dark toggle button -->
 	<div class="container mt-2 text-end">
 		<button class="btn btn-outline-secondary btn-sm" onclick="toggleDarkMode()">🌓 テーマ切替（ライト／ダーク）</button>
 	</div>
@@ -27,7 +27,7 @@
 	<!-- Bootstrap JS -->
 	<script th:src="@{/bootstrap.min.js}"></script>
 	
-	<!-- 다크모드 스크립트 -->
+	<!-- darkmode JavaScript -->
 		<script>
 			document.addEventListener('DOMContentLoaded', () => {
 				const theme = localStorage.getItem('theme') || 'light';

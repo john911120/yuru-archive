@@ -16,11 +16,16 @@ public class UserService {
 	private final UserRepository userRepository;
 	private final PasswordEncoder passwordEncoder;
 	
-	public SiteUser create(String username, String email, String password) {
+	public SiteUser create(String username, String email, String password, String zipcode, String address1, String address2, String address3) {
 		SiteUser user = new SiteUser();
 		user.setUsername(username);
 		user.setEmail(email);
 		user.setPassword(passwordEncoder.encode(password));
+	    // ✅ ハイフンを除去して保存
+		user.setZipcode(zipcode.replace("-", ""));
+		user.setAddress1(address1);
+		user.setAddress2(address2);
+		user.setAddress3(address3);
 		this.userRepository.save(user);
 		return user;
 	}

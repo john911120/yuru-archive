@@ -23,6 +23,58 @@
 			<label for="email" class="form-label">メールアドレス</label>
 			<input type="email" th:field="*{email}" class="form-control">
 		</div>
+		
+		<div id="jp-address-area" class="mb-3">
+		  <label for="zipcode" class="form-label">郵便番号</label>
+		  <div class="input-group">
+		    <!--<input type="text" id="zipcode" name="zipcode" class="form-control" >-->
+			<input type="text" th:field="*{zipcode}" id="zipcode" class="form-control" placeholder="例：1000001">
+		    <button type="button" class="btn btn-outline-secondary" onclick="fetchAddress()">住所検索</button>
+		  </div>
+
+		  <label for="address1" class="form-label mt-2">都道府県</label>
+		  <input type="text" th:field="*{address1}" id="address1" name="address1" class="form-control" readonly>
+
+		  <label for="address2" class="form-label mt-2">市区町村</label>
+		  <input type="text" th:field="*{address2}" id="address2" name="address2" class="form-control" readonly>
+
+		  <label for="address3" class="form-label mt-2">町名</label>
+		  <input type="text" th:field="*{address3}" id="address3" name="address3" class="form-control" readonly>
+		</div>
+		
+		<script>
+					function fetchAddress() {
+					  const zipcode = document.getElementById("zipcode").value;
+					  if (!zipcode) return;
+
+					  fetch(`https://zipcloud.ibsnet.co.jp/api/search?zipcode=${zipcode}`)
+					    .then(response => response.json())
+					    .then(data => {
+					      if (data.results && data.results.length > 0) {
+					        const result = data.results[0];
+					        document.getElementById("address1").value = result.address1;
+					        document.getElementById("address2").value = result.address2;
+					        document.getElementById("address3").value = result.address3;
+					      } else {
+					        alert("住所が見つかりませんでした。");
+					      }
+					    })
+					    .catch(error => {
+					      console.error("住所取得失敗:", error);
+					      alert("エラーが発生しました。");
+					    });
+					}
+
+			document.querySelector("form").addEventListener("submit", function(e) {
+			  const zip = document.getElementById("zipcode").value;
+			  if (!/^\d{3}-?\d{4}$/.test(zip)) {
+			    alert("郵便番号は7桁の数字、またはハイフン付きで入力してください。");
+			    e.preventDefault();
+			  }
+			});
+		</script>
+
+		
 		<button type="submit" class="btn btn-primary">会員加入</button>
 	</form>
 </div>

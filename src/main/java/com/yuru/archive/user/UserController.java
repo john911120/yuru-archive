@@ -34,7 +34,14 @@ public class UserController {
 		}
 
 		try {
-			userService.create(userCreateForm.getUsername(), userCreateForm.getEmail(), userCreateForm.getPassword1());
+			userService.create(userCreateForm.getUsername(),
+					userCreateForm.getEmail(),
+					userCreateForm.getPassword1(),
+					userCreateForm.getZipcode(),
+					userCreateForm.getAddress1(),
+					userCreateForm.getAddress2(),
+					userCreateForm.getAddress3()
+					);
 		} catch (DataIntegrityViolationException e) {
 			e.printStackTrace();
 			bindingResult.reject("signupFailed", "既に登録されたユーザです。");
