@@ -1,4 +1,4 @@
-<nav th:fragment="navbarFragment" class="navbar navbar-expand-lg navbar-light bg-light border-bottom">
+<nav th:fragment="navbarFragment" class="navbar navbar-expand-lg bg-body-tertiary text-body border-bottom">
 			<!-- 
 				モバイル環境で。見えるハンバーガーメニューボタンにマウスを当てると
 				色が変わります。
@@ -17,9 +17,19 @@
 				  outline: none;
 				  box-shadow: none;
 				}
-				
+				/*
+				[data-bs-theme="dark"] .navbar-toggler-icon {
+					filter: invert(1);
+				}
+				*/
+				[data-bs-theme="light"] .navbar {
+				  background-color: #00bfff !important;
+				}
+				[data-bs-theme="dark"] .navbar {
+				  background-color: #222 !important;
+				}
 			</style>
-			<div class="container-fluid" style="background:#00BFFF;">
+			<div class="container-fluid">
 		<a class="navbar-brand" href="/">
 			<img src="/assets/yuruArchieve_Logo_mainpage.png" alt="ゆるアーカイブロゴイメージ" style="height:60px;">
 		</a>

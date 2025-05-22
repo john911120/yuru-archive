@@ -12,17 +12,40 @@
 	<title>ゆる~アーカイブへようこそ!</title>
 </head>
 
-<body>
+<body data-bs-theme="light">
 	<!-- navigation bar -->
 	<nav th:replace="~{navbar :: navbarFragment}"></nav>
 	<!-- 基本テンプレートの中にインサートされるコンテンツ Start -->
+	
+	<!-- 다크모드 토글 버튼 (원하는 위치로 옮기세요) -->
+	<div class="container mt-2 text-end">
+		<button class="btn btn-outline-secondary btn-sm" onclick="toggleDarkMode()">🌓 テーマ切替</button>
+	</div>
+	
 	<th:block layout:fragment="content"></th:block>
 	<!-- 基本テンプレートの中にインサートされるコンテンツ End -->
 	<!-- Bootstrap JS -->
 	<script th:src="@{/bootstrap.min.js}"></script>
+	
+	<!-- 다크모드 스크립트 -->
+		<script>
+			document.addEventListener('DOMContentLoaded', () => {
+				const theme = localStorage.getItem('theme') || 'light';
+				document.body.setAttribute('data-bs-theme', theme);
+			});
+
+			function toggleDarkMode() {
+				const current = document.body.getAttribute('data-bs-theme');
+				const next = current === 'dark' ? 'light' : 'dark';
+				document.body.setAttribute('data-bs-theme', next);
+				localStorage.setItem('theme', next);
+			}
+		</script>
+	
 	<!-- JavaScript Start -->
 	<th:block layout:fragment="script"></th:block>
 	<!-- JavaScript End -->
 </body>
 
+	
 </html>
