@@ -27,7 +27,6 @@
 		<div id="jp-address-area" class="mb-3">
 		  <label for="zipcode" class="form-label">郵便番号</label>
 		  <div class="input-group">
-		    <!--<input type="text" id="zipcode" name="zipcode" class="form-control" >-->
 			<input type="text" th:field="*{zipcode}" id="zipcode" class="form-control" placeholder="例：1000001">
 		    <button type="button" class="btn btn-outline-secondary" onclick="fetchAddress()">住所検索</button>
 		  </div>
@@ -76,6 +75,13 @@
 
 		
 		<button type="submit" class="btn btn-primary">会員加入</button>
+		
+		<!--以前のページに戻ります。 -->
+		<a th:href="@{/}" class="btn btn-secondary">
+		    <i class="bi bi-arrow-left"></i> 以前の画面に戻る
+		</a>
+
+		
 	</form>
 </div>
 

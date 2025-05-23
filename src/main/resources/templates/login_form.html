@@ -15,6 +15,13 @@
 			<input type="password" name="password" id="password" class="form-control">
 		</div>
 		<button type="submit" class="btn btn-primary">ログイン</button>
+		
+		<!--会員登録ページに移動します。-->
+		<div class="text-center mt-4">
+		  <span>アカウントをまだお持ちでないですか？</span><br/>
+		  <a th:href="@{/user/signup}" class="btn btn-outline-primary mt-2">新規会員登録</a>
+		</div>
+		
 	</form>
 </div>
 
