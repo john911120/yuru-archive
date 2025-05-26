@@ -335,3 +335,9 @@ question_detail.html での answer.voter アクセスエラーを修正（getter
 3. SecurityConfig内で`.userDetailsService(...)`と`.passwordEncoder(...)`の設定が抜けていたため、認証処理に反映されていませんでした。
 4. ログインフォームのPOST送信先URL(`/user/login`)に対し、`.loginProcessingUrl(...)`の明示的な指定がなかったため、認証フローが起動しませんでした。
 5. 以上の原因を1つずつ特定し、設定を修正することで、ログイン認証のフローが正常に機能することを確認しました。
+
+
+## 🔐 認証ログ出力の改善 250526
+- ユーザIDやパスワードに関する情報がログに出力されないように修正
+- ユーザが存在しない場合のログメッセージを簡略化
+- Spring Securityにおける安全なログ設計を反映
