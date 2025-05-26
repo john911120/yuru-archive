@@ -42,5 +42,9 @@ public class SiteUser {
     // 町名
     @Column(length = 50)
     private String address3;
+    
+    // 詳細住所情報
+    @Column(length = 255)
+    private String addressDetail;
 
 }

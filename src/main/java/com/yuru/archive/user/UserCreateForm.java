@@ -37,4 +37,9 @@ public class UserCreateForm {
 	
 	// 町名
 	private String address3;
+	
+    // 詳細住所情報
+	@Size(max = 255)
+	private String addressDetail;
+	
 }

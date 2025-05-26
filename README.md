@@ -34,6 +34,7 @@ Spring Boot × PostgreSQLをベースに、
 - Thymeleaf
 - Thumbnailator(サムネールを作るために使用しました。)
 - Docker / Docker Compose
+- 郵便番号API (ZipCloud)
 
 ## 特徴
 - 質問・回答の投稿、編集、削除機能
@@ -46,7 +47,7 @@ Spring Boot × PostgreSQLをベースに、
 ## Database設計
 本プロジェクトではPostgreSQLを使用しており、以下のようにテーブルを設計しております。
 
-### ERD(修正2版)
+### ERD(修正3版)
 ![ゆるアーカイブ初案_ERD](assets/ゆるアーカイブ修正3版_ERD.png)
 
 ### テーブル定義 (SQL)
@@ -326,3 +327,11 @@ question_detail.html での answer.voter アクセスエラーを修正（getter
 ### 💡 ユーザー体験の向上
 - 入力の手間を減らし、正確な住所データの取得を実現
 - 無効な郵便番号に対しては、フロントエンドとバックエンドの両面で即時フィードバックを提供
+
+
+## ✨ 250526追加機能及び改選事項
+1. 詳細住所入力欄（addressDetail）の追加 > テスト完了
+2. 認証ロジック自体は正しく実装されていましたが、Spring Security側で認識されない設定になっていたため、修正が必要でした。
+3. SecurityConfig内で`.userDetailsService(...)`と`.passwordEncoder(...)`の設定が抜けていたため、認証処理に反映されていませんでした。
+4. ログインフォームのPOST送信先URL(`/user/login`)に対し、`.loginProcessingUrl(...)`の明示的な指定がなかったため、認証フローが起動しませんでした。
+5. 以上の原因を1つずつ特定し、設定を修正することで、ログイン認証のフローが正常に機能することを確認しました。

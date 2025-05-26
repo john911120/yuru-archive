@@ -40,7 +40,8 @@ public class UserController {
 					userCreateForm.getZipcode(),
 					userCreateForm.getAddress1(),
 					userCreateForm.getAddress2(),
-					userCreateForm.getAddress3()
+					userCreateForm.getAddress3(),
+					userCreateForm.getAddressDetail()
 					);
 		} catch (DataIntegrityViolationException e) {
 			e.printStackTrace();
