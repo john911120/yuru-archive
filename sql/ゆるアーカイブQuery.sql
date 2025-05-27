@@ -155,3 +155,16 @@ ALTER TABLE question DROP CONSTRAINT IF EXISTS "fkoI558t304fpmksa6mgxrkyg3";
 -- 後は、ちゃんと削除できたのかをselect文のqueryを作成し、確認します。
 DROP TABLE IF EXISTS question CASCADE;    
 
+
+-- 202505027 Answer Table DataType Change Query Add
+
+/* Answer Table 制約条件を修正します。  */
+-- 1. FK制約条件を削除します。
+ALTER TABLE answers DROP CONSTRAINT answers_user_id_fkey;
+-- 2. Columnのタイプを変更します。
+ALTER TABLE answers ALTER COLUMN user_id TYPE BIGINT;
+-- 3. FKキー制約条件をさらに追加します。(int4 > BIGINT)
+-- SiteUser.id = Long と一致させるためであります。
+ALTER TABLE answers
+ADD CONSTRAINT answers_user_id_fkey
+FOREIGN KEY (user_id) REFERENCES site_user(id);
