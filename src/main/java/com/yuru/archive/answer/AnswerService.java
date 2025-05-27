@@ -6,6 +6,8 @@ import java.util.Optional;
 import org.springframework.stereotype.Service;
 
 import com.yuru.archive.DataNotFoundException;
+import com.yuru.archive.exception.DuplicateVoteException;
+import com.yuru.archive.exception.UnauthorizedVoteException;
 import com.yuru.archive.question.Question;
 import com.yuru.archive.user.SiteUser;
 
@@ -44,6 +46,27 @@ public class AnswerService {
 
 	public void delete(Answer answer) {
 		this.answerRepository.delete(answer);
+	}
+	
+	// いいねを押したユーザは重複されないようにSetがその役目を遂行します。
+	public void vote(Answer answer, SiteUser user) {
+    	//ユーザをチェックしていいねボタンにセキュリティを強化しました。
+	    if (user == null) {
+	    	System.out.println("[⚠️] ログインしたユーザからいいねをリクエストした!");
+	        throw new UnauthorizedVoteException("ログインしたユーザではないな、あなたは、どちら様ですか、");
+	    }
+	    if (answer.getVoter().contains(user)) {
+	        throw new DuplicateVoteException("すでにいいねを押しました。");
+	    }
+		
+		if (answer.getAuthor().equals(user)) {
+	        throw new IllegalStateException("自分のコメントにはいいねを押せないよ。");
+	    }
+		if(answer.getVoter().contains(user)) {
+			throw new IllegalStateException("いいねを一回押しましたね。重複いいねはできないよ。");
+		}
+		answer.getVoter().add(user);
+		answerRepository.save(answer);
 	}
 
 }

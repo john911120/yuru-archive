@@ -1,5 +1,8 @@
 <html layout:decorate="~{layout}">
 <div layout:fragment="content" class="container my-3">
+	<div th:if="${errorMessage}" class="alert alert-warning">
+	    [[${errorMessage}]]
+	</div>
 	<!-- 質問 -->
 	<h2 class="border-bottom py-2" th:text="${question.subject}"></h2>
 	<div class="card my-3">
@@ -87,14 +90,51 @@
 			};
 		});
 	});
+
 	const recommend_elements = document.getElementsByClassName("recommend");
+
 	Array.from(recommend_elements).forEach(function (element) {
-		element.addEventListener('click', function () {
-			if (confirm("お勧めしますよろしいでしょうか?")) {
-				location.href = this.dataset.uri;
-			};
-		});
+	    const badge = element.querySelector(".badge");
+
+	    element.addEventListener('click', function (event) {
+			event.preventDefault();
+	        // すでに押された場合、二度押しを防止
+	        if (badge.dataset.clicked === "true") {
+	            alert("すでにおすすめしました。");
+	            return;
+	        }
+
+	        // ユーザー確認
+	        if (!confirm("お勧めしますよろしいでしょうか?")) {
+	            return;
+	        }
+
+	        // Ajaxリクエスト
+	        fetch(this.dataset.uri, {
+	            method: "GET",
+	            headers: { "X-Requested-With": "XMLHttpRequest" },
+	            credentials: "include"
+	        })
+	        .then(response => {
+	            return response.text().then(text => {
+	                if (!response.ok) {
+	                    throw new Error(text); // サーバー側から送ったメッセージ内容をそのまま表す。
+	                }
+	                return text;
+	            });
+	        })
+	        .then(result => {
+	            // 成功した場合いいね数を画面に反映します。
+	            let currentCount = parseInt(badge.innerText);
+	            badge.innerText = currentCount + 1;
+	            badge.dataset.clicked = "true";
+	        })
+	        .catch(error => {
+	            alert(error.message); // "ログインが必要です。" 等々のサーバーメッセージを出力する
+	        });
+	    });
 	});
+
 </script>
 
 </html>

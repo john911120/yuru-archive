@@ -3,6 +3,7 @@ package com.yuru.archive.answer;
 import java.security.Principal;
 
 import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -11,7 +12,9 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.server.ResponseStatusException;
+import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import com.yuru.archive.question.Question;
 import com.yuru.archive.question.QuestionService;
@@ -105,5 +108,29 @@ public class AnswerController {
 		this.answerService.delete(answer);
 		return String.format("redirect:/question/detail/%s", answer.getQuestion().getId());
 	}
+	
+	// いいね機能追加
+    @PreAuthorize("isAuthenticated()")
+    @GetMapping("/vote/{id}")
+    @ResponseBody
+    public ResponseEntity<String> vote(@PathVariable("id") Integer id, Principal principal, RedirectAttributes redirectAttributes) {
+    	//ログインしていないときにはいいねを押せません
+        if (principal == null) {
+        	return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("ログインが必要です。");
+        }
+    	SiteUser siteUser = userService.getUser(principal.getName());
+        Answer answer = answerService.getAnswer(id);
+        /*
+          AnswerService.vote()から、Exceptionしたのに、そのExceptionがコントローラーがら見つからなかったので、500 えらーに繋がれたことを修正しました。
+        */
+        try {
+			answerService.vote(answer, siteUser);  // いいねロジック
+		} catch (IllegalStateException e) {
+	        redirectAttributes.addFlashAttribute("errorMessage", e.getMessage());
+		}
+        //return String.format("redirect:/question/detail/%s#answer_%s", answer.getQuestion().getId(), answer.getId());
+        return ResponseEntity.ok("success");
+    }
+	
 
 }

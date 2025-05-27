@@ -31,6 +31,7 @@ public class Answer {
 	private Question question;
 
 	@ManyToOne
+	@JoinColumn(name ="user_id", nullable = false)
 	private SiteUser author;
 
 	@Column(name = "updated_at")

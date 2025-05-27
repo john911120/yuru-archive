@@ -2,6 +2,7 @@ package com.yuru.archive;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.http.HttpStatus;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
@@ -28,13 +29,34 @@ public class SecurityConfig {
 	@Bean
 	SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
 		http.authorizeHttpRequests((authorizeHttpRequests) -> authorizeHttpRequests
-				.requestMatchers(new AntPathRequestMatcher("/**")).permitAll())
+				.requestMatchers("/answer/vote/**").authenticated()
+			    .requestMatchers(new AntPathRequestMatcher("/**")).permitAll())
 				.csrf((csrf) -> csrf.ignoringRequestMatchers(new AntPathRequestMatcher("/h2-console/**")))
 				.headers((headers) -> headers.addHeaderWriter(
 						new XFrameOptionsHeaderWriter(XFrameOptionsHeaderWriter.XFrameOptionsMode.SAMEORIGIN)))
 				.formLogin((formLogin) -> formLogin.loginPage("/user/login").defaultSuccessUrl("/"))
 				.logout((logout) -> logout.logoutRequestMatcher(new AntPathRequestMatcher("/user/logout"))
-						.logoutSuccessUrl("/").invalidateHttpSession(true));
+						.logoutSuccessUrl("/").invalidateHttpSession(true))
+				// ログインしないユーザが /answer/vote/**をリクエストした時
+				// 403 エラーコード + "ログインが必要です。" メッセージがリターンできるように設定
+				.exceptionHandling((exceptionHandling) -> exceptionHandling
+			            .authenticationEntryPoint((request, response, authException) -> {
+			                // Ajax リクエストした場合は、 401 + メッセージリターン
+			                if ("XMLHttpRequest".equals(request.getHeader("X-Requested-With"))) {
+			                    response.setStatus(HttpStatus.UNAUTHORIZED.value()); // 401
+			                    response.setContentType("text/plain;charset=UTF-8");
+			                    response.getWriter().write("ログインが必要です。");
+			                } else {
+			                    // 一般のリクエストはログインページにリダイレクトします。
+			                    response.sendRedirect("/user/login");
+			                }
+			            })
+			            .accessDeniedHandler((request, response, accessDeniedException) -> {
+			                response.setStatus(HttpStatus.FORBIDDEN.value());
+			                response.setContentType("text/plain;charset=UTF-8");
+			                response.getWriter().write("アクセスが拒否されました。");
+			            })
+					);
 		return http.build();
 	}
 
