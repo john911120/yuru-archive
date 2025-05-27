@@ -47,8 +47,8 @@ Spring Boot × PostgreSQLをベースに、
 ## Database設計
 本プロジェクトではPostgreSQLを使用しており、以下のようにテーブルを設計しております。
 
-### ERD(修正3版)
-![ゆるアーカイブ初案_ERD](assets/ゆるアーカイブ修正3版_ERD.png)
+### ERD(修正4版)
+![ゆるアーカイブ初案_ERD](assets/ゆるアーカイブ修正4版_ERD.png)
 
 ### テーブル定義 (SQL)
 📎 [ゆるアーカイブ SQL ファイル](sql/ゆるアーカイブQuery.sql)
@@ -341,3 +341,10 @@ question_detail.html での answer.voter アクセスエラーを修正（getter
 - ユーザIDやパスワードに関する情報がログに出力されないように修正
 - ユーザが存在しない場合のログメッセージを簡略化
 - Spring Securityにおける安全なログ設計を反映
+
+
+### 💡 トラブルメモ: 「いいね」機能で地獄 250527
+- Spring Securityのリダイレクト地獄
+- fetch()のcredentials: "include" 抜けで403
+- preventDefault()忘れて謎のページ遷移
+- すべて解決し、平常通りに作動します。
