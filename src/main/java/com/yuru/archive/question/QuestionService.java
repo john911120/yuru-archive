@@ -61,7 +61,7 @@ public class QuestionService {
 		
 		return this.questionRepository.findAllByKeyword(kw, pageable);
 	}
-
+/*
 	public Question getQuestion(Integer id) {
 		Optional<Question> question = this.questionRepository.findById(id);
 		if (question.isPresent()) {
@@ -70,7 +70,13 @@ public class QuestionService {
 			throw new DataNotFoundException("question not found");
 		}
 	}
-
+*/
+	public Question getQuestion(Integer id) {
+		System.out.println("🟢 findWithAnswersAndVotersById() 호출됨");
+	    return questionRepository.findWithAnswersAndVotersById(id)
+	            .orElseThrow(() -> new DataNotFoundException("質問が見つかりません"));
+	}
+	
 	public void create(String subject, String content, SiteUser user) {
 		Question q = new Question();
 		q.setSubject(subject);
@@ -91,5 +97,9 @@ public class QuestionService {
 		this.questionRepository.delete(question);
 	}
 
-	// 不使用の投票メソッド（vote）を削除しました
+	public Question getQuestionWithAnswersAndVoters(Integer id) {
+	    return questionRepository.findWithAnswersAndVotersById(id)
+	        .orElseThrow(() -> new DataNotFoundException("質問が見つかりません"));
+	}
+
 }

@@ -1,6 +1,8 @@
 package com.yuru.archive.answer;
 
 import java.security.Principal;
+import java.util.Collections;
+import java.util.Map;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -48,6 +50,8 @@ public class AnswerController {
 	private final QuestionService questionService;
 	private final AnswerService answerService;
 	private final UserService userService;
+	
+	private final AnswerRepository answerRepository;
 
     // ↓ 以下のコンストラクタは @RequiredArgsConstructor により自動生成されるため省略
     /*
@@ -132,5 +136,14 @@ public class AnswerController {
         return ResponseEntity.ok("success");
     }
 	
+    // REST API追加：いいね数を取得するためのエンドポイント
+    @ResponseBody
+    @GetMapping("/voter-count/{id}")
+    public Map<String, Integer> getVoterCount(@PathVariable("id") Integer id) {
+       // Answer answer = answerService.getAnswer(id);
+        Answer answer = answerRepository.findById(id).orElseThrow();
+    	return Collections.singletonMap("count", answer.getVoter().size());
+    }
+
 
 }

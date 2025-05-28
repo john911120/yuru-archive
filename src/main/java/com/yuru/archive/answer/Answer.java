@@ -37,7 +37,7 @@ public class Answer {
 	@Column(name = "updated_at")
 	private LocalDateTime modifyDate;
 	
-	@ManyToMany
+	@ManyToMany(fetch = FetchType.EAGER)
 	@JoinTable(
 	    name = "answers_voter",
 	    joinColumns = @JoinColumn(name = "answer_id"),

@@ -15,6 +15,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.server.ResponseStatusException;
 
+import com.yuru.archive.answer.Answer;
 import com.yuru.archive.answer.AnswerForm;
 import com.yuru.archive.user.SiteUser;
 import com.yuru.archive.user.UserService;
@@ -44,7 +45,14 @@ public class QuestionController {
 
 	@GetMapping(value = "/detail/{id}")
 	public String detail(Model model, @PathVariable("id") Integer id, AnswerForm answerForm) {
-		Question question = this.questionService.getQuestion(id);
+	   // Question question = questionService.getQuestionWithAnswersAndVoters(id); 
+		Question question = questionService.getQuestion(id);
+		
+		for (Answer a : question.getAnswerList()) {
+	        System.out.println("Answer ID: " + a.getId());
+	        System.out.println("いいね数: " + a.getVoter().size());
+	    }
+	    
 		model.addAttribute("question", question);
 		return "question_detail";
 	}

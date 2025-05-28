@@ -56,7 +56,7 @@
 			</div>
 			<div class="my-3">
 				<a href="javascript:void(0);" class="recommend btn btn-sm btn-outline-secondary"
-					th:data-uri="@{|/answer/vote/${answer.id}|}">
+					th:data-uri="@{|/answer/vote/${answer.id}|}" th:data-answer-id="${answer.id}">
 					いいね
 					<span class="badge rounded-pill bg-success" th:text="${#sets.size(answer.voter)}">0</span>
 				</a>
@@ -91,48 +91,54 @@
 		});
 	});
 
-	const recommend_elements = document.getElementsByClassName("recommend");
+	document.addEventListener("DOMContentLoaded", function () {
+		// 「おすすめ」ボタンをすべて取得します。
+		const recommend_elements = document.getElementsByClassName("recommend");
 
-	Array.from(recommend_elements).forEach(function (element) {
-	    const badge = element.querySelector(".badge");
+		Array.from(recommend_elements).forEach(function (element) {
+		    const badge = element.querySelector(".badge");
+		    const answerId = element.dataset.answerId;
 
-	    element.addEventListener('click', function (event) {
-			event.preventDefault();
-	        // すでに押された場合、二度押しを防止
-	        if (badge.dataset.clicked === "true") {
-	            alert("すでにおすすめしました。");
-	            return;
-	        }
+		    // クリックイベントを登録
+		    element.addEventListener('click', function (event) {
+		        event.preventDefault(); // デフォルト動作（リンク遷移）を防止
 
-	        // ユーザー確認
-	        if (!confirm("お勧めしますよろしいでしょうか?")) {
-	            return;
-	        }
+		        // すでに「おすすめ」済みなら、再度クリックを防止
+		        if (badge.dataset.clicked === "true") {
+		            alert("すでにおすすめしました。");
+		            return;
+		        }
 
-	        // Ajaxリクエスト
-	        fetch(this.dataset.uri, {
-	            method: "GET",
-	            headers: { "X-Requested-With": "XMLHttpRequest" },
-	            credentials: "include"
-	        })
-	        .then(response => {
-	            return response.text().then(text => {
-	                if (!response.ok) {
-	                    throw new Error(text); // サーバー側から送ったメッセージ内容をそのまま表す。
-	                }
-	                return text;
-	            });
-	        })
-	        .then(result => {
-	            // 成功した場合いいね数を画面に反映します。
-	            let currentCount = parseInt(badge.innerText);
-	            badge.innerText = currentCount + 1;
-	            badge.dataset.clicked = "true";
-	        })
-	        .catch(error => {
-	            alert(error.message); // "ログインが必要です。" 等々のサーバーメッセージを出力する
-	        });
-	    });
+		        // 確認ダイアログの表示
+		        if (!confirm("お勧めしますよろしいでしょうか?")) {
+		            return;
+		        }
+
+		        // サーバーへ「おすすめ」リクエストを送信
+		        fetch(this.dataset.uri, {
+		            method: "GET",
+		            headers: { "X-Requested-With": "XMLHttpRequest" },
+		            credentials: "include"
+		        })
+		        .then(response => response.text().then(text => {
+		            if (!response.ok) throw new Error(text); // サーバーからのエラーメッセージをそのまま表示
+		            return text;
+		        }))
+		        .then(result => {
+		            // 成功後、「おすすめ数」を再取得するリクエストを送信
+		            return fetch(`/answer/voter-count/${answerId}`);
+		        })
+		        .then(res => res.json())
+		        .then(data => {
+		            // 最新のおすすめ数を画面に反映
+		            badge.innerText = data.count;
+		            badge.dataset.clicked = "true";
+		        })
+		        .catch(error => {
+		            alert(error.message); // エラーメッセージを表示
+		        });
+		    });
+		});
 	});
 
 </script>
