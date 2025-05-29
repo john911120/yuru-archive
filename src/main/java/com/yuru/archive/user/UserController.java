@@ -1,11 +1,15 @@
 package com.yuru.archive.user;
 
 import org.springframework.dao.DataIntegrityViolationException;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.stereotype.Controller;
+import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
+
+import com.yuru.archive.util.GreetingUtil;
 
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -16,6 +20,25 @@ import lombok.RequiredArgsConstructor;
 public class UserController {
 
 	private final UserService userService;
+	
+    /**
+     * 🌐 トップページにアクセスした際の処理。
+     * ✅ ログインユーザが存在する場合、ユーザ名と挨拶メッセージをモデルに設定する。
+     * 🔄 /question/listにリダイレクトされる前に「main.html」が一度描画される仕様のため、
+     *     UserController内で処理を行っている。
+     * 📌 HomeControllerなどを用意していない理由は、本プロジェクトの構成上、UserControllerが
+     *     ログイン状態の処理を一括して担う設計となっているため。
+     */
+	
+    @GetMapping("/")
+    public String mainPage(@AuthenticationPrincipal SiteUser user, Model model) {
+        if (user != null) {
+            model.addAttribute("username", user.getUsername());
+            model.addAttribute("greeting", GreetingUtil.getGreetingMessage());
+        }
+        return "main";
+    }
+	
 	
 	@GetMapping("/signup")
 	public String signup(UserCreateForm userCreateForm) {
