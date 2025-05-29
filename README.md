@@ -111,12 +111,21 @@ text-primary-emphasis を使用することで、Bootstrap 5.3+ におけるダ�
 </div>
 
 🖼️ 表示イメージ（PCとモバイル）
-※画像例は省略していますが、/assets/header_pc.png や /assets/header_mobile.png などを追加して視覚的に補足することも可能です。
+#### 🖼️ 表示イメージ（PCとモバイル）
+## 🖥️（デスクトップ）
+![PC表示例](./assets/header_pc.png)
+
+## 📱（フレキシブル／レスポンシブ対応）
+![スマートフォン表示例](./assets/header_mobile.png)
+
+
 
 💬 備考
 ログインしていない状態では、挨拶メッセージは表示されません。
 
 principal が null の場合のログも System.out.println() にて開発中は出力されます。
+
+
 
 ## プロジェクト説明
 🚀 ゆるアーカイブは、ある週末の夜、  
