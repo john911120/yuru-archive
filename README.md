@@ -18,6 +18,106 @@ SpringBootを利用して、質問掲示板を作りました。
 スマートフォン・タブレットにも対応した画面設計となっております。
 📍一部のスマートフォン・タブレット機種によって異なって見えるかもしれないので、ご了承ください。
 
+## 250529 🌐 グローバルModel属性の自動設定（挨拶＋ユーザー名）
+ログインユーザー向けに時間帯に応じた挨拶メッセージとユーザー名をすべての画面上部に表示する機能を実装しています。
+
+#### ✅ 概要
+
+- `@ControllerAdvice` を利用し、全コントローラー共通で `Model` に以下の属性を追加しています：
+  - `username`（ログインユーザー名）
+  - `greeting`（時間帯に応じた挨拶）
+
+- 表示例：
+test02さん、おはようございます。
+test02さん、こんにちは！
+test02さん、こんばんは！
+
+#### 🔧 技術構成
+<style>
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    font-family: "Segoe UI", sans-serif;
+    font-size: 15px;
+    margin-top: 1em;
+  }
+  thead {
+    background-color: #f0f0f0;
+  }
+  th, td {
+    border: 1px solid #ccc;
+    padding: 12px 16px;
+    text-align: left;
+  }
+  th {
+    background-color: #e8e8e8;
+    font-weight: bold;
+  }
+  tbody tr:nth-child(even) {
+    background-color: #fafafa;
+  }
+  code {
+    background-color: #f3f3f3;
+    padding: 2px 4px;
+    font-family: monospace;
+    border-radius: 4px;
+  }
+</style>
+<table>
+  <thead>
+    <tr>
+      <th>項目</th>
+      <th>内容</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>クラス名</td>
+      <td><code>GlobalModelAttributeAdvice.java</code></td>
+    </tr>
+    <tr>
+      <td>対象アノテーション</td>
+      <td><code>@ControllerAdvice</code>, <code>@ModelAttribute</code></td>
+    </tr>
+    <tr>
+      <td>ユーティリティ</td>
+      <td>
+        <code>GreetingUtil.java</code>：<br>
+        <code>LocalTime</code> を基に挨拶文（<strong>おはよう・こんにちは・こんばんは</strong>）を返す静的メソッド
+      </td>
+    </tr>
+    <tr>
+      <td>表示箇所</td>
+      <td><code>navbar.html</code> 内部の共通ヘッダー領域</td>
+    </tr>
+  </tbody>
+</table>
+
+
+#### 📱 レスポンシブ対応
+
+スマートフォンなどの小画面では、横幅を考慮し以下のように調整しています：
+
+```html
+<span class="d-none d-sm-inline" th:text="${username} + 'さん、' + ${greeting}"></span>
+<span class="d-inline d-sm-none" th:text="${username} + 'さん、' + ${greeting}"></span>
+```
+
+🎨 ダークモード対応
+text-primary-emphasis を使用することで、Bootstrap 5.3+ におけるダーク／ライトモードの切り替えに対応しています。
+ 
+ <div class="fw-bold fs-5 text-primary-emphasis" th:if="${username}">
+  <!-- 上記のspanがここに含まれます -->
+</div>
+
+🖼️ 表示イメージ（PCとモバイル）
+※画像例は省略していますが、/assets/header_pc.png や /assets/header_mobile.png などを追加して視覚的に補足することも可能です。
+
+💬 備考
+ログインしていない状態では、挨拶メッセージは表示されません。
+
+principal が null の場合のログも System.out.println() にて開発中は出力されます。
+
 ## プロジェクト説明
 🚀 ゆるアーカイブは、ある週末の夜、  
 ふと「質問掲示板ってもっと気軽にできないかな」と思ったことから始まりました。
