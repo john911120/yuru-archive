@@ -33,36 +33,6 @@ test02さん、こんにちは！
 test02さん、こんばんは！
 
 #### 🔧 技術構成
-<style>
-  table {
-    width: 100%;
-    border-collapse: collapse;
-    font-family: "Segoe UI", sans-serif;
-    font-size: 15px;
-    margin-top: 1em;
-  }
-  thead {
-    background-color: #f0f0f0;
-  }
-  th, td {
-    border: 1px solid #ccc;
-    padding: 12px 16px;
-    text-align: left;
-  }
-  th {
-    background-color: #e8e8e8;
-    font-weight: bold;
-  }
-  tbody tr:nth-child(even) {
-    background-color: #fafafa;
-  }
-  code {
-    background-color: #f3f3f3;
-    padding: 2px 4px;
-    font-family: monospace;
-    border-radius: 4px;
-  }
-</style>
 <table>
   <thead>
     <tr>
