@@ -2,10 +2,10 @@
 ## 🗃️ データベース設計
 
 ### ER図（最新版）
-![ERD](assets/ゆるアーカイブ修正4版_ERD.png)
+![ERD](../assets/ゆるアーカイブ修正4版_ERD.png)
 
 ### テーブル定義（SQL）
-📎 [ゆるアーカイブQuery.sql](sql/ゆるアーカイブQuery.sql)
+📎 [ゆるアーカイブQuery.sql](https://raw.githubusercontent.com/john911120/yuru-archive/main/sql/ゆるアーカイブQuery.sql)
 
 
 📌 変更履歴 (20250512)<br>
