@@ -1,8 +1,25 @@
 # yuru-archive
 ![YuruArchive Logo](assets/yuruArchieve_Logo.png)
 
-Spring Boot × PostgreSQL による質問掲示板システムです。  
-「日常に、小さな奇跡を。」をコンセプトに、気軽に使える掲示板を目指しています。
+## プロジェクト説明
+🚀 ゆるアーカイブは、ある週末の夜、  
+ふと「質問掲示板ってもっと気軽にできないかな」と思ったことから始まりました。
+
+Spring Boot × PostgreSQLをベースに、  
+まだ発展途中ながらも、ログイン・投稿・回答など基本機能を少しずつ組み立てています。
+
+設計から実装まですべて一人でこつこつ進めています。  
+「ゆるく、でもちゃんと残る」アーカイブを目指して。
+
+実はこのプロジェクト名には、  
+私が日頃楽しんでいるモバイルゲーム「ブルーアーカイブ」からの  
+ささやかなインスピレーションも込められています。
+
+**「日常に、小さな奇跡を。」**  
+その言葉のように、  
+このプロジェクトも、誰かの小さな気づきや発見に繋がればという気持ちで作っています。
+
+🌱 よかったらそっと見守ってください。
 
 ## 🖥️ メイン画面（PC・モバイル）
 # PCバージョン
@@ -25,8 +42,6 @@ Spring Boot × PostgreSQL による質問掲示板システムです。
 | ダークモード | Bootstrap 5.3 のテーマ切替に対応 |
 | 日本住所API | 郵便番号による自動入力（ZipCloud） |
 
----
-
 ## 技術スタック
 - Java 17 / Spring Boot 3.2
 - PostgreSQL 16 / H2 Database（テスト用）
@@ -35,114 +50,6 @@ Spring Boot × PostgreSQL による質問掲示板システムです。
 - Thumbnailator（画像サムネイル）
 - 郵便番号API：[ZipCloud](https://zipcloud.ibsnet.co.jp/doc/api)
 
-
-
-## 250529 🌐 グローバルModel属性の自動設定（挨拶＋ユーザー名）
-ログインユーザー向けに時間帯に応じた挨拶メッセージとユーザー名をすべての画面上部に表示する機能を実装しています。
-
-#### ✅ 概要
-
-- `@ControllerAdvice` を利用し、全コントローラー共通で `Model` に以下の属性を追加しています：
-  - `username`（ログインユーザー名）
-  - `greeting`（時間帯に応じた挨拶）
-
-- 表示例：
-test02さん、おはようございます。
-test02さん、こんにちは！
-test02さん、こんばんは！
-
-#### 🔧 技術構成
-<table>
-  <thead>
-    <tr>
-      <th>項目</th>
-      <th>内容</th>
-    </tr>
-  </thead>
-  <tbody>
-    <tr>
-      <td>クラス名</td>
-      <td><code>GlobalModelAttributeAdvice.java</code></td>
-    </tr>
-    <tr>
-      <td>対象アノテーション</td>
-      <td><code>@ControllerAdvice</code>, <code>@ModelAttribute</code></td>
-    </tr>
-    <tr>
-      <td>ユーティリティ</td>
-      <td>
-        <code>GreetingUtil.java</code>：<br>
-        <code>LocalTime</code> を基に挨拶文（<strong>おはよう・こんにちは・こんばんは</strong>）を返す静的メソッド
-      </td>
-    </tr>
-    <tr>
-      <td>表示箇所</td>
-      <td><code>navbar.html</code> 内部の共通ヘッダー領域</td>
-    </tr>
-  </tbody>
-</table>
-
-
-#### 📱 レスポンシブ対応
-
-スマートフォンなどの小画面では、横幅を考慮し以下のように調整しています：
-
-```html
-<span class="d-none d-sm-inline" th:text="${username} + 'さん、' + ${greeting}"></span>
-<span class="d-inline d-sm-none" th:text="${username} + 'さん、' + ${greeting}"></span>
-```
-
-🎨 ダークモード対応
-text-primary-emphasis を使用することで、Bootstrap 5.3+ におけるダーク／ライトモードの切り替えに対応しています。
- 
- <div class="fw-bold fs-5 text-primary-emphasis" th:if="${username}">
-  <!-- 上記のspanがここに含まれます -->
-</div>
-
-🖼️ 表示イメージ（PCとモバイル）
-#### 🖼️ 表示イメージ（PCとモバイル）
-## 🖥️（デスクトップ）
-![PC表示例](./assets/header_pc.png)
-
-## 📱（フレキシブル／レスポンシブ対応）
-![スマートフォン表示例](./assets/header_mobile.png)
-
-
-
-💬 備考
-ログインしていない状態では、挨拶メッセージは表示されません。
-
-principal が null の場合のログも System.out.println() にて開発中は出力されます。
-
-
-
-## プロジェクト説明
-🚀 ゆるアーカイブは、ある週末の夜、  
-ふと「質問掲示板ってもっと気軽にできないかな」と思ったことから始まりました。
-
-Spring Boot × PostgreSQLをベースに、  
-まだ発展途中ながらも、ログイン・投稿・回答など基本機能を少しずつ組み立てています。
-
-設計から実装まですべて一人でこつこつ進めています。  
-「ゆるく、でもちゃんと残る」アーカイブを目指して。
-
-実はこのプロジェクト名には、  
-私が日頃楽しんでいるモバイルゲーム「ブルーアーカイブ」からの  
-ささやかなインスピレーションも込められています。
-
-**「日常に、小さな奇跡を。」**  
-その言葉のように、  
-このプロジェクトも、誰かの小さな気づきや発見に繋がればという気持ちで作っています。
-
-🌱 よかったらそっと見守ってください。
-
-## 🗃️ データベース設計
-
-### ER図（最新版）
-![ERD](assets/ゆるアーカイブ修正4版_ERD.png)
-
-### テーブル定義（SQL）
-📎 [ゆるアーカイブQuery.sql](sql/ゆるアーカイブQuery.sql)
 
 ## 特徴
 - 質問・回答の投稿、編集、削除機能
