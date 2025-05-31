@@ -83,4 +83,4 @@ com.yuru.archive.attach
 | 日本住所API構成と仕様 | [devlog-Japan Address API.md](docs/devlog-Japan_Address_API.md) |
 | spring-security Auth | [devlog-springSecurity.md](docs/devlog-springSecurity.md) |
 | Database設計 | [devlog-database.md](docs/devlog-database.md) |
-| 時間帯に合わせてログインする時に挨拶出力機能 | [devlog-greeting_Japan.md](docs/greeting_Japan.md) |
+| 時間帯に合わせてログインする時に挨拶出力機能 | [devlog-greeting_Japan.md](docs/devlog-greeting_Japan.md) |
