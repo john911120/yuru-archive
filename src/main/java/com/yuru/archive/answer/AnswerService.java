@@ -92,4 +92,9 @@ public class AnswerService {
 	    return answerRepository.findWithVoterById(id)
 	        .orElseThrow(() -> new DataNotFoundException("回答が見つかりません"));
 	}
+	
+	public void save(Answer answer) {
+		this.answerRepository.save(answer);
+	}
+	
 }

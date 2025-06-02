@@ -55,10 +55,18 @@
 				</div>
 			</div>
 			<div class="my-3">
-				<a href="javascript:void(0);" class="recommend btn btn-sm btn-outline-secondary"
-					th:data-uri="@{|/answer/vote/${answer.id}|}" th:data-answer-id="${answer.id}">
+<!--		
+			<a th:href="@{|/answer/vote/${answer.id}|}" class="btn btn-sm btn-outline-secondary">
 					いいね
 					<span class="badge rounded-pill bg-success" th:text="${#sets.size(answer.voter)}">0</span>
+				</a>
+-->
+				<a href="javascript:void(0);"
+				   class="recommend btn btn-sm btn-outline-secondary"
+				   th:data-uri="@{|/answer/vote/${answer.id}|}"
+				   th:data-answer-id="${answer.id}">
+				   いいね
+				   <span class="badge rounded-pill bg-success" th:text="${#sets.size(answer.voter)}">0</span>
 				</a>
 				<a th:href="@{|/answer/modify/${answer.id}|}" class="btn btn-sm btn-outline-secondary"
 					sec:authorize="isAuthenticated()"	
@@ -121,8 +129,14 @@
 		            credentials: "include"
 		        })
 		        .then(response => response.text().then(text => {
-		            if (!response.ok) throw new Error(text); // サーバーからのエラーメッセージをそのまま表示
-		            return text;
+		            if (!response.ok) {
+					console.error("🐞 サーバーエラー内容:", text);
+					setTimeout(() => alert("alert : " + text), 1000)
+					
+					alert("⚠️ エラー: " + text); 
+					throw new Error(text); // サーバーからのエラーメッセージをそのまま表示
+					}
+					return text;    
 		        }))
 		        .then(result => {
 		            // 成功後、「おすすめ数」を再取得するリクエストを送信
@@ -135,8 +149,10 @@
 		            badge.dataset.clicked = "true";
 		        })
 		        .catch(error => {
-		            alert(error.message); // エラーメッセージを表示
+                	console.error("🐞 JSキャッチされたエラー:", error);// エラーメッセージを表示
+					alert("⚠️ JSでエラーが発生しました: " + error.message);
 		        });
+	
 		    });
 		});
 	});

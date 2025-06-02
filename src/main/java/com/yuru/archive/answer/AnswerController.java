@@ -5,6 +5,7 @@ import java.util.Collections;
 import java.util.Map;
 
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Controller;
@@ -114,27 +115,44 @@ public class AnswerController {
 	}
 	
 	// いいね機能追加
-    @PreAuthorize("isAuthenticated()")
-    @GetMapping("/vote/{id}")
-    @ResponseBody
-    public ResponseEntity<String> vote(@PathVariable("id") Integer id, Principal principal, RedirectAttributes redirectAttributes) {
-    	//ログインしていないときにはいいねを押せません
-        if (principal == null) {
-        	return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("ログインが必要です。");
-        }
-    	SiteUser siteUser = userService.getUser(principal.getName());
-        Answer answer = answerService.getAnswer(id);
-        /*
-          AnswerService.vote()から、Exceptionしたのに、そのExceptionがコントローラーがら見つからなかったので、500 えらーに繋がれたことを修正しました。
-        */
-        try {
-			answerService.vote(answer, siteUser);  // いいねロジック
-		} catch (IllegalStateException e) {
-	        redirectAttributes.addFlashAttribute("errorMessage", e.getMessage());
-		}
-        //return String.format("redirect:/question/detail/%s#answer_%s", answer.getQuestion().getId(), answer.getId());
-        return ResponseEntity.ok("success");
-    }
+	@PreAuthorize("isAuthenticated()")
+	@GetMapping("/vote/{id}")
+	@ResponseBody
+	public ResponseEntity<String> vote(@PathVariable("id") Integer id, Principal principal) {
+	    if (principal == null) {
+	        return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
+	        		.header("Content-Type", "text/plain; charset=UTF-8")
+	        		.body("ログインが必要です。");
+	    }
+
+	    SiteUser siteUser = this.userService.getUser(principal.getName());
+	    Answer answer = this.answerService.getAnswer(id);
+
+	    // 自分自身のコメントにはいいね不可
+	    if (answer.getAuthor().equals(siteUser)) {
+	        return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+	        		.header("Content-Type", "text/plain; charset=UTF-8")
+	        		.body("自分のコメントにはいいねを押せないよ。");
+	    }
+
+	    if (answer.getVoter().contains(siteUser)) {
+	        return ResponseEntity.status(HttpStatus.CONFLICT)
+	        	.header("Content-Type", "text/plain; charset=UTF-8")
+	            .body("すでにおすすめしました。");
+	    }
+	    
+	    answer.getVoter().add(siteUser);
+	    answerRepository.save(answer);
+	    
+	    // いいね処理（重複チェック含む）は Service に移譲
+	    try {
+	        answerService.vote(answer, siteUser);  // ロジックの中で、重複検査を遂行
+	    } catch (IllegalStateException e) {
+	        return ResponseEntity.status(HttpStatus.CONFLICT).body(e.getMessage());
+	    }
+
+	    return ResponseEntity.ok("success");
+	}
 	
     // REST API追加：いいね数を取得するためのエンドポイント
     @ResponseBody
