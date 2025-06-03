@@ -9,6 +9,7 @@ import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Controller;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -19,6 +20,7 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.server.ResponseStatusException;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
+import com.yuru.archive.exception.UnauthorizedVoteException;
 import com.yuru.archive.question.Question;
 import com.yuru.archive.question.QuestionService;
 import com.yuru.archive.user.SiteUser;
@@ -113,54 +115,37 @@ public class AnswerController {
 		this.answerService.delete(answer);
 		return String.format("redirect:/question/detail/%s", answer.getQuestion().getId());
 	}
-	
-	// いいね機能追加
+
 	@PreAuthorize("isAuthenticated()")
 	@GetMapping("/vote/{id}")
 	@ResponseBody
 	public ResponseEntity<String> vote(@PathVariable("id") Integer id, Principal principal) {
 	    if (principal == null) {
 	        return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
-	        		.header("Content-Type", "text/plain; charset=UTF-8")
-	        		.body("ログインが必要です。");
+	            .header("Content-Type", "text/plain; charset=UTF-8")
+	            .body("ログインが必要です。");
 	    }
 
 	    SiteUser siteUser = this.userService.getUser(principal.getName());
 	    Answer answer = this.answerService.getAnswer(id);
 
-	    // 自分自身のコメントにはいいね不可
-	    if (answer.getAuthor().equals(siteUser)) {
-	        return ResponseEntity.status(HttpStatus.BAD_REQUEST)
-	        		.header("Content-Type", "text/plain; charset=UTF-8")
-	        		.body("自分のコメントにはいいねを押せないよ。");
-	    }
-
-	    if (answer.getVoter().contains(siteUser)) {
-	        return ResponseEntity.status(HttpStatus.CONFLICT)
-	        	.header("Content-Type", "text/plain; charset=UTF-8")
-	            .body("すでにおすすめしました。");
-	    }
-	    
-	    answer.getVoter().add(siteUser);
-	    answerRepository.save(answer);
-	    
-	    // いいね処理（重複チェック含む）は Service に移譲
 	    try {
-	        answerService.vote(answer, siteUser);  // ロジックの中で、重複検査を遂行
-	    } catch (IllegalStateException e) {
-	        return ResponseEntity.status(HttpStatus.CONFLICT).body(e.getMessage());
+	        return answerService.vote(answer, siteUser);  // すべては、Serviceから処理します。
+	    } catch (IllegalStateException | UnauthorizedVoteException e) {
+	        return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+	            .header("Content-Type", "text/plain; charset=UTF-8")
+	            .body(e.getMessage());
 	    }
-
-	    return ResponseEntity.ok("success");
 	}
 	
     // REST API追加：いいね数を取得するためのエンドポイント
     @ResponseBody
     @GetMapping("/voter-count/{id}")
     public Map<String, Integer> getVoterCount(@PathVariable("id") Integer id) {
-       // Answer answer = answerService.getAnswer(id);
         Answer answer = answerRepository.findById(id).orElseThrow();
-    	return Collections.singletonMap("count", answer.getVoter().size());
+        // Lazy強制 初期化
+        int count = answerRepository.getVoterCount(id);
+    	return Collections.singletonMap("count", count);
     }
 
 

@@ -1,5 +1,7 @@
 package com.yuru.archive.user;
 
+import java.util.Objects;
+
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
@@ -46,6 +48,20 @@ public class SiteUser {
     // 詳細住所情報
     @Column(length = 255)
     private String addressDetail;
+
+    @Override
+    public boolean equals(Object o) {
+    	if (this == o )
+    		return true;
+    	if(o == null || getClass() != o.getClass())
+    		return false;
+    	SiteUser siteUser = (SiteUser) o;
+    	return Objects.equals(id, siteUser.id);
+    }
     
+    @Override
+    public int hashCode() {
+        return Objects.hash(id);
+    }    
     
 }

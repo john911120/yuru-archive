@@ -130,9 +130,6 @@
 		        })
 		        .then(response => response.text().then(text => {
 		            if (!response.ok) {
-					console.error("🐞 サーバーエラー内容:", text);
-					setTimeout(() => alert("alert : " + text), 1000)
-					
 					alert("⚠️ エラー: " + text); 
 					throw new Error(text); // サーバーからのエラーメッセージをそのまま表示
 					}
@@ -140,6 +137,7 @@
 		        }))
 		        .then(result => {
 		            // 成功後、「おすすめ数」を再取得するリクエストを送信
+					alert("✅ おすすめしました！");
 		            return fetch(`/answer/voter-count/${answerId}`);
 		        })
 		        .then(res => res.json())

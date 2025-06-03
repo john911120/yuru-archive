@@ -11,6 +11,9 @@ public interface AnswerRepository extends JpaRepository<Answer, Integer> {
 	 * @EntityGraph(attributePaths = {"voter"}) Optional<Answer>
 	 * findWithVoterById(Integer id);
 	 */
+	
+	@Query("SELECT size(a.voter) FROM Answer a WHERE a.id = :id")
+	int getVoterCount(@Param("id") Integer id);
     
     @Query("SELECT a FROM Answer a LEFT JOIN FETCH a.voter WHERE a.id = :id")
     Optional<Answer> findWithVoterById(@Param("id") Integer id);
