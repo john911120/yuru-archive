@@ -12,10 +12,15 @@
 			<label for="content" class="form-label">コンテンツ</label>
 			<textarea th:field="*{content}" class="form-control" rows="10"></textarea>
 		</div>
-		<form action="/attach/upload" method="post" enctype="multipart/form-data">
-		    <input type="file" name="uploadFiles" multiple>
-		    <button type="submit">Upload</button>
-		</form>		
+		
+		<div class="mb-3">
+		  <label for="uploadFiles" class="form-label">ファイル選択</label>
+		  <div class="input-group">
+		    <input type="file" class="form-control" id="uploadFiles" name="uploadFiles" multiple style="max-width: 100%;">
+		    <button class="btn btn-primary" type="submit">Upload</button>
+		  </div>
+		</div>
+		
 		<input type="submit" value="セーフする" class="btn btn-primary my-2">
 	</form>
 </div>
