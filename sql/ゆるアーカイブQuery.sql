@@ -96,9 +96,8 @@ CREATE TABLE uploaded_file (
     id SERIAL PRIMARY KEY,                             -- 識別番号（自動増分）
     user_id INTEGER NOT NULL,                          -- ユーザーID（外部キー）
     file_name VARCHAR(255) NOT NULL,                   -- オリジナルファイル名
-    github_url TEXT NOT NULL,                          -- GitHub Pages の静的URL
     folder_path VARCHAR(100),                          -- イメージ分類フォルダー（例: uploads/2025/05/09）
-    created_at TIMESTAMP DEFAULT now(),                -- 登録日時
+    created_at TIMESTAMP DEFAULT now()                 -- 登録日時
 
     CONSTRAINT fk_uploaded_file_user
         FOREIGN KEY (user_id)

@@ -2,7 +2,7 @@
 ## 🗃️ データベース設計
 
 ### ER図（最新版）
-![ERD](../assets/ゆるアーカイブ修正4版_ERD.png)
+![ERD](../assets/ゆるアーカイブ修正5版_ERD.png)
 
 ### テーブル定義（SQL）
 📎 [ゆるアーカイブQuery.sql](https://raw.githubusercontent.com/john911120/yuru-archive/main/sql/ゆるアーカイブQuery.sql)
@@ -45,3 +45,7 @@ ERDおよび初期化SQLスクリプトを更新
 開発上の反省点
 最初にDB構造を確定せず開発を進めたことで、後から修正が必要になった
 今後は事前にテーブル定義を決めてからロジック実装へ入ることを徹底する
+
+
+## 20250604 Database Column 更新します。
+ uploaded_file テーブルにあるgithub_url コラムは使わないので、削除し、ERDを更新しました。
