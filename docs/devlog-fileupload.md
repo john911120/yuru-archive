@@ -87,6 +87,7 @@ CREATE TABLE uploaded_file (
 ```
 ### 250604 添付ファイル機能のロジックを一部変更しました。
 question_form.htmlの中で、添付ファイルを追加するロジックを追加しました。
+
 UploadedFile.javaの中で、
 
 	@Column(nullable = false)
@@ -95,6 +96,7 @@ UploadedFile.javaの中で、
 エンティティを削除しました。
 
 AttachServiceImpl.javaファイルの中のロジックを変更しました。
+
 	//添付ファイルをアップロードロジックを処理します。
 	@Override
 	public List<AttachFileDTO> uploadFiles(MultipartFile[] uploadFiles) {

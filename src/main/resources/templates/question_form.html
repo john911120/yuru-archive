@@ -12,6 +12,10 @@
 			<label for="content" class="form-label">コンテンツ</label>
 			<textarea th:field="*{content}" class="form-control" rows="10"></textarea>
 		</div>
+		<form action="/attach/upload" method="post" enctype="multipart/form-data">
+		    <input type="file" name="uploadFiles" multiple>
+		    <button type="submit">Upload</button>
+		</form>		
 		<input type="submit" value="セーフする" class="btn btn-primary my-2">
 	</form>
 </div>

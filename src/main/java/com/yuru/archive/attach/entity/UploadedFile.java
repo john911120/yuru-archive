@@ -26,10 +26,7 @@ public class UploadedFile {
 	
 	@Column(nullable = false)
 	private String fileName;
-	
-	@Column(nullable = false)
-	private String githubUrl;
-	
+		
 	private String folderPath;
 	
 	private LocalDateTime createdAt = LocalDateTime.now();

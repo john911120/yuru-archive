@@ -65,7 +65,6 @@ public class AttachServiceImpl implements AttachService {
                 UploadedFile entity = UploadedFile.builder()
                 		.userId(1L) //実際に構築する場合は、ローグインしたユーザIDを使用します。
                 		.fileName(fileName)
-                		.githubUrl(generateGitHubUrl(folderPath, uuid, fileName))
                 		.folderPath(folderPath)
                 		.build();
                 attachFileRepository.save(entity);
@@ -76,15 +75,6 @@ public class AttachServiceImpl implements AttachService {
 		}
 		return resultDTOList;
 	}
-
-    private String generateGitHubUrl(String folderPath, String uuid, String fileName) {
-        try {
-            return "https://john911120.github.io/yuru-archive/assets/uploads/" +
-                    URLEncoder.encode(folderPath + "/" + uuid + "_" + fileName, "UTF-8");
-        } catch (Exception e) {
-            return "";
-        }
-    }
 
 	//添付したファイルを削除するロジックを実行します。
 	@Override
