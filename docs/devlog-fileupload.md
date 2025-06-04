@@ -85,88 +85,64 @@ CREATE TABLE uploaded_file (
     created_at TIMESTAMP DEFAULT now()
 );
 ```
-### 250604 添付ファイル機能のロジックを一部変更しました。
-question_form.htmlの中で、添付ファイルを追加するロジックを追加しました。
 
-UploadedFile.javaの中で、
+### 🛠️ 2025/06/04 添付ファイル機能の一部ロジックを変更しました
 
-	@Column(nullable = false)
-	private String githubUrl;
+📁 `question_form.html` に添付ファイルアップロードフォームを追加
 
-エンティティを削除しました。
+```html
+<!-- 添付ファイル機能を追加 -->
+<div class="mb-3">
+  <label for="uploadFiles" class="form-label">ファイル選択</label>
+  <div class="input-group">
+    <input type="file" class="form-control" id="uploadFiles" name="uploadFiles" multiple style="max-width: 100%;">
+    <button class="btn btn-primary" type="submit">Upload</button>
+  </div>
+</div>
 
-AttachServiceImpl.javaファイルの中のロジックを変更しました。
+🧼 UploadedFile.java 内の不要なフィールドを削除
+// 削除されたフィールド
+@Column(nullable = false)
+private String githubUrl;
 
-	//添付ファイルをアップロードロジックを処理します。
-	@Override
-	public List<AttachFileDTO> uploadFiles(MultipartFile[] uploadFiles) {
-		List<AttachFileDTO> resultDTOList = new ArrayList<>();
-		
-		for(MultipartFile uploadFile : uploadFiles) {
-			if (!uploadFile.getContentType().startsWith("image")) {
-				log.warn("イメージファイルではありません。");
-				continue;
-			}
-			
-			String originalName = uploadFile.getOriginalFilename();
-			String fileName = originalName.substring(originalName.lastIndexOf("\\")+1);
-			String folderPath = makeFolder();
-			String uuid = UUID.randomUUID().toString();
-			String saveName = uploadPath + File.separator + folderPath + File.separator + uuid + "_" + fileName;
-			Path savePath = Paths.get(saveName);
-			
-			try {
-				uploadFile.transferTo(savePath);
-				// サムネールを作る。
-                String thumbnailSaveName = uploadPath + File.separator + folderPath + File.separator +
-                        "s_" + uuid + "_" + fileName;
-                Thumbnailator.createThumbnail(savePath.toFile(), new File(thumbnailSaveName), 100, 100);
-                
-                // 結果DTOを作る。
-                AttachFileDTO dto = new AttachFileDTO(fileName, uuid, folderPath);
-                resultDTOList.add(new AttachFileDTO(fileName, uuid, folderPath));
-                
-                //DBにセーフする
-                UploadedFile entity = UploadedFile.builder()
-                		.userId(1L) //実際に構築する場合は、ローグインしたユーザIDを使用します。
-                		.fileName(fileName)
-                		.githubUrl(generateGitHubUrl(folderPath, uuid, fileName))　<- このロジックを削除しました。
-                		.folderPath(folderPath)
-                		.build();
-                attachFileRepository.save(entity);
-                
-			} catch (IOException e) {
-				log.error("File Upload Failed" + e);
-			} 
-		}
-		return resultDTOList;
-	}
-private generatedGitHubUrl()クラスを削除しました。
- - 不要になったコードや個人情報の問題のあるので、削除しました。
- 
-## 添付ファイル昨日を追加 250604
 
-question_form.htmlに機能を追加
-		<!-- 添付ファイル機能を追加 -->
-		<div class="mb-3">
-		  <label for="uploadFiles" class="form-label">ファイル選択</label>
-		  <div class="input-group">
-		    <input type="file" class="form-control" id="uploadFiles" name="uploadFiles" multiple style="max-width: 100%;">
-		    <button class="btn btn-primary" type="submit">Upload</button>
-		  </div>
-		</div>
-		
-question_detail.htmlに添付ファイルが見えるようにしました。
-	 <div th:if="${uploadedFiles != null and !uploadedFiles.isEmpty()}">
-	   <p>添付ファイル一覧:</p>
-	   <ul>
-	     <li th:each="file : ${uploadedFiles}">
-	       <a th:href="@{/attach/download/{id}(id=${file.id})}" th:text="${file.fileName}">添付ファイル</a>
-	     </li>
-	   </ul>
-	 </div>
-	 <div th:if="${uploadedFiles == null or uploadedFiles.isEmpty()}">
-	   <p>添付ファイルはありません。</p>
-	 </div>
+🔄 AttachServiceImpl.java のロジックを修正
+generateGitHubUrl() メソッドを削除（個人情報を含むため）
 
-		
+.githubUrl(...) のビルダー設定行も削除
+
+残った処理は以下のように整理されています：
+UploadedFile entity = UploadedFile.builder()
+    .userId(1L) // 実際にはログイン中のユーザーIDを使用予定
+    .fileName(fileName)
+    .folderPath(folderPath)
+    .build();
+attachFileRepository.save(entity);
+
+📥 question_detail.html に添付ファイル表示機能を追加
+<div th:if="${uploadedFiles != null and !uploadedFiles.isEmpty()}">
+  <p>添付ファイル一覧:</p>
+  <ul>
+    <li th:each="file : ${uploadedFiles}">
+      <a th:href="@{/attach/download/{id}(id=${file.id})}" th:text="${file.fileName}">添付ファイル</a>
+    </li>
+  </ul>
+</div>
+<div th:if="${uploadedFiles == null or uploadedFiles.isEmpty()}">
+  <p>添付ファイルはありません。</p>
+</div>
+
+
+🧩 機能追加に伴うその他の変更
+AttachFileRepository に findByQuestionId(Long id)を追加
+
+QuestionController に詳細ページ (questionDetail) を追加し、添付ファイル一覧を連携
+
+今後ログインユーザーと連動して userIdを処理する予定
+
+✅ 備考
+今後は以下の点を順次対応予定：
+ファイルの削除機能
+アップロード容量制限
+拡張子フィルタリング
+編集画面での再添付ロジック

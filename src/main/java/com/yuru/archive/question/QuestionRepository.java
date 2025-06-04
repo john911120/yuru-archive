@@ -1,6 +1,7 @@
 package com.yuru.archive.question;
 
 import java.util.List;
+import java.util.Optional;
 
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -34,4 +35,6 @@ public interface QuestionRepository extends JpaRepository<Question, Integer> {
 			or a.content like %:kw% 
 			or u2.username like %:kw%)""")
     Page<Question> findAllByKeyword(@Param("kw") String kw, Pageable pageable);
+
+	Optional<Question> findById(Long id);
 }

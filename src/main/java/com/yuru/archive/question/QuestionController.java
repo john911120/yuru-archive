@@ -1,6 +1,7 @@
 package com.yuru.archive.question;
 
 import java.security.Principal;
+import java.util.List;
 
 import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
@@ -16,6 +17,8 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.server.ResponseStatusException;
 
 import com.yuru.archive.answer.AnswerForm;
+import com.yuru.archive.attach.entity.UploadedFile;
+import com.yuru.archive.attach.repository.AttachFileRepository;
 import com.yuru.archive.user.SiteUser;
 import com.yuru.archive.user.UserService;
 
@@ -29,6 +32,7 @@ import lombok.extern.slf4j.Slf4j;
 @Controller
 public class QuestionController {
 
+	private final AttachFileRepository attachFileRepository;
 	private final QuestionService questionService;
 	private final UserService userService;
 		
@@ -104,5 +108,15 @@ public class QuestionController {
 		return "redirect:/";
 	}
 	// 投票用エンドポイントは不要のため削除済み
+	
+	// 添付ファイル詳細ページロジック
+	@GetMapping("/question/detail/{id}")
+	public String questionDetail(@PathVariable Long id, Model model) {
+		List<UploadedFile> uploadedFiles = attachFileRepository.findByQuestionId(id);
+		model.addAttribute("uploadedFiles", uploadedFiles);
+		return "question_detail";
+	}
 
+	
+	
 }

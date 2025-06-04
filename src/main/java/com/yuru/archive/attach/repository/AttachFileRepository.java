@@ -16,4 +16,6 @@ public interface AttachFileRepository extends JpaRepository<UploadedFile, Long> 
 	
 	// 特定の質問の掲示記事に属するファイルを全部削除するときのロジックです。
 	void deleteByQuestion_Id(Long questionId);
+
+	List<UploadedFile> findByQuestionId(Long questionId);
 }
