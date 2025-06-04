@@ -143,3 +143,30 @@ AttachServiceImpl.javaファイルの中のロジックを変更しました。
 	}
 private generatedGitHubUrl()クラスを削除しました。
  - 不要になったコードや個人情報の問題のあるので、削除しました。
+ 
+## 添付ファイル昨日を追加 250604
+
+question_form.htmlに機能を追加
+		<!-- 添付ファイル機能を追加 -->
+		<div class="mb-3">
+		  <label for="uploadFiles" class="form-label">ファイル選択</label>
+		  <div class="input-group">
+		    <input type="file" class="form-control" id="uploadFiles" name="uploadFiles" multiple style="max-width: 100%;">
+		    <button class="btn btn-primary" type="submit">Upload</button>
+		  </div>
+		</div>
+		
+question_detail.htmlに添付ファイルが見えるようにしました。
+	 <div th:if="${uploadedFiles != null and !uploadedFiles.isEmpty()}">
+	   <p>添付ファイル一覧:</p>
+	   <ul>
+	     <li th:each="file : ${uploadedFiles}">
+	       <a th:href="@{/attach/download/{id}(id=${file.id})}" th:text="${file.fileName}">添付ファイル</a>
+	     </li>
+	   </ul>
+	 </div>
+	 <div th:if="${uploadedFiles == null or uploadedFiles.isEmpty()}">
+	   <p>添付ファイルはありません。</p>
+	 </div>
+
+		
