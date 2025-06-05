@@ -3,6 +3,7 @@ package com.yuru.archive.attach.service;
 import com.yuru.archive.attach.dto.AttachFileDTO;
 import com.yuru.archive.attach.entity.UploadedFile;
 import com.yuru.archive.attach.repository.AttachFileRepository;
+import com.yuru.archive.question.Question;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -34,7 +35,7 @@ public class AttachServiceImpl implements AttachService {
 
 	//添付ファイルをアップロードロジックを処理します。
 	@Override
-	public List<AttachFileDTO> uploadFiles(MultipartFile[] uploadFiles) {
+	public List<AttachFileDTO> uploadFiles(MultipartFile[] uploadFiles, Question question) {
 		List<AttachFileDTO> resultDTOList = new ArrayList<>();
 		
 		for(MultipartFile uploadFile : uploadFiles) {
@@ -66,6 +67,7 @@ public class AttachServiceImpl implements AttachService {
                 		.userId(1L) //実際に構築する場合は、ローグインしたユーザIDを使用します。
                 		.fileName(fileName)
                 		.folderPath(folderPath)
+                		.question(question)
                 		.build();
                 attachFileRepository.save(entity);
                 
@@ -112,6 +114,9 @@ public class AttachServiceImpl implements AttachService {
         }
         return folderPath;
     }
-
-	
+    
+    // added helper method
+    public List<AttachFileDTO> uploadFiles(MultipartFile[] uploadFiles) {
+        return uploadFiles(uploadFiles, null);
+    }
 }

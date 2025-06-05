@@ -32,7 +32,7 @@ public class AttachController {
 
     @PostMapping("/upload")
     public ResponseEntity<List<AttachFileDTO>> uploadFile(@RequestParam("uploadFiles") MultipartFile[] uploadFiles) {
-        List<AttachFileDTO> result = attachService.uploadFiles(uploadFiles);
+        List<AttachFileDTO> result = attachService.uploadFiles(uploadFiles, null);
         return new ResponseEntity<>(result, HttpStatus.OK);
     }
 

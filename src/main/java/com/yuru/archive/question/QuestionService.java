@@ -62,7 +62,7 @@ public class QuestionService {
 		return this.questionRepository.findAllByKeyword(kw, pageable);
 	}
 
-	public Question getQuestion(Integer id) {
+	public Question getQuestion(Long id) {
 		Optional<Question> question = this.questionRepository.findById(id);
 		if (question.isPresent()) {
 			return question.get();
@@ -71,13 +71,13 @@ public class QuestionService {
 		}
 	}
 
-	public void create(String subject, String content, SiteUser user) {
+	public Question create(String subject, String content, SiteUser user) {
 		Question q = new Question();
 		q.setSubject(subject);
 		q.setContent(content);
 		q.setCreateDate(LocalDateTime.now());
 		q.setAuthor(user);
-		this.questionRepository.save(q);
+		return questionRepository.save(q);
 	}
 
 	public void modify(Question question, String subject, String content) {

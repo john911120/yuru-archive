@@ -60,7 +60,7 @@ public class AnswerController {
 	
 	@PreAuthorize("isAuthenticated()")
 	@PostMapping("/create/{id}")
-	public String createAnswer(Model model, @PathVariable("id") Integer id, @Valid AnswerForm answerForm,
+	public String createAnswer(Model model, @PathVariable("id") Long id, @Valid AnswerForm answerForm,
 			BindingResult bindingResult, Principal principal) {
 		Question question = this.questionService.getQuestion(id);
 		SiteUser siteUser = this.userService.getUser(principal.getName());

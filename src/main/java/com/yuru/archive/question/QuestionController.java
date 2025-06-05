@@ -14,11 +14,13 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.server.ResponseStatusException;
 
 import com.yuru.archive.answer.AnswerForm;
 import com.yuru.archive.attach.entity.UploadedFile;
 import com.yuru.archive.attach.repository.AttachFileRepository;
+import com.yuru.archive.attach.service.AttachService;
 import com.yuru.archive.user.SiteUser;
 import com.yuru.archive.user.UserService;
 
@@ -33,6 +35,7 @@ import lombok.extern.slf4j.Slf4j;
 public class QuestionController {
 
 	private final AttachFileRepository attachFileRepository;
+	private final AttachService attachService;
 	private final QuestionService questionService;
 	private final UserService userService;
 		
@@ -47,9 +50,12 @@ public class QuestionController {
 	}
 
 	@GetMapping(value = "/detail/{id}")
-	public String detail(Model model, @PathVariable("id") Integer id, AnswerForm answerForm) {
+	public String detail(Model model, @PathVariable("id") Long id, AnswerForm answerForm) {
 		Question question = this.questionService.getQuestion(id);
+		List<UploadedFile> uploadedFiles = this.attachFileRepository.findByQuestionId(id);
+		
 		model.addAttribute("question", question);
+		model.addAttribute("uploadedFiles", uploadedFiles);
 		return "question_detail";
 	}
 
@@ -61,18 +67,33 @@ public class QuestionController {
 
 	@PreAuthorize("isAuthenticated()")
 	@PostMapping("/create")
-	public String questionCreate(@Valid QuestionForm questionForm, BindingResult bindingResult, Principal principal) {
+	public String questionCreate(
+			@Valid QuestionForm questionForm, BindingResult bindingResult, Principal principal,
+			@RequestParam(value = "uploadFiles", required = false) MultipartFile[] uploadFiles) {
 		if (bindingResult.hasErrors()) {
 			return "question_form";
 		}
 		SiteUser siteUser = this.userService.getUser(principal.getName());
+		
+		// 質問をセーフした後、リターンされたQuestionをもらう。
+	    Question savedQuestion = this.questionService.create(
+	            questionForm.getSubject(),
+	            questionForm.getContent(),
+	            siteUser
+	    );
+		
+	    // ファイルが存在すれば、添付ファイルもセーフ
+	    if (uploadFiles != null && uploadFiles.length > 0) {
+	        attachService.uploadFiles(uploadFiles, savedQuestion);
+	    }
+	    
 		this.questionService.create(questionForm.getSubject(), questionForm.getContent(), siteUser);
 		return "redirect:/question/list";
 	}
 
 	@PreAuthorize("isAuthenticated()")
 	@GetMapping("/modify/{id}")
-	public String questionModify(QuestionForm questionForm, @PathVariable("id") Integer id, Principal principal) {
+	public String questionModify(QuestionForm questionForm, @PathVariable("id") Long id, Principal principal) {
 		Question question = this.questionService.getQuestion(id);
 		if (!question.getAuthor().getUsername().equals(principal.getName())) {
 			throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "修正権限がありません。");
@@ -85,7 +106,7 @@ public class QuestionController {
 	@PreAuthorize("isAuthenticated()")
 	@PostMapping("/modify/{id}")
 	public String questionModify(@Valid QuestionForm questionForm, BindingResult bindingResult, Principal principal,
-			@PathVariable("id") Integer id) {
+			@PathVariable("id") Long id) {
 		if (bindingResult.hasErrors()) {
 			return "question_form";
 		}
@@ -99,7 +120,7 @@ public class QuestionController {
 
 	@PreAuthorize("isAuthenticated()")
 	@GetMapping("/delete/{id}")
-	public String questionDelete(Principal principal, @PathVariable("id") Integer id) {
+	public String questionDelete(Principal principal, @PathVariable("id") Long id) {
 		Question question = this.questionService.getQuestion(id);
 		if (!question.getAuthor().getUsername().equals(principal.getName())) {
 			throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "削除権限がありません。");
@@ -109,13 +130,7 @@ public class QuestionController {
 	}
 	// 投票用エンドポイントは不要のため削除済み
 	
-	// 添付ファイル詳細ページロジック
-	@GetMapping("/question/detail/{id}")
-	public String questionDetail(@PathVariable Long id, Model model) {
-		List<UploadedFile> uploadedFiles = attachFileRepository.findByQuestionId(id);
-		model.addAttribute("uploadedFiles", uploadedFiles);
-		return "question_detail";
-	}
+
 
 	
 	
