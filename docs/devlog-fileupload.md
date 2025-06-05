@@ -99,7 +99,7 @@ CREATE TABLE uploaded_file (
     <button class="btn btn-primary" type="submit">Upload</button>
   </div>
 </div>
-
+```
 🧼 UploadedFile.java 内の不要なフィールドを削除
 // 削除されたフィールド
 @Column(nullable = false)
@@ -146,3 +146,36 @@ QuestionController に詳細ページ (questionDetail) を追加し、添付フ�
 アップロード容量制限
 拡張子フィルタリング
 編集画面での再添付ロジック
+
+
+✅ 添付ファイル機能の連携実装(250605)
+📌 概要
+質問投稿と連携する形で、画像ファイルの添付および保存処理を実装しました。
+詳細ページでは関連するファイル一覧を取得し、表示できるようになっています。
+
+🔧 主な修正点
+- AttachService：
+ uploadFiles(MultipartFile[], Question) メソッド追加（オーバーロード対応）
+
+- AttachServiceImpl：
+ 添付ファイルと質問の連携保存ロジックを追加
+
+- AttachFileRepository：
+ findByQuestionId(Long) メソッド定義でクエリ対応
+
+- QuestionController：
+ 
+  /question/detail/{id} にて添付ファイルの取得ロジックを追加
+ 
+  @PathVariable("id") の型を Long で統一
+
+- Question エンティティ：
+ @Builder, @AllArgsConstructor を追加してテストコードに対応
+
+🧪 テスト
+AttachServiceTest.java にて uploadFiles メソッドの単体テストを作成・検証済み。
+
+💡 備考
+Question の ID 型を Integer → Long に統一。
+
+実際の運用時は userId のハードコーディングを外し、認証ユーザーの ID を連携予定。
