@@ -23,7 +23,9 @@ import jakarta.persistence.criteria.JoinType;
 import jakarta.persistence.criteria.Predicate;
 import jakarta.persistence.criteria.Root;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 
+@Slf4j
 @RequiredArgsConstructor
 @Service
 public class QuestionService {
@@ -77,7 +79,11 @@ public class QuestionService {
 		q.setContent(content);
 		q.setCreateDate(LocalDateTime.now());
 		q.setAuthor(user);
-		return questionRepository.save(q);
+		
+		Question saved = questionRepository.save(q);
+		
+		log.info("[Questionservice] save : id={}, subject={}, user={}",saved.getId(), subject, user.getUsername());
+		return saved;
 	}
 
 	public void modify(Question question, String subject, String content) {

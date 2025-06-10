@@ -70,7 +70,7 @@ public class AttachServiceImpl implements AttachService {
                 		.question(question)
                 		.build();
                 attachFileRepository.save(entity);
-                
+                log.info("[attachService] file upload : fileName={}, questionId={}", fileName, question.getId());
 			} catch (IOException e) {
 				log.error("File Upload Failed" + e);
 			} 

@@ -30,3 +30,22 @@
 	//	this.questionService.create(questionForm.getSubject(), questionForm.getContent(), siteUser); <- こっちのコードを削除しました。
 		return "redirect:/question/list";
 	}
+	
+## 📌 マルチパートファイルアップロードの問題調査ログ（2025-06-04）
+
+| チェック項目 | 結果 | 備考 |
+|--------------|------|------|
+| `application.properties` で `spring.servlet.multipart.enabled=true` 設定 | ✅ 済 |
+| HTML `<form>` に `enctype="multipart/form-data"` 指定 | ✅ 済 |
+| `@RequestParam MultipartFile[]` コントローラ受信定義 | ✅ 済 |
+| `StandardServletMultipartResolver` の `@Bean` 登録 | ✅ 済 |
+| `HttpServletRequest instanceof MultipartHttpServletRequest` ログ出力 | ❌ 出力されず |
+| Spring Security フィルタチェーンでのブロック | ⭕ 問題なし |
+
+**⚠️ MultipartResolver は正しく登録されていても DispatcherServlet に紐づかず、`uploadFiles == null` になる現象が続いている。**
+
+次のフェーズでは、最低限構成での再現と `DispatcherServlet` の初期化戦略の見直しを実施予定。
+
+[仕様上の制限]
+現在、MultipartResolverがDispatcherServletに正しく紐づかない原因により、ファイルアップロードが正常に処理されない問題が発生しています。
+再現性のある最小構成でのテストおよびServlet初期化順の調査を次のタスクとします。

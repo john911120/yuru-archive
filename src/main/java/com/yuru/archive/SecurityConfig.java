@@ -31,7 +31,10 @@ public class SecurityConfig {
 		http.authorizeHttpRequests((authorizeHttpRequests) -> authorizeHttpRequests
 				.requestMatchers("/answer/vote/**").authenticated()
 			    .requestMatchers(new AntPathRequestMatcher("/**")).permitAll())
-				.csrf((csrf) -> csrf.ignoringRequestMatchers(new AntPathRequestMatcher("/h2-console/**")))
+				.csrf((csrf) -> csrf.ignoringRequestMatchers(
+						new AntPathRequestMatcher("/h2-console/**"),
+						new AntPathRequestMatcher("/answer/create/**"),
+						new AntPathRequestMatcher("/answer/debu-upload")))
 				.headers((headers) -> headers.addHeaderWriter(
 						new XFrameOptionsHeaderWriter(XFrameOptionsHeaderWriter.XFrameOptionsMode.SAMEORIGIN)))
 				.formLogin((formLogin) -> formLogin.loginPage("/user/login").defaultSuccessUrl("/"))
