@@ -87,7 +87,6 @@ public class QuestionController {
 	        attachService.uploadFiles(uploadFiles, savedQuestion);
 	    }
 	    
-		this.questionService.create(questionForm.getSubject(), questionForm.getContent(), siteUser);
 		return "redirect:/question/list";
 	}
 
