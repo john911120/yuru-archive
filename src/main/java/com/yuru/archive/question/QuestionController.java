@@ -1,7 +1,14 @@
 package com.yuru.archive.question;
 
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.security.Principal;
+import java.time.LocalDate;
+import java.util.ArrayList;
 import java.util.List;
+import java.util.UUID;
 
 import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
@@ -18,6 +25,7 @@ import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.server.ResponseStatusException;
 
 import com.yuru.archive.answer.AnswerForm;
+import com.yuru.archive.attach.dto.AttachFileDTO;
 import com.yuru.archive.attach.entity.UploadedFile;
 import com.yuru.archive.attach.repository.AttachFileRepository;
 import com.yuru.archive.attach.service.AttachService;
@@ -74,19 +82,48 @@ public class QuestionController {
 			return "question_form";
 		}
 		SiteUser siteUser = this.userService.getUser(principal.getName());
+	
+		// ファイルセーフ処理ロジック
+		List<AttachFileDTO> attachFileList = new ArrayList<>();
+		for(MultipartFile file : uploadFiles) {
+			if(!file.isEmpty()) {
+				try {
+					String originalFileName = file.getOriginalFilename();
+					String uuid = UUID.randomUUID().toString();
+					String folderPath = LocalDate.now().toString();
+					Path uploadPath = Paths.get("C:/upload",folderPath);
+					Files.createDirectories(uploadPath);
+					
+					Path savePath = uploadPath.resolve(uuid + "_" + originalFileName);
+					file.transferTo(savePath.toFile());
+					
+					AttachFileDTO attach = new AttachFileDTO(folderPath, folderPath, folderPath);
+					attach.setFileName(originalFileName);
+					attach.setUuid(uuid);
+					attach.setFolderPath(folderPath);
+					// 必要の時に質問と連結します。
+					// attach.setQuestion(question);
+					
+					attachFileList.add(attach);
+				} catch (IOException e) {
+					e.printStackTrace();
+				}
+			}
+		}
 		
 		// 質問をセーフした後、リターンされたQuestionをもらう。
-	    Question savedQuestion = this.questionService.create(
-	            questionForm.getSubject(),
-	            questionForm.getContent(),
-	            siteUser
-	    );
+		Question savedQuestion = this.questionService.create(
+				questionForm.getSubject(),
+				questionForm.getContent(),
+				siteUser, attachFileList
+				);
 		
-	    // ファイルが存在すれば、添付ファイルもセーフ
-	    if (uploadFiles != null && uploadFiles.length > 0) {
-	        attachService.uploadFiles(uploadFiles, savedQuestion);
-	    }
-	    
+		
+		// ファイルが存在すれば、添付ファイルもセーフ
+		if (uploadFiles != null && uploadFiles.length > 0) {
+			attachService.uploadFiles(uploadFiles, savedQuestion);
+		}
+		
 		return "redirect:/question/list";
 	}
 

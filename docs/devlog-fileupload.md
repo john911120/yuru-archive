@@ -179,3 +179,7 @@ AttachServiceTest.java にて uploadFiles メソッドの単体テストを作�
 Question の ID 型を Integer → Long に統一。
 
 実際の運用時は userId のハードコーディングを外し、認証ユーザーの ID を連携予定。
+
+### 20250612 添付ファイル機能を修正作業
+ - 細かく分析した後、QuestionControllerの方にロジックに関連コートがないことを判断し、
+ 　ロジックを作成中。
