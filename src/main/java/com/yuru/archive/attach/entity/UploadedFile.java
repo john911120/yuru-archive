@@ -26,6 +26,8 @@ public class UploadedFile {
 	
 	@Column(nullable = false)
 	private String fileName;
+	
+	private String uuid;
 		
 	private String folderPath;
 	

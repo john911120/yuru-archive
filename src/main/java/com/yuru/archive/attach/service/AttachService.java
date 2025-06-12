@@ -13,5 +13,8 @@ public interface AttachService {
 	// uploadPathを照会できるように追加しました。
 	String getUploadPath();
 	List<AttachFileDTO> uploadFiles(MultipartFile[] uploadFiles, Question question);
+	
+	// 添付ファイルを処理するためのメソッドを作成しました。
+	void uploadFilesFromDTOs(List<AttachFileDTO> attachFileList, Question saved);
 
 }

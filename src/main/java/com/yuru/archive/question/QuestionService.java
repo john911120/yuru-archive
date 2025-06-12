@@ -14,6 +14,8 @@ import org.springframework.stereotype.Service;
 
 import com.yuru.archive.DataNotFoundException;
 import com.yuru.archive.answer.Answer;
+import com.yuru.archive.attach.dto.AttachFileDTO;
+import com.yuru.archive.attach.service.AttachService;
 import com.yuru.archive.user.SiteUser;
 
 import jakarta.persistence.criteria.CriteriaBuilder;
@@ -31,7 +33,8 @@ import lombok.extern.slf4j.Slf4j;
 public class QuestionService {
 
 	private final QuestionRepository questionRepository;
-
+	private final AttachService attachService;
+	
 	@SuppressWarnings("unused")
 	private Specification<Question> search(String kw) {
 		return new Specification<>() {
@@ -86,6 +89,18 @@ public class QuestionService {
 		return saved;
 	}
 
+	public Question create(String subject, String content, SiteUser user, List<AttachFileDTO> attachFileList) {
+
+		Question saved = this.create(subject, content, user);
+		
+		// attachFileListを処理
+		if(attachFileList != null && !attachFileList.isEmpty()) {
+			attachService.uploadFilesFromDTOs(attachFileList, saved);
+		}
+		
+		return saved;
+	}
+	
 	public void modify(Question question, String subject, String content) {
 		question.setSubject(subject);
 		question.setContent(content);
@@ -96,6 +111,8 @@ public class QuestionService {
 	public void delete(Question question) {
 		this.questionRepository.delete(question);
 	}
+
+
 
 	// 不使用の投票メソッド（vote）を削除しました
 }

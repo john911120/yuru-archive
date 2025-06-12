@@ -1,5 +1,19 @@
 package com.yuru.archive.attach.service;
 
+import java.io.File;
+import java.io.IOException;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.UUID;
+
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
+
 import com.yuru.archive.attach.dto.AttachFileDTO;
 import com.yuru.archive.attach.entity.UploadedFile;
 import com.yuru.archive.attach.repository.AttachFileRepository;
@@ -8,20 +22,6 @@ import com.yuru.archive.question.Question;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import net.coobird.thumbnailator.Thumbnailator;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.stereotype.Service;
-import org.springframework.web.multipart.MultipartFile;
-
-import java.io.File;
-import java.io.IOException;
-import java.net.URLEncoder;
-import java.nio.file.Path;
-import java.nio.file.Paths;
-import java.time.LocalDate;
-import java.time.format.DateTimeFormatter;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.UUID;
 
 @Service
 @RequiredArgsConstructor
@@ -119,4 +119,17 @@ public class AttachServiceImpl implements AttachService {
     public List<AttachFileDTO> uploadFiles(MultipartFile[] uploadFiles) {
         return uploadFiles(uploadFiles, null);
     }
+
+    // 添付ファイルを追加するメソッドを作成
+	@Override
+	public void uploadFilesFromDTOs(List<AttachFileDTO> fileDTOs, Question question) {
+		for(AttachFileDTO dto : fileDTOs) {
+			UploadedFile entity = new UploadedFile();
+			entity.setFileName(dto.getFileName());
+			entity.setFolderPath(dto.getFolderPath());
+			entity.setUuid(dto.getUuid());
+			entity.setQuestion(question);
+			attachFileRepository.save(entity);
+		}
+	}
 }
