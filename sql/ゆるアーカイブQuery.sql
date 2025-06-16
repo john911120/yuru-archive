@@ -167,3 +167,6 @@ ALTER TABLE answers ALTER COLUMN user_id TYPE BIGINT;
 ALTER TABLE answers
 ADD CONSTRAINT answers_user_id_fkey
 FOREIGN KEY (user_id) REFERENCES site_user(id);
+
+-- 20250616 uuid コラム追加しました。
+ALTER TABLE uploaded_file ADD COLUMN uuid VARCHAR(255);

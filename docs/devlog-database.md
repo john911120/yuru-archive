@@ -49,3 +49,7 @@ ERDおよび初期化SQLスクリプトを更新
 
 ## 20250604 Database Column 更新します。
  uploaded_file テーブルにあるgithub_url コラムは使わないので、削除し、ERDを更新しました。
+ 
+## 20250616 Database Column 更新しました。
+    alter table if exists uploaded_file 
+       add column uuid varchar(255)；
