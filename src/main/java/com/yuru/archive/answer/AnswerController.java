@@ -113,9 +113,9 @@ public class AnswerController {
 		    
 		    // 📂  attached file upload check and log check
 		    if (uploadFiles != null && uploadFiles.length > 0 && !uploadFiles[0].isEmpty()) {
-	
+		        log.info("📂 添付ファイルあり → Serviceに送信します");
 		        // 📎 attach file Service called 
-		        attachService.uploadFiles(uploadFiles, question); 
+		        attachService.uploadFiles(uploadFiles, question, siteUser); 
 		    }
 		    
 		    if (bindingResult.hasErrors()) {
@@ -124,12 +124,7 @@ public class AnswerController {
 		    }
 	
 		    Answer answer = this.answerService.create(question, answerForm.getContent(), siteUser);
-	
-		    // ⬇ 添付ファイルをセーフする
-		    if (uploadFiles != null && uploadFiles.length > 0 && !uploadFiles[0].isEmpty()) {
-		        attachService.uploadFiles(uploadFiles, question); 
-		    }
-	
+
 		    return String.format("redirect:/question/detail/%s#answer_%s",
 		        question.getId(), answer.getId());
 		}

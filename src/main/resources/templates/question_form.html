@@ -1,7 +1,7 @@
 <html layout:decorate="~{layout}">
 <div layout:fragment="content" class="container">
 	<h5 class="my-3 border-bottom pb-2">質問登録</h5>
-	<form th:object="${questionForm}" method="post">
+	<form th:object="${questionForm}" th:action="@{/question/create}"  method="post" enctype="multipart/form-data">
 		<input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}" />
 		<div th:replace="~{form_errors :: formErrorsFragment}"></div>
 		<div class="mb-3">
@@ -15,10 +15,8 @@
 		<!-- 添付ファイル機能を追加 -->
 		<div class="mb-3">
 		  <label for="uploadFiles" class="form-label">ファイル選択</label>
-		  <div class="input-group">
 		    <input type="file" class="form-control" id="uploadFiles" name="uploadFiles" multiple style="max-width: 100%;">
-		    <button class="btn btn-primary" type="submit">Upload</button>
-		  </div>
+<!--		    <button class="btn btn-primary" type="submit">Upload</button>-->
 		</div>
 		
 		<input type="submit" value="セーフする" class="btn btn-primary my-2">

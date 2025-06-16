@@ -4,6 +4,7 @@ import java.io.File;
 import java.io.IOException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.nio.file.attribute.UserDefinedFileAttributeView;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
@@ -18,6 +19,7 @@ import com.yuru.archive.attach.dto.AttachFileDTO;
 import com.yuru.archive.attach.entity.UploadedFile;
 import com.yuru.archive.attach.repository.AttachFileRepository;
 import com.yuru.archive.question.Question;
+import com.yuru.archive.user.SiteUser;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -35,7 +37,7 @@ public class AttachServiceImpl implements AttachService {
 
 	//添付ファイルをアップロードロジックを処理します。
 	@Override
-	public List<AttachFileDTO> uploadFiles(MultipartFile[] uploadFiles, Question question) {
+	public List<AttachFileDTO> uploadFiles(MultipartFile[] uploadFiles, Question question, SiteUser user) {
 		List<AttachFileDTO> resultDTOList = new ArrayList<>();
 		
 		for(MultipartFile uploadFile : uploadFiles) {
@@ -50,7 +52,7 @@ public class AttachServiceImpl implements AttachService {
 			String uuid = UUID.randomUUID().toString();
 			String saveName = uploadPath + File.separator + folderPath + File.separator + uuid + "_" + fileName;
 			Path savePath = Paths.get(saveName);
-			
+						
 			try {
 				uploadFile.transferTo(savePath);
 				// サムネールを作る。
@@ -62,14 +64,21 @@ public class AttachServiceImpl implements AttachService {
                 AttachFileDTO dto = new AttachFileDTO(fileName, uuid, folderPath);
                 resultDTOList.add(new AttachFileDTO(fileName, uuid, folderPath));
                 
+                if (user == null) {
+                	log.warn("❌ user is null!! DB登録をスキップします。");
+                } else {
+                    log.info("✅ user.getId() = {}", user.getId());
+                }
+                
                 //DBにセーフする
                 UploadedFile entity = UploadedFile.builder()
-                		.userId(1L) //実際に構築する場合は、ローグインしたユーザIDを使用します。
+                		.userId(user.getId()) //実際に構築する場合は、ローグインしたユーザIDを使用します。
                 		.fileName(fileName)
                 		.folderPath(folderPath)
                 		.question(question)
                 		.build();
                 attachFileRepository.save(entity);
+                                
                 log.info("[attachService] file upload : fileName={}, questionId={}", fileName, question.getId());
 			} catch (IOException e) {
 				log.error("File Upload Failed" + e);
@@ -115,11 +124,18 @@ public class AttachServiceImpl implements AttachService {
         return folderPath;
     }
     
+	@Override
+	public List<AttachFileDTO> uploadFiles(MultipartFile[] uploadFiles) {
+		return uploadFiles(uploadFiles, null, null);
+	}
+    
     // added helper method
-    public List<AttachFileDTO> uploadFiles(MultipartFile[] uploadFiles) {
-        return uploadFiles(uploadFiles, null);
-    }
-
+	@Override
+	public List<AttachFileDTO> uploadFiles(MultipartFile[] uploadFiles, Question question) {
+		SiteUser user = (question != null) ? question.getAuthor() : null;
+		return uploadFiles(uploadFiles, question, user);
+	}
+    
     // 添付ファイルを追加するメソッドを作成
 	@Override
 	public void uploadFilesFromDTOs(List<AttachFileDTO> fileDTOs, Question question) {
@@ -132,4 +148,5 @@ public class AttachServiceImpl implements AttachService {
 			attachFileRepository.save(entity);
 		}
 	}
+
 }

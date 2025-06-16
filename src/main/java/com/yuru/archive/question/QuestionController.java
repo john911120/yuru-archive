@@ -7,6 +7,7 @@ import java.nio.file.Paths;
 import java.security.Principal;
 import java.time.LocalDate;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.UUID;
 
@@ -120,8 +121,9 @@ public class QuestionController {
 		
 		
 		// ファイルが存在すれば、添付ファイルもセーフ
-		if (uploadFiles != null && uploadFiles.length > 0) {
-			attachService.uploadFiles(uploadFiles, savedQuestion);
+	//	if (uploadFiles != null && uploadFiles.length > 0) {
+		if (uploadFiles != null && Arrays.stream(uploadFiles).anyMatch(f -> !f.isEmpty())) {	
+			attachService.uploadFiles(uploadFiles, savedQuestion, siteUser);
 		}
 		
 		return "redirect:/question/list";
