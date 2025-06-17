@@ -2,7 +2,7 @@
 ## 🗃️ データベース設計
 
 ### ER図（最新版）
-![ERD](../assets/ゆるアーカイブ修正5版_ERD.png)
+![ERD](../assets/ゆるアーカイブ修正6版_ERD.png)
 
 ### テーブル定義（SQL）
 📎 [ゆるアーカイブQuery.sql](https://raw.githubusercontent.com/john911120/yuru-archive/main/sql/ゆるアーカイブQuery.sql)
@@ -53,3 +53,5 @@ ERDおよび初期化SQLスクリプトを更新
 ## 20250616 Database Column 更新しました。
     alter table if exists uploaded_file 
        add column uuid varchar(255)；
+       
+## 20250617 ERD_Diagram イマージを更新しました。    
