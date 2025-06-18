@@ -230,3 +230,48 @@ Question の ID 型を Integer → Long に統一。
 
 この問題は、ログインユーザ情報の受け渡しの見直しにより、今後修正予定です。
 + 【一時保存】画像アップロードは成功するが、userIdがDBに保存されない問題を確認
+
+### 20250618
+📦 添付ファイル機能 実装フローまとめ（2025年6月18日）
+✅ 開発状況の概要
+ローカル開発環境では画像ファイルのアップロード（C:/upload/yyyy-MM-dd/）は正常に動作。
+
+ただし、uploaded_file テーブルへの INSERT 時に user_id が null となり、SQLState: 23502（NOT NULL制約違反） が発生していた。
+
+トランザクションロールバックも @Transactional(rollbackFor = Exception.class) により正常に機能することを確認。
+
+🔄 処理の流れ
+QuestionController
+
+添付ファイルを MultipartFile[] で受け取り、AttachFileDTO リストに変換（この時点で userId もセット）。
+
+QuestionService#create(...)
+
+質問を保存した後、attachService.uploadFilesFromDTOs(...) を呼び出して添付ファイルを保存。
+
+AttachServiceImpl#uploadFilesFromDTOs(...)
+
+DTO から UploadedFile エンティティを生成し、userId, questionId 付きで DB に保存。
+
+🛠 修正・対応内容
+AttachFileDTO に userId フィールドを追加。
+
+AttachService インターフェースに 2 つのオーバーロードメソッドを定義:
+
+uploadFilesFromDTOs(List<AttachFileDTO>, Question)
+
+uploadFilesFromDTOs(List<AttachFileDTO>, Question, SiteUser)
+
+AttachServiceImpl にて両メソッドを正しくオーバーライド。
+
+userId 未設定の DTO に対するバリデーションも追加。
+
+🧪 テスト結果
+強制的な RuntimeException を挿入し、トランザクションのロールバックを検証。
+
+question エンティティもロールバックされていることを DB から確認済み。
+
+🔖 今後の課題
+ファイル保存と DB 保存の同期性強化（失敗時にファイルを自動削除するなど）
+
+ユーザーのプロフィール画像や回答の添付ファイルなど、他機能への応用展開
