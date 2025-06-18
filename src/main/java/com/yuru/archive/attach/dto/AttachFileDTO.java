@@ -11,8 +11,11 @@ import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import lombok.AllArgsConstructor;
 import lombok.Data;
+import lombok.Getter;
+import lombok.Setter;
 
-
+@Getter
+@Setter
 @Data
 @AllArgsConstructor
 public class AttachFileDTO  implements Serializable {
@@ -21,18 +24,27 @@ public class AttachFileDTO  implements Serializable {
     private String uuid;
     private String folderPath;
     
+    // for the userid Saved
+    private Long userId;
+    
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "question_id")
     private Question question;
 
     //基本生成者追加「必要な場合は、オーバーローディングも可能」
-    public AttachFileDTO() {}
-    
     public AttachFileDTO(String fileName, String uuid, String folderPath) {
         this.fileName = fileName;
         this.uuid = uuid;
         this.folderPath = folderPath;
     }
+    
+    public AttachFileDTO(String fileName, String uuid, String folderPath, Long userId) {
+        this.fileName = fileName;
+        this.uuid = uuid;
+        this.folderPath = folderPath;
+        this.userId = userId;
+    }
+
     
     public String getImageURL(){
         try {
@@ -51,5 +63,6 @@ public class AttachFileDTO  implements Serializable {
         }
         return "";
     }
+
 
 }

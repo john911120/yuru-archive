@@ -11,6 +11,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import com.yuru.archive.DataNotFoundException;
 import com.yuru.archive.answer.Answer;
@@ -29,6 +30,7 @@ import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
 @RequiredArgsConstructor
+@Transactional(rollbackFor = Exception.class)
 @Service
 public class QuestionService {
 
@@ -95,7 +97,7 @@ public class QuestionService {
 		
 		// attachFileListを処理
 		if(attachFileList != null && !attachFileList.isEmpty()) {
-			attachService.uploadFilesFromDTOs(attachFileList, saved);
+			attachService.uploadFilesFromDTOs(attachFileList, saved, user);
 		}
 		
 		return saved;

@@ -14,7 +14,7 @@ public interface AttachService {
 	String getUploadPath();
 	
 	// 添付ファイルを処理するためのメソッドを作成しました。
-	void uploadFilesFromDTOs(List<AttachFileDTO> attachFileList, Question saved);
+	void uploadFilesFromDTOs(List<AttachFileDTO> fileDTOs, Question question, SiteUser user);
 
 	// 一番シンプルなバージョン
 	List<AttachFileDTO> uploadFiles(MultipartFile[] uploadFiles);

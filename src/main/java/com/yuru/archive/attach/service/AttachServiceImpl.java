@@ -138,13 +138,14 @@ public class AttachServiceImpl implements AttachService {
     
     // 添付ファイルを追加するメソッドを作成
 	@Override
-	public void uploadFilesFromDTOs(List<AttachFileDTO> fileDTOs, Question question) {
+	public void uploadFilesFromDTOs(List<AttachFileDTO> fileDTOs, Question question, SiteUser user) {
 		for(AttachFileDTO dto : fileDTOs) {
 			UploadedFile entity = new UploadedFile();
 			entity.setFileName(dto.getFileName());
 			entity.setFolderPath(dto.getFolderPath());
 			entity.setUuid(dto.getUuid());
 			entity.setQuestion(question);
+			entity.setUserId(user.getId());
 			attachFileRepository.save(entity);
 		}
 	}

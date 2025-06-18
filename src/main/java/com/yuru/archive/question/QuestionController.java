@@ -98,10 +98,12 @@ public class QuestionController {
 					Path savePath = uploadPath.resolve(uuid + "_" + originalFileName);
 					file.transferTo(savePath.toFile());
 					
-					AttachFileDTO attach = new AttachFileDTO(folderPath, folderPath, folderPath);
+					AttachFileDTO attach = new AttachFileDTO(originalFileName, uuid, folderPath, siteUser.getId());
 					attach.setFileName(originalFileName);
 					attach.setUuid(uuid);
 					attach.setFolderPath(folderPath);
+					attach.setUserId(siteUser.getId());
+					
 					// 必要の時に質問と連結します。
 					// attach.setQuestion(question);
 					
