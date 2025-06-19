@@ -55,3 +55,11 @@ ERDおよび初期化SQLスクリプトを更新
        add column uuid varchar(255)；
        
 ## 20250617 ERD_Diagram イマージを更新しました。    
+
+
+
+## License
+
+This project is **NOT open source**.  
+All rights reserved by © 2025 John Dev.  
+Commercial use is strictly prohibited unless prior written permission is obtained.

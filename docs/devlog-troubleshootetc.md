@@ -49,3 +49,9 @@
 [仕様上の制限]
 現在、MultipartResolverがDispatcherServletに正しく紐づかない原因により、ファイルアップロードが正常に処理されない問題が発生しています。
 再現性のある最小構成でのテストおよびServlet初期化順の調査を次のタスクとします。
+
+## License
+
+This project is **NOT open source**.  
+All rights reserved by © 2025 John Dev.  
+Commercial use is strictly prohibited unless prior written permission is obtained.

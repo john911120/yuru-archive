@@ -89,3 +89,10 @@ JavaScript や手動の CSS 設定なしでも一貫した配色が可能
 
 最近になってこの機能を知ったが、導入してみると非常に便利で、
 全体のレイアウト品質を高める要因となった。
+
+
+## License
+
+This project is **NOT open source**.  
+All rights reserved by © 2025 John Dev.  
+Commercial use is strictly prohibited unless prior written permission is obtained.

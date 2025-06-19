@@ -48,3 +48,8 @@ dependencies {
 ---
 本手順により、開発環境のOSに依存せず、Lombokを安定的に利用できる状態となりました。
 
+## License
+
+This project is **NOT open source**.  
+All rights reserved by © 2025 John Dev.  
+Commercial use is strictly prohibited unless prior written permission is obtained.

@@ -46,3 +46,9 @@
 なお、旧バージョンで一部ページに限定していたテスト用コードは、全体テンプレートに統合されたため削除しました。
 
 ボータンの内容を少し修正しました。
+
+## License
+
+This project is **NOT open source**.  
+All rights reserved by © 2025 John Dev.  
+Commercial use is strictly prohibited unless prior written permission is obtained.

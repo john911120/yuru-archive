@@ -23,4 +23,8 @@
 5. 以上の原因を1つずつ特定し、設定を修正することで、ログイン認証のフローが正常に機能することを確認しました。
 
 
-	
+## License
+
+This project is **NOT open source**.  
+All rights reserved by © 2025 John Dev.  
+Commercial use is strictly prohibited unless prior written permission is obtained.	

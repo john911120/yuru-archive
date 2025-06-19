@@ -30,3 +30,8 @@
 この方法を用いて他の端末からもデータベースにアクセスする構成が実現可能であることを確認しました。  
 今回の設定を通じて、PostgreSQLをネットワーク経由で利用する方法について理解を深めることができました。
 
+## License
+
+This project is **NOT open source**.  
+All rights reserved by © 2025 John Dev.  
+Commercial use is strictly prohibited unless prior written permission is obtained.

@@ -88,3 +88,10 @@ JPAの永続コンテキストやトランザクションのタイミングの�
 📌 将来的にはRedisやLike用の非同期処理の導入など、さらなる改善を検討予定です。
 
 💡 現状でも基本的な動作には支障がなく、十分なユーザビリティを確保しております。
+
+
+## License
+
+This project is **NOT open source**.  
+All rights reserved by © 2025 John Dev.  
+Commercial use is strictly prohibited unless prior written permission is obtained.

@@ -275,3 +275,10 @@ question エンティティもロールバックされていることを DB か�
 ファイル保存と DB 保存の同期性強化（失敗時にファイルを自動削除するなど）
 
 ユーザーのプロフィール画像や回答の添付ファイルなど、他機能への応用展開
+
+
+## License
+
+This project is **NOT open source**.  
+All rights reserved by © 2025 John Dev.  
+Commercial use is strictly prohibited unless prior written permission is obtained.

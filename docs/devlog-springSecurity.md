@@ -8,3 +8,10 @@
 .userDetailsService(...), .passwordEncoder(...) の未設定 → 認証不可 → 対応完了
 .loginProcessingUrl(...) 未指定 → POST送信先の認識失敗 → 明示的に設定
  ログ出力に ID/PW 情報 → 非表示化して簡略化対応
+ 
+ 
+ ## License
+
+This project is **NOT open source**.  
+All rights reserved by © 2025 John Dev.  
+Commercial use is strictly prohibited unless prior written permission is obtained.
