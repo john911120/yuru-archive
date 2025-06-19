@@ -85,3 +85,9 @@ com.yuru.archive.attach
 | Database設計 | [devlog-database.md](docs/devlog-database.md) |
 | 時間帯に合わせてログインする時に挨拶出力機能 | [devlog-greeting_Japan.md](docs/devlog-greeting_Japan.md) |
 | 🚨 開発メモ：バグと修正履歴 | [devlog-troubleshootetc.md](docs/devlog-troubleshootetc.md) |
+
+
+## License
+This project is **NOT open source**.  
+All rights reserved by © 2025 John Dev.  
+Commercial use is strictly prohibited unless prior written permission is obtained.
