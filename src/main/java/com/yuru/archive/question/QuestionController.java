@@ -133,7 +133,7 @@ public class QuestionController {
 
 	@PreAuthorize("isAuthenticated()")
 	@GetMapping("/modify/{id}")
-	public String questionModify(QuestionForm questionForm, @PathVariable("id") Long id, Principal principal) {
+	public String questionModify(QuestionForm questionForm, @PathVariable("id") Long id, Principal principal, Model model) {
 		Question question = this.questionService.getQuestion(id);
 		if (!question.getAuthor().getUsername().equals(principal.getName())) {
 			throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "修正権限がありません。");
@@ -141,6 +141,9 @@ public class QuestionController {
 		questionForm.setId(question.getId());
 		questionForm.setSubject(question.getSubject());
 		questionForm.setContent(question.getContent());
+		
+		model.addAttribute("question", question);
+		
 		return "question_form";
 	}
 
