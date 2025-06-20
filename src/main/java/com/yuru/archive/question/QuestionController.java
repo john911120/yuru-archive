@@ -138,6 +138,7 @@ public class QuestionController {
 		if (!question.getAuthor().getUsername().equals(principal.getName())) {
 			throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "修正権限がありません。");
 		}
+		questionForm.setId(question.getId());
 		questionForm.setSubject(question.getSubject());
 		questionForm.setContent(question.getContent());
 		return "question_form";
@@ -149,7 +150,7 @@ public class QuestionController {
 			@PathVariable("id") Long id) {
 		if (bindingResult.hasErrors()) {
 			return "question_form";
-		}
+		}	
 		Question question = this.questionService.getQuestion(id);
 		if (!question.getAuthor().getUsername().equals(principal.getName())) {
 			throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "修正権限がありません。");
@@ -165,7 +166,9 @@ public class QuestionController {
 		if (!question.getAuthor().getUsername().equals(principal.getName())) {
 			throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "削除権限がありません。");
 		}
-		this.questionService.delete(question);
+		//this.questionService.delete(question);
+		
+		questionService.deleteQuestionWithFiles(id);
 		return "redirect:/";
 	}
 	// 投票用エンドポイントは不要のため削除済み

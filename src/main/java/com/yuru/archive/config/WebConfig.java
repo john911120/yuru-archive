@@ -7,6 +7,8 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.web.multipart.MultipartResolver;
 import org.springframework.web.multipart.support.StandardServletMultipartResolver;
 import org.springframework.web.servlet.LocaleResolver;
+import org.springframework.web.servlet.config.annotation.ResourceHandlerRegistry;
+import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 import org.springframework.web.servlet.i18n.SessionLocaleResolver;
 
 /*
@@ -19,7 +21,7 @@ import org.springframework.web.servlet.i18n.SessionLocaleResolver;
  */
 
 @Configuration
-public class WebConfig {
+public class WebConfig implements WebMvcConfigurer {
 
 	/*
 	  クラスは外部モジュールからのアクセスを許可するために public に指定します。
@@ -36,6 +38,14 @@ public class WebConfig {
 		slr.setDefaultLocale(Locale.JAPANESE);
 		return slr;
 	}
+	
+	// WebMvcConfigurerを利用した静的リソース設定
+	@Override
+	public void addResourceHandlers(ResourceHandlerRegistry registry) {
+		registry.addResourceHandler("/upload/**")
+			.addResourceLocations("file:///C:/upload/");
+	}
+	
 	
 	// 添付ファイルの機能を追加します。
 	@Bean

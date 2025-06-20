@@ -44,7 +44,7 @@
 	   <ul>
 	     <li th:each="file : ${uploadedFiles}">
 			<img th:src="@{'/upload/' + ${file.folderPath} + '/s_' + ${file.uuid} + '_' + ${file.fileName}}" 
-			     alt="添付ファイル" width="100">
+			     alt="添付ファイル" style="max-width: 200px;">
 	       <a th:href="@{/attach/download/{id}(id=${file.id})}" th:text="${file.fileName}">添付ファイル</a>
 	     </li>
 	   </ul>

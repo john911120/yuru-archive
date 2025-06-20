@@ -1,26 +1,70 @@
+<!DOCTYPE html>
 <html layout:decorate="~{layout}">
 <div layout:fragment="content" class="container">
 	<h5 class="my-3 border-bottom pb-2">質問登録</h5>
-	<form th:object="${questionForm}" th:action="@{/question/create}"  method="post" enctype="multipart/form-data">
-		<input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}" />
-		<div th:replace="~{form_errors :: formErrorsFragment}"></div>
-		<div class="mb-3">
-			<label for="subject" class="form-label">タイトル</label>
-			<input type="text" th:field="*{subject}" class="form-control">
-		</div>
-		<div class="mb-3">
-			<label for="content" class="form-label">コンテンツ</label>
-			<textarea th:field="*{content}" class="form-control" rows="10"></textarea>
-		</div>
-		<!-- 添付ファイル機能を追加 -->
-		<div class="mb-3">
-		  <label for="uploadFiles" class="form-label">ファイル選択</label>
-		    <input type="file" class="form-control" id="uploadFiles" name="uploadFiles" multiple style="max-width: 100%;">
-<!--		    <button class="btn btn-primary" type="submit">Upload</button>-->
-		</div>
-		
-		<input type="submit" value="セーフする" class="btn btn-primary my-2">
+
+	<!-- ✅ 修正用 フォーム -->
+	<form th:if="${questionForm.id} != null"
+	      th:object="${questionForm}"
+	      th:action="@{/question/modify/{id}(id=${questionForm.id})}"
+	      method="post"
+	      enctype="multipart/form-data">
+
+	    <input type="hidden" th:field="*{id}" />
+	    <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}" />
+
+	    <div th:replace="~{form_errors :: formErrorsFragment}"></div>
+
+	    <div class="mb-3">
+	        <label for="subject" class="form-label">タイトル</label>
+	        <input type="text" th:field="*{subject}" class="form-control">
+	    </div>
+
+	    <div class="mb-3">
+	        <label for="content" class="form-label">コンテンツ</label>
+	        <textarea th:field="*{content}" class="form-control" rows="10"></textarea>
+	    </div>
+
+	    <div class="mb-3">
+	        <label for="uploadFiles" class="form-label">ファイル選択</label>
+	        <input type="file" class="form-control" id="uploadFiles" name="uploadFiles" multiple style="max-width: 100%;">
+	    </div>
+
+	    <div th:each="file : ${question.uploadedFileList}">
+	        <img th:src="@{|/upload/${file.folderPath}/${file.uuid}_${file.fileName}|}" 
+	             alt="添付画像" style="max-width: 300px;">
+	    </div>
+
+	    <input type="submit" value="セーブする" class="btn btn-primary my-2">
+	</form>
+
+	<!-- ✅ 登録用 フォーム-->
+	<form th:unless="${questionForm.id} != null"
+	      th:object="${questionForm}"
+	      th:action="@{/question/create}"
+	      method="post"
+	      enctype="multipart/form-data">
+
+	    <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}" />
+
+	    <div th:replace="~{form_errors :: formErrorsFragment}"></div>
+
+	    <div class="mb-3">
+	        <label for="subject" class="form-label">タイトル</label>
+	        <input type="text" th:field="*{subject}" class="form-control">
+	    </div>
+
+	    <div class="mb-3">
+	        <label for="content" class="form-label">コンテンツ</label>
+	        <textarea th:field="*{content}" class="form-control" rows="10"></textarea>
+	    </div>
+
+	    <div class="mb-3">
+	        <label for="uploadFiles" class="form-label">ファイル選択</label>
+	        <input type="file" class="form-control" id="uploadFiles" name="uploadFiles" multiple style="max-width: 100%;">
+	    </div>
+
+	    <input type="submit" value="セーブする" class="btn btn-primary my-2">
 	</form>
 </div>
-
 </html>

@@ -37,4 +37,8 @@ public interface QuestionRepository extends JpaRepository<Question, Integer> {
     Page<Question> findAllByKeyword(@Param("kw") String kw, Pageable pageable);
 
 	Optional<Question> findById(Long id);
+	
+	@Query("SELECT q FROM Question q LEFT JOIN FETCH q.uploadedFileList WHERE q.id = :id")
+	Optional<Question> findWithFilesById(@Param("id") Long id);
+
 }

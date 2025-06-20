@@ -5,11 +5,13 @@ import java.util.ArrayList;
 import java.util.List;
 
 import com.yuru.archive.answer.Answer;
+import com.yuru.archive.attach.entity.UploadedFile;
 import com.yuru.archive.user.SiteUser;
 
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
+import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
@@ -34,7 +36,7 @@ import lombok.Setter;
 public class Question {
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
-	private Integer id;
+	private Long id;
 
 	// titleカーラムとマーピングしました。
 	@Column(name = "title")
@@ -59,6 +61,8 @@ public class Question {
 	@Transient
 	private LocalDateTime modifyDate;
 	
-	// 投票機能を削除したため、voterフィールドは除外しました
+	// 添付ファイルリストをマッピング
+	@OneToMany(mappedBy = "question", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
+	private List<UploadedFile> uploadedFileList;
 
 }

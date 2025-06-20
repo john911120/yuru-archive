@@ -9,6 +9,10 @@ import lombok.Setter;
 @Getter
 @Setter
 public class QuestionForm {
+	
+	// 修正用のIDField追加
+	private Long id;
+	
 	@NotEmpty(message = "タイトルは必須項目です。")
 	@Size(max = 200)
 	private String subject;
