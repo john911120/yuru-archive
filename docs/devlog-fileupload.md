@@ -277,6 +277,55 @@ question エンティティもロールバックされていることを DB か�
 ユーザーのプロフィール画像や回答の添付ファイルなど、他機能への応用展開
 
 
+### 20250620 
+## ✅ 作業まとめ
+1. 添付ファイルのアップロードに関する不具合の修正
+投稿は保存されたが、添付ファイルがDBに登録されない問題が発生
+
+原因は：
+ @Transactional未設定によるトランザクション未管理
+ DTOにuserIdやfileNameなどの情報が欠落
+ ローカル環境と別マシンでのDBスキーマの不一致（github_url列の存在）
+
+➡ スキーマの整合性を確保し、DTOの設定ミスを修正
+
+2. 投稿削除時の外部キー制約違反の修正
+投稿削除時、uploaded_fileテーブルに参照が残っていてエラー発生
+ERROR: テーブル"questions"の更新または削除は、テーブル"uploaded_file"の外部キー制約に違反します
+
+➡ cascadeではなく、先に添付ファイルを削除してから投稿を削除するロジックを採用：
+
+```
+ attachFileRepository.deleteByQuestion_Id(questionId);
+ questionRepository.delete(question);
+```
+3. 投稿の修正が新規投稿になってしまう不具合の修正
+原因は、QuestionFormにidが含まれておらず、修正時に新規として扱われていた
+
+対応策：
+ QuestionFormにLong idを追加
+ GETメソッド内で questionForm.setId(question.getId()) を明示的に設定
+ POST送信時、ID付きで既存エンティティを更新するよう修正
+
+4. Thymeleafでのフォームテンプレートエラーの修正
+th:actionで三項演算子を使用したためテンプレートエラー発生
+
+``` 
+th:action="${questionForm.id} != null ? ... : ..."
+```
+➡ フォームを th:if / th:unless で 2つに分けて管理する方式へ変更し、エラーを回避
+
+5. 添付画像の表示処理の追加
+ uploadedFileListをQuestionに@OneToManyで追加（fetch = LAZY）
+ question.getUploadedFileList() をViewで使用
+ 画像の出力URL： /upload/{folderPath}/{uuid}_{fileName} にて表示
+ WebConfig.java にて /upload/** を静的リソースとしてマッピング
+
+✅ 今後の予定（オプション）
+ 投稿編集時に既存添付ファイルの保持・削除・追加処理をUIで切り替え可能にする
+ 添付ファイルのサムネイル表示やファイル一覧ページの作成
+ 投稿ごとの添付ファイル管理機能（ユーザによる管理）を追加
+
 ## License
 
 This project is **NOT open source**.  
