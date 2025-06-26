@@ -147,21 +147,43 @@ public class QuestionController {
 		return "question_form";
 	}
 
+	// 添付ファイル修正や削除をハンドリングする
 	@PreAuthorize("isAuthenticated()")
 	@PostMapping("/modify/{id}")
-	public String questionModify(@Valid QuestionForm questionForm, BindingResult bindingResult, Principal principal,
-			@PathVariable("id") Long id) {
-		if (bindingResult.hasErrors()) {
-			return "question_form";
-		}	
+	public String questionModify(@Valid QuestionForm questionForm, BindingResult bindingResult,
+			Principal principal,
+			@PathVariable("id") Long id,
+			@RequestParam(value="uploadFiles", required = false) MultipartFile[] uploadFiles,
+			@RequestParam(value="deleteFileIds", required= false) List<Long> deleteFileIds,
+			Model model) {
 		Question question = this.questionService.getQuestion(id);
+		SiteUser siteUser = this.userService.getUser(principal.getName());
+		
 		if (!question.getAuthor().getUsername().equals(principal.getName())) {
 			throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "修正権限がありません。");
 		}
+		
+		if (bindingResult.hasErrors()) {
+			return "question_form";
+		}
+		//記事を修正する。
 		this.questionService.modify(question, questionForm.getSubject(), questionForm.getContent());
+		
+		//✅ 添付ファイルを削除します。
+		if(deleteFileIds != null) {
+			for(Long fileId : deleteFileIds) {
+				attachService.deleteFileById(fileId);
+			}
+		}
+		//✅ 新しいファイルをアップロード
+	    if (uploadFiles != null && uploadFiles.length > 0 && !uploadFiles[0].isEmpty()) {
+	        attachService.uploadFiles(uploadFiles, question, siteUser);
+	    }
+		
 		return String.format("redirect:/question/detail/%s", id);
 	}
 
+	
 	@PreAuthorize("isAuthenticated()")
 	@GetMapping("/delete/{id}")
 	public String questionDelete(Principal principal, @PathVariable("id") Long id) {

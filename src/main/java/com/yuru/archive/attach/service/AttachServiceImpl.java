@@ -49,8 +49,10 @@ public class AttachServiceImpl implements AttachService {
 			String originalName = uploadFile.getOriginalFilename();
 			String fileName = originalName.substring(originalName.lastIndexOf("\\")+1);
 			String folderPath = makeFolder();
+			log.info("✅ folderPath = {}", folderPath);
 			String uuid = UUID.randomUUID().toString();
-			String saveName = uploadPath + File.separator + folderPath + File.separator + uuid + "_" + fileName;
+			String folderForDisk = folderPath.replace("/", File.separator); // OSに 合うDirectory (Windows: "\", Unix: "/")
+			String saveName = uploadPath + File.separator + folderForDisk + File.separator + uuid + "_" + fileName;
 			Path savePath = Paths.get(saveName);
 						
 			try {
@@ -60,21 +62,26 @@ public class AttachServiceImpl implements AttachService {
                         "s_" + uuid + "_" + fileName;
                 Thumbnailator.createThumbnail(savePath.toFile(), new File(thumbnailSaveName), 100, 100);
                 
-                // 結果DTOを作る。
-                AttachFileDTO dto = new AttachFileDTO(fileName, uuid, folderPath);
-                resultDTOList.add(new AttachFileDTO(fileName, uuid, folderPath));
-                
                 if (user == null) {
                 	log.warn("❌ user is null!! DB登録をスキップします。");
+                	continue;
                 } else {
-                    log.info("✅ user.getId() = {}", user.getId());
+                	log.info("✅ user.getId() = {}", user.getId());
                 }
+
+                // 結果DTOを作る。
+                Long userId = user.getId(); // 👍 OK
+
+                AttachFileDTO dto = new AttachFileDTO(fileName, uuid, folderPath, userId);
+                resultDTOList.add(dto);
+                
                 
                 //DBにセーフする
                 UploadedFile entity = UploadedFile.builder()
                 		.userId(user.getId()) //実際に構築する場合は、ローグインしたユーザIDを使用します。
                 		.fileName(fileName)
                 		.folderPath(folderPath)
+                		.uuid(uuid)
                 		.question(question)
                 		.build();
                 attachFileRepository.save(entity);
@@ -116,12 +123,15 @@ public class AttachServiceImpl implements AttachService {
 	// ファイルが存在しない場合は、このクラスで、ファイルを作ります。
     private String makeFolder() {
         String str = LocalDate.now().format(DateTimeFormatter.ofPattern("yyyy/MM/dd"));
-        String folderPath = str.replace("/", File.separator);
-        File uploadPathFolder = new File(uploadPath, folderPath);
+        String folderPathForDisk = str.replace("/", File.separator); // OS別 実際にセーフする Directory
+        File uploadPathFolder = new File(uploadPath, folderPathForDisk);
         if (!uploadPathFolder.exists()) {
             uploadPathFolder.mkdirs();
         }
-        return folderPath;
+//        return folderPath;
+        // リターンするときは、URL専用のDirectoryに変換する
+        return str;
+        
     }
     
 	@Override
@@ -149,5 +159,20 @@ public class AttachServiceImpl implements AttachService {
 			attachFileRepository.save(entity);
 		}
 	}
+	
+	// 添付ファイルを削除するサービスロジック
+	public boolean deleteFileById(Long fileId) {
+	    UploadedFile file = attachFileRepository.findById(fileId)
+	            .orElseThrow(() -> new RuntimeException("ファイルが存在しません"));
 
+	        File original = new File(uploadPath, file.getFolderPath() + "/" + file.getUuid() + "_" + file.getFileName());
+	        File thumbnail = new File(uploadPath, file.getFolderPath() + "/s_" + file.getUuid() + "_" + file.getFileName());
+
+	        if (original.exists()) original.delete();
+	        if (thumbnail.exists()) thumbnail.delete();
+
+	        attachFileRepository.delete(file);
+	        return true;
+	}
+	
 }

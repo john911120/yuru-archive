@@ -30,11 +30,20 @@
 	        <input type="file" class="form-control" id="uploadFiles" name="uploadFiles" multiple style="max-width: 100%;">
 	    </div>
 
+		<div th:each="file : ${question.uploadedFileList}" class="mb-3">
+		    <label>
+		        <input type="checkbox" name="deleteFileIds" th:value="${file.id}">
+		        <!--<span th:text="${file.fileName}"></span>-->
+		    </label>
+		    <img th:src="@{|/upload/${file.folderPath}/${file.uuid}_${file.fileName}|}" style="max-width: 150px;">
+		</div>
+
+		
 	    <div th:each="file : ${question.uploadedFileList}">
 	        <img th:src="@{|/upload/${file.folderPath}/${file.uuid}_${file.fileName}|}" 
 	             alt="添付画像" style="max-width: 300px;">
 	    </div>
-
+		
 	    <input type="submit" value="セーブする" class="btn btn-primary my-2">
 	</form>
 

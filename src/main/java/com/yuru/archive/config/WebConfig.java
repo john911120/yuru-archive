@@ -10,6 +10,7 @@ import org.springframework.web.servlet.LocaleResolver;
 import org.springframework.web.servlet.config.annotation.ResourceHandlerRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 import org.springframework.web.servlet.i18n.SessionLocaleResolver;
+import org.springframework.beans.factory.annotation.Value;
 
 /*
  * WebConfig クラス
@@ -39,11 +40,16 @@ public class WebConfig implements WebMvcConfigurer {
 		return slr;
 	}
 	
+    @Value("${com.yuru.archive.upload.path}")
+    private String uploadPath;
+	
 	// WebMvcConfigurerを利用した静的リソース設定
 	@Override
 	public void addResourceHandlers(ResourceHandlerRegistry registry) {
+		// access to /upload/** Show the Actual Local Upload Directory Files
 		registry.addResourceHandler("/upload/**")
-			.addResourceLocations("file:///C:/upload/");
+			.addResourceLocations("file:///" + uploadPath + "/")
+			.setCachePeriod(3600); // allow the caching
 	}
 	
 	
