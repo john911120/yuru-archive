@@ -128,7 +128,6 @@ public class AttachServiceImpl implements AttachService {
         if (!uploadPathFolder.exists()) {
             uploadPathFolder.mkdirs();
         }
-//        return folderPath;
         // リターンするときは、URL専用のDirectoryに変換する
         return str;
         

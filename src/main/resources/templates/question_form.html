@@ -33,7 +33,6 @@
 		<div th:each="file : ${question.uploadedFileList}" class="mb-3">
 		    <label>
 		        <input type="checkbox" name="deleteFileIds" th:value="${file.id}">
-		        <!--<span th:text="${file.fileName}"></span>-->
 		    </label>
 		    <img th:src="@{|/upload/${file.folderPath}/${file.uuid}_${file.fileName}|}" style="max-width: 150px;">
 		</div>

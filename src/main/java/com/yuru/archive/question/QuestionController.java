@@ -103,10 +103,7 @@ public class QuestionController {
 					attach.setUuid(uuid);
 					attach.setFolderPath(folderPath);
 					attach.setUserId(siteUser.getId());
-					
-					// 必要の時に質問と連結します。
-					// attach.setQuestion(question);
-					
+										
 					attachFileList.add(attach);
 				} catch (IOException e) {
 					e.printStackTrace();
@@ -123,7 +120,6 @@ public class QuestionController {
 		
 		
 		// ファイルが存在すれば、添付ファイルもセーフ
-	//	if (uploadFiles != null && uploadFiles.length > 0) {
 		if (uploadFiles != null && Arrays.stream(uploadFiles).anyMatch(f -> !f.isEmpty())) {	
 			attachService.uploadFiles(uploadFiles, savedQuestion, siteUser);
 		}
