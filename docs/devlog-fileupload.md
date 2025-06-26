@@ -329,6 +329,7 @@ th:action="${questionForm.id} != null ? ... : ..."
  
 ### 20250626
 添付ファイルイメージファイルプリビュー機能追加しました。
+question_detail.html 添付ファイルUX改善しました。
 
 ## License
 

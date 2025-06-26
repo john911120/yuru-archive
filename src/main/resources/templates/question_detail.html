@@ -40,19 +40,32 @@
 	 	 添付ファイルがいない場合は、添付ファイルはありません。が表示されます。
 	 -->
 	 <div th:if="${uploadedFiles != null and !uploadedFiles.isEmpty()}">
-	   <p>添付ファイル一覧:</p>
-	   <ul>
-	     <li th:each="file : ${uploadedFiles}">
-			<!-- 添付ファイルイメージファイルプリビュー -->
-			<img th:src="@{|/upload/${file.folderPath}/${file.uuid}_${file.fileName}|}" alt="添付画像" style="max-width: 300px;">
-	       <a th:href="@{/attach/download/{id}(id=${file.id})}" th:text="${file.fileName}">添付ファイル</a>
-	     </li>
-	   </ul>
+	 <!-- thumbnail + download card UI -->
+	 <div th:if="${question.uploadedFileList != null}" class="row mt-4">
+	     <h5>添付ファイル</h5>
+	     <div th:each="file : ${question.uploadedFileList}" class="col-md-3 mb-4">
+	         <div class="card h-100 shadow-sm">
+	             <img th:src="@{|/upload/${file.folderPath}/${file.uuid}_${file.fileName}|}"
+	                  class="card-img-top img-fluid"
+	                  alt="添付画像"
+	                  style="object-fit: cover; height: 200px;">
+
+	             <div class="card-body p-2 text-center">
+	                <!-- <p class="card-text text-truncate" th:text="${file.fileName}">filename.jpg</p> -->
+	                 <a class="btn btn-sm btn-outline-primary"
+	                    th:href="@{|/upload/${file.folderPath}/${file.uuid}_${file.fileName}|}"
+	                    download>
+	                     ダウンロード
+	                 </a>
+	             </div>
+	         </div>
+	     </div>
 	 </div>
-	 <div th:if="${uploadedFiles == null or uploadedFiles.isEmpty()}">
-	   <p>添付ファイルはありません。</p>
 	 </div>
-	
+		 <div th:if="${question.uploadedFileList == null or question.uploadedFileList.isEmpty()}">
+		   <p>添付ファイルはありません。</p>
+		 </div>
+	 
 	<!-- コメントの数を表示 -->
 	<h5 class="border-bottom my-3 py-2" th:text="|${#lists.size(question.answerList)}個のコメントがあります。|"></h5>
 	<!-- コメントを繰り返し処理 開始 -->
