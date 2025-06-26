@@ -43,8 +43,8 @@
 	   <p>添付ファイル一覧:</p>
 	   <ul>
 	     <li th:each="file : ${uploadedFiles}">
-			<img th:src="@{'/upload/' + ${file.folderPath} + '/s_' + ${file.uuid} + '_' + ${file.fileName}}" 
-			     alt="添付ファイル" style="max-width: 200px;">
+			<!-- 添付ファイルイメージファイルプリビュー -->
+			<img th:src="@{|/upload/${file.folderPath}/${file.uuid}_${file.fileName}|}" alt="添付画像" style="max-width: 300px;">
 	       <a th:href="@{/attach/download/{id}(id=${file.id})}" th:text="${file.fileName}">添付ファイル</a>
 	     </li>
 	   </ul>
