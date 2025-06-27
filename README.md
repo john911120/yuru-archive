@@ -31,6 +31,8 @@ Spring Boot × PostgreSQLをベースに、
 - 依存関係の安全性向上のため、3.2.1 → 3.2.12に更新
 - build.gradleのpluginバージョンを修正
 
+✅ 開発端末2台3.2.12動作確認完了(2025年6月27日)
+
 📄 README構成をDevOps対応に整理
 - メインREADMEはプロジェクト紹介＋DevOpsフェーズ記載に変更
 - 詳細な開発環境ドキュメントをdoc/README.mdに移動
