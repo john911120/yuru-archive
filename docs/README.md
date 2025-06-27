@@ -1,5 +1,5 @@
 # yuru-archive
-![YuruArchive Logo](assets/yuruArchieve_Logo.png)
+![YuruArchive Logo](../assets/yuruArchieve_Logo.png)
 
 ## プロジェクト説明
 🚀 ゆるアーカイブは、ある週末の夜、  
@@ -54,7 +54,7 @@ Spring Boot × PostgreSQLをベースに、
 | 日本住所API | 郵便番号による自動入力（ZipCloud） |
 
 ## 技術スタック
-- Java 17 / Spring Boot 3.2
+- Java 17 / Spring Boot 3.2.12（DoS対策適用版）
 - PostgreSQL 16 / H2 Database（テスト用）
 - Thymeleaf / Bootstrap 5.3
 - Docker / Docker Compose
