@@ -8,7 +8,9 @@ import java.security.Principal;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.UUID;
 
 import org.springframework.data.domain.Page;
@@ -26,6 +28,7 @@ import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.server.ResponseStatusException;
 
 import com.yuru.archive.answer.AnswerForm;
+import com.yuru.archive.answer.AnswerRepository;
 import com.yuru.archive.attach.dto.AttachFileDTO;
 import com.yuru.archive.attach.entity.UploadedFile;
 import com.yuru.archive.attach.repository.AttachFileRepository;
@@ -47,14 +50,24 @@ public class QuestionController {
 	private final AttachService attachService;
 	private final QuestionService questionService;
 	private final UserService userService;
+	private final AnswerRepository answerRepository;
 		
 	@GetMapping("/list")
 	public String list(Model model, @RequestParam(value = "page", defaultValue = "0") int page,
 			@RequestParam(value = "kw", defaultValue = "") String kw) {
 		log.info("page:{}, kw:{}", page, kw);
 		Page<Question> paging = this.questionService.getList(page, kw);
+		
+		// コメントの数を表すマップを作成。
+		Map<Long, Integer> answerCountMap = new HashMap<>();
+		for(Question q : paging.getContent()) {
+			int count = answerRepository.countByQuestion(q);
+			answerCountMap.put(q.getId(), count);
+		}
+		
 		model.addAttribute("paging", paging);
 		model.addAttribute("kw", kw);
+	    model.addAttribute("answerCountMap", answerCountMap);
 		return "question_list";
 	}
 
