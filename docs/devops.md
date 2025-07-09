@@ -37,17 +37,28 @@
 - 質問数が多くなった場合、JPQL＋DTOによるPlan B（最適化構成）への移行も視野に入れる
 - 上部固定の「お知らせ投稿」機能の追加要望に備えた設計も検討中
 
-## 📅 2025年7月9日（水）投稿条件検索機能の追加
+##🛠️【2025年7月9日】質問リスト画面の改善 & 検索機能の調整
+✅ 機能追加
+タイトル／作成者による 条件付き検索 を実装
+ページネーションと検索条件の 連携処理 に対応
+Controller → Service → Repository の構成に従って処理を整理
 
-### ✅ 実施内容
-- 投稿一覧画面に「検索条件」機能を追加し、タイトルまたは作成者別で検索できるように対応
-- フォームに `<select name="type">` を追加し、`type=subject` または `type=author` によってクエリを分岐
-- `QuestionService.getList()` に検索種別引数 `type` を追加し、Repositoryで動的に切り替え
-- `question_list.html` に検索UIを統一したフォーム構成に修正
-- hiddenフィールドと表示用inputが重複し、URLが `kw=,100` などになるバグを修正（重複name属性削除）
+🎨 UI 改善
+input-group レイアウトを Bootstrap基準で再設計
+モバイル環境：w-100 による 横幅最大表示対応
+デスクトップ環境：最大幅 (max-width: 600px) に制限して空白解消
+キーワード入力欄の 幅を制限 (max-width: 500px) し、バランス良く表示
 
----
+🧩 トラブル対応
+flex-grow, w-100 などの組み合わせによる UI 崩れを修正
+レスポンシブ環境でのレイアウト崩れを container 配置と min-width` 調整で回避
 
+
+🖼 AS-ISの画面(質問リスト画面の改善前): <br>
+![PC表示例](../assets/ゆるアーカイブPC版メイン画面_ASIS.png)
+
+🖼 TO-BEの画面(質問リスト画面の改善後): <br>
+![PC表示例](../assets/ゆるアーカイブPC版メイン画面_TOBE.png)
 
 ## License
 This project is **NOT open source**.  
