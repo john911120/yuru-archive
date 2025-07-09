@@ -55,8 +55,16 @@
 	</div>
 	<!-- ページング処理 終了 -->
 	<form th:action="@{/question/list}" method="get" id="searchForm">
-		<input type="hidden" id="kw" name="kw" th:value="${kw}">
 		<input type="hidden" id="page" name="page" th:value="${paging.number}">
+		<!-- 条件検索選択のため-->
+		<div class="input-group">
+		  <select class="form-select" name="type" th:value="${type}">
+		    <option value="subject" th:selected="${type == 'subject'}">タイトル</option>
+		    <option value="author" th:selected="${type == 'author'}">作成者</option>
+		  </select>
+		  <input type="text" class="form-control" name="kw" th:value="${kw}">
+		  <button type="submit" class="btn btn-primary">検索</button>
+		</div>
 	</form>
 	
 	<!-- ダークモードボタン -->

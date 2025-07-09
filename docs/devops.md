@@ -37,6 +37,18 @@
 - 質問数が多くなった場合、JPQL＋DTOによるPlan B（最適化構成）への移行も視野に入れる
 - 上部固定の「お知らせ投稿」機能の追加要望に備えた設計も検討中
 
+## 📅 2025年7月9日（水）投稿条件検索機能の追加
+
+### ✅ 実施内容
+- 投稿一覧画面に「検索条件」機能を追加し、タイトルまたは作成者別で検索できるように対応
+- フォームに `<select name="type">` を追加し、`type=subject` または `type=author` によってクエリを分岐
+- `QuestionService.getList()` に検索種別引数 `type` を追加し、Repositoryで動的に切り替え
+- `question_list.html` に検索UIを統一したフォーム構成に修正
+- hiddenフィールドと表示用inputが重複し、URLが `kw=,100` などになるバグを修正（重複name属性削除）
+
+---
+
+
 ## License
 This project is **NOT open source**.  
 All rights reserved by © 2025 John Dev.  

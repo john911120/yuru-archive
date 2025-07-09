@@ -54,9 +54,10 @@ public class QuestionController {
 		
 	@GetMapping("/list")
 	public String list(Model model, @RequestParam(value = "page", defaultValue = "0") int page,
-			@RequestParam(value = "kw", defaultValue = "") String kw) {
+			@RequestParam(value = "kw", defaultValue = "") String kw,
+			@RequestParam(value = "type", defaultValue = "subject") String type) {
 		log.info("page:{}, kw:{}", page, kw);
-		Page<Question> paging = this.questionService.getList(page, kw);
+		Page<Question> paging = this.questionService.getList(page, kw, type);
 		
 		// コメントの数を表すマップを作成。
 		Map<Long, Integer> answerCountMap = new HashMap<>();
@@ -68,6 +69,7 @@ public class QuestionController {
 		model.addAttribute("paging", paging);
 		model.addAttribute("kw", kw);
 	    model.addAttribute("answerCountMap", answerCountMap);
+	    model.addAttribute("type", type);
 		return "question_list";
 	}
 

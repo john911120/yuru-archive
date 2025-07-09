@@ -60,7 +60,7 @@ public class QuestionService {
 		};
 	}
 
-	public Page<Question> getList(int page, String kw) {
+	public Page<Question> getList(int page, String kw, String type) {
 		List<Sort.Order> sorts = new ArrayList<>();
 		sorts.add(Sort.Order.desc("createDate"));
 		Pageable pageable = PageRequest.of(page, 10, Sort.by(sorts));
@@ -68,8 +68,14 @@ public class QuestionService {
 		if(kw == null || kw.trim().isEmpty()) {
 			return this.questionRepository.findAll(pageable);
 		}
+		// 条件検索の分岐点
+		if("author".equals(type)) {
+			return questionRepository.findByAuthor_UsernameContaining(kw, pageable);
+		} else {
+			return questionRepository.findBySubjectContaining(kw, pageable);
+		}
 		
-		return this.questionRepository.findAllByKeyword(kw, pageable);
+	//	return this.questionRepository.findAllByKeyword(kw, pageable);
 	}
 
 	public Question getQuestion(Long id) {

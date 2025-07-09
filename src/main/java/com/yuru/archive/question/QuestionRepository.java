@@ -41,4 +41,7 @@ public interface QuestionRepository extends JpaRepository<Question, Integer> {
 	@Query("SELECT q FROM Question q LEFT JOIN FETCH q.uploadedFileList WHERE q.id = :id")
 	Optional<Question> findWithFilesById(@Param("id") Long id);
 
+	//条件検索のためのレポジトリーロジック
+	Page<Question> findByAuthor_UsernameContaining(String kw, Pageable pageable);
+	Page<Question> findBySubjectContaining(String kw, Pageable pageable);
 }
