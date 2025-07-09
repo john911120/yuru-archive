@@ -1,80 +1,73 @@
 <html lang="ja" xmlns:th="http://www.thymeleaf.org" data-bs-theme="light"　layout:decorate="~{layout}">
 <div layout:fragment="content" class="container my-3">
-	<div class="row my-3">
-		<div class="col-6">
-			<a th:href="@{/question/create}" class="btn btn-primary">質問 登録する</a>
+
+  <!-- 質問登録ボタンにと 検索条件UI整理 -->
+  <div class="row my-3 align-items-center gy-2">
+    <div class="col-md-6 mb-2 mb-md-0">
+		<a th:href="@{/question/create}" class="btn btn-primary mb-2 d-block d-md-inline-block">質問 登録する</a>
+    </div>
+    <div class="col-md-6">
+      <form th:action="@{/question/list}" method="get" id="searchForm">
+        <input type="hidden" id="page" name="page" th:value="${paging.number}">
+		<div class="d-flex justify-content-md-end justify-content-center">
+		  <div class="input-group w-100" style="max-width: 600px;">
+		    <select class="form-select" name="type" th:value="${type}" style="max-width: 120px;">
+		      <option value="subject" th:selected="${type == 'subject'}">タイトル</option>
+		      <option value="author" th:selected="${type == 'author'}">作成者</option>
+		    </select>
+		    <input type="text" style="max-width:500px;" class="form-control" name="kw" th:value="${kw}" placeholder="キーワードを入力">
+		    <button type="submit" class="btn btn-outline-primary">検索</button>
+		  </div>
 		</div>
-		<div class="col-6">
-			<div class="input-group">
-				<input type="text" id="search_kw" class="form-control" style="border: 1px solid #00BFFF;" th:value="${kw}">
-				<button class="btn btn-outline-primary" type="button" id="btn_search">探す</button>
-			</div>
-		</div>
-	</div>
-	<table class="table">
-		<thead class="table-dark">
-			<tr class="text-center">
-				<th>番号</th>
-				<th style="width:50%">タイトル</th>
-				<th>作成者</th>
-				<th>作成日</th>
-			</tr>
-		</thead>
-		<tbody>
-			<tr class="text-center" th:each="question, loop : ${paging}">
-				<td th:text="${paging.getTotalElements - (paging.number * paging.size) - loop.index}"></td>
-				<td class="text-start">
-					<a th:href="@{|/question/detail/${question.id}|}" th:text="${question.subject}"></a>
-					<span class="text-muted small"
-					      th:text="'[' + (${answerCountMap[question.id]} ?: 0) + ']'"></span>
-				</td>
-				<td><span th:if="${question.author != null}" th:text="${question.author.username}"></span></td>
-				<td th:text="${#temporals.format(question.createDate, 'yyyy-MM-dd HH:mm')}"></td>
-			</tr>
-		</tbody>
-	</table>
-	<!-- ページング処理 開始 -->
-	<div th:if="${!paging.isEmpty()}">
-		<ul class="pagination justify-content-center">
-			<li class="page-item" th:classappend="${!paging.hasPrevious} ? 'disabled'">
-				<a class="page-link" href="javascript:void(0)" th:data-page="${paging.number-1}">
-					<span>以前</span>
-				</a>
-			</li>
-			<li th:each="page: ${#numbers.sequence(0, paging.totalPages-1)}"
-				th:if="${page >= paging.number-5 and page <= paging.number+5}"
-				th:classappend="${page == paging.number} ? 'active'" class="page-item">
-				<a th:text="${page}" class="page-link" href="javascript:void(0)" th:data-page="${page}"></a>
-			</li>
-			<li class="page-item" th:classappend="${!paging.hasNext} ? 'disabled'">
-				<a class="page-link" href="javascript:void(0)" th:data-page="${paging.number+1}">
-					<span>次</span>
-				</a>
-			</li>
-		</ul>
-	</div>
-	<!-- ページング処理 終了 -->
-	<form th:action="@{/question/list}" method="get" id="searchForm">
-		<input type="hidden" id="page" name="page" th:value="${paging.number}">
-		<!-- 条件検索選択のため-->
-		<div class="input-group">
-		  <select class="form-select" name="type" th:value="${type}">
-		    <option value="subject" th:selected="${type == 'subject'}">タイトル</option>
-		    <option value="author" th:selected="${type == 'author'}">作成者</option>
-		  </select>
-		  <input type="text" class="form-control" name="kw" th:value="${kw}">
-		  <button type="submit" class="btn btn-primary">検索</button>
-		</div>
-	</form>
-	
-	<!-- ダークモードボタン -->
-	<!-- 
-	<div class="d-flex justify-content-end p-2">
-	  <button id="themeToggleBtn" class="btn btn-sm btn-outline-secondary">🌙 ダークモード</button>
-	</div>
-	-->
-	
+
+      </form>
+    </div>
+  </div>
+  
+
+  <!-- 投稿一覧テーブル-->
+  <table class="table">
+    <thead class="table-dark">
+      <tr class="text-center">
+        <th>番号</th>
+        <th style="width:50%">タイトル</th>
+        <th>作成者</th>
+        <th>作成日</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr class="text-center" th:each="question, loop : ${paging}">
+        <td th:text="${paging.getTotalElements - (paging.number * paging.size) - loop.index}"></td>
+        <td class="text-start">
+          <a th:href="@{|/question/detail/${question.id}|}" th:text="${question.subject}"></a>
+          <span class="text-muted small"
+                th:text="'[' + (${answerCountMap[question.id]} ?: 0) + ']'"></span>
+        </td>
+        <td><span th:if="${question.author != null}" th:text="${question.author.username}"></span></td>
+        <td th:text="${#temporals.format(question.createDate, 'yyyy-MM-dd HH:mm')}"></td>
+      </tr>
+    </tbody>
+  </table>
+
+  <!-- ページング -->
+  <div th:if="${!paging.isEmpty()}">
+    <ul class="pagination justify-content-center">
+      <li class="page-item" th:classappend="${!paging.hasPrevious} ? 'disabled'">
+        <a class="page-link" href="javascript:void(0)" th:data-page="${paging.number-1}">以前</a>
+      </li>
+      <li th:each="page: ${#numbers.sequence(0, paging.totalPages-1)}"
+          th:if="${page >= paging.number-5 and page <= paging.number+5}"
+          th:classappend="${page == paging.number} ? 'active'" class="page-item">
+        <a th:text="${page}" class="page-link" href="javascript:void(0)" th:data-page="${page}"></a>
+      </li>
+      <li class="page-item" th:classappend="${!paging.hasNext} ? 'disabled'">
+        <a class="page-link" href="javascript:void(0)" th:data-page="${paging.number+1}">次</a>
+      </li>
+    </ul>
+  </div>
+
 </div>
+
 <script layout:fragment="script" type='text/javascript'>
 	const page_elements = document.getElementsByClassName("page-link");
 	Array.from(page_elements).forEach(function (element) {
