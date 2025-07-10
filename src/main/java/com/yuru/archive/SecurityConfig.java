@@ -29,8 +29,17 @@ public class SecurityConfig {
 	@Bean
 	SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
 		http.authorizeHttpRequests((authorizeHttpRequests) -> authorizeHttpRequests
-				.requestMatchers("/answer/vote/**").authenticated()
-			    .requestMatchers(new AntPathRequestMatcher("/**")).permitAll())
+				// ✅ 認証が必要なDirectory
+				.requestMatchers(
+					    "/question/create",
+					    "/question/modify/**",
+					    "/question/delete/**",
+					    "/answer/create/**",
+					    "/answer/vote/**"
+					).authenticated()
+					// ✅ 他のDirectoryはすべて許容。
+					.anyRequest().permitAll()
+				)
 				.csrf((csrf) -> csrf.ignoringRequestMatchers(
 						new AntPathRequestMatcher("/h2-console/**"),
 						new AntPathRequestMatcher("/answer/create/**"),

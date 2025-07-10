@@ -4,7 +4,6 @@ import java.io.File;
 import java.io.IOException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.nio.file.attribute.UserDefinedFileAttributeView;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
@@ -39,29 +38,41 @@ public class AttachServiceImpl implements AttachService {
 	@Override
 	public List<AttachFileDTO> uploadFiles(MultipartFile[] uploadFiles, Question question, SiteUser user) {
 		List<AttachFileDTO> resultDTOList = new ArrayList<>();
-		
+	
 		for(MultipartFile uploadFile : uploadFiles) {
-			if (!uploadFile.getContentType().startsWith("image")) {
-				log.warn("イメージファイルではありません。");
+			// 拡張子検証
+			String originalName = uploadFile.getOriginalFilename();
+			
+			if(originalName == null || !isAllowedExtension(originalName)) {
+				log.warn("❌ 拡張子が許可されていないファイルです: {}", originalName);
 				continue;
 			}
 			
-			String originalName = uploadFile.getOriginalFilename();
-			String fileName = originalName.substring(originalName.lastIndexOf("\\")+1);
-			String folderPath = makeFolder();
-			log.info("✅ folderPath = {}", folderPath);
-			String uuid = UUID.randomUUID().toString();
-			String folderForDisk = folderPath.replace("/", File.separator); // OSに 合うDirectory (Windows: "\", Unix: "/")
-			String saveName = uploadPath + File.separator + folderForDisk + File.separator + uuid + "_" + fileName;
-			Path savePath = Paths.get(saveName);
-						
+			// Content-Typeを検証
+			if (!uploadFile.getContentType().startsWith("image")) {
+				log.warn("イメージファイルではありません。");
+				continue;
+			}	
+			
 			try {
+				// ファイル名処理 
+				String fileName = originalName.substring(originalName.lastIndexOf("\\")+1);
+				String folderPath = makeFolder();
+				log.info("✅ folderPath = {}", folderPath);
+				String uuid = UUID.randomUUID().toString();
+				String folderForDisk = folderPath.replace("/", File.separator); // OSに 合うDirectory (Windows: "\", Unix: "/")
+				String saveName = uploadPath + File.separator + folderForDisk + File.separator + uuid + "_" + fileName;
+				Path savePath = Paths.get(saveName);
+						
+				// ファイルをセーフする
 				uploadFile.transferTo(savePath);
+				
 				// サムネールを作る。
                 String thumbnailSaveName = uploadPath + File.separator + folderPath + File.separator +
                         "s_" + uuid + "_" + fileName;
                 Thumbnailator.createThumbnail(savePath.toFile(), new File(thumbnailSaveName), 100, 100);
                 
+                // ユーザ情報検証
                 if (user == null) {
                 	log.warn("❌ user is null!! DB登録をスキップします。");
                 	continue;
@@ -93,6 +104,14 @@ public class AttachServiceImpl implements AttachService {
 		}
 		return resultDTOList;
 	}
+	
+	// ✅ 拡張子検証ユーチルメソッド
+	private boolean isAllowedExtension(String filename) {
+	    String lowerName = filename.toLowerCase();
+	    return lowerName.endsWith(".jpg") || lowerName.endsWith(".jpeg") ||
+	           lowerName.endsWith(".png") || lowerName.endsWith(".gif") || lowerName.endsWith(".webp");
+	}
+	
 
 	//添付したファイルを削除するロジックを実行します。
 	@Override
