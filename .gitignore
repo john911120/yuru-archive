@@ -35,3 +35,10 @@ out/
 
 ### VS Code ###
 .vscode/
+
+.env
+*.log
+*.class
+target/
+build/
+.idea/

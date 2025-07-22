@@ -1,0 +1,24 @@
+## 📡 Docker Setting[250722]
+## 実行方法
+ 1. '.env'ファイルをルートディレクトリに生成する。
+  `DB_NAME=yuru_archive_run`
+  `DB_USER=postgres`
+  `DB_PASSWORD=(あなたのパスワード)`
+ 2. 次のコマンドを入力します。
+ `bash`
+ `docker-compose up --build`
+
+### ✅ GitHub にプッシュする手順
+```
+	git init  #（初回の場合）
+	git add .
+	git commit -m "Initial commit with Docker and .env"
+	git branch -M main
+	git remote add origin https://github.com/your-name/your-repo.git
+	git push -u origin main
+```
+
+## License
+This project is **NOT open source**.  
+All rights reserved by © 2025 John Dev.  
+Commercial use is strictly prohibited unless prior written permission is obtained.
