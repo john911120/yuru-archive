@@ -83,8 +83,80 @@ flex-grow, w-100 などの組み合わせによる UI 崩れを修正
 ✅ UI連携
 Bootstrap + Thymeleafにて、ユーザーが直感的に操作できるUIを構築
 
+<<<<<<< HEAD
 ※ 第2フェーズとして、他の端末でのテストを実施し、確認結果をREADMEに追記する予定です。
+=======
+※ 第2フェーズとして、他の端末でのテストを実施し、確認結果をREADMEに追記する予定です。[当日17:00から18:00までのテスト]
+1. コードの反映に問題なし（異なる端末での動作確認済み）
+2. 未ログイン状態で投稿しようとすると、ログインページにリダイレクトされるように設定済み
+ - 元々、未ログインユーザーには投稿の閲覧制限は想定していなかった
+3. .webp / .gif / .jpg ファイルのアップロードに問題なし（DBに正常に反映されることを確認）
+ - ダウンロード機能も正常に動作（ダウンロードした全ファイルに破損なし）
+ - 投稿詳細ページで .gif の動作も確認済み
+ - 投稿編集・添付ファイル削除機能も正常に動作
+  - .webp 削除・編集：DB上でも削除されたことを確認
+  - .gif 削除・編集：DB上でも削除されたことを確認
 
+## 今後の展望
+🔚 今後の展望とご挨拶
+7月10日をもちまして、追加開発の作業はすべて終了いたしました。
+
+これにより、開発フェーズは一区切りとなり、今後2週間ほどは、
+韓国における情報処理技術者試験（二次試験）の準備のため、お休みをいただきます。
+
+試験終了後は、クラウド環境（DockerやAWS）への実装・展開を目指して、
+引き続き作業を進めてまいりますので、何卒ご理解のほどよろしくお願いいたします。
+
+ここまでの成果物を形にできたのは、見守ってくださった皆様のおかげです。
+心より感謝申し上げます。皆様のお力添えがあり、成長することができました。
+今後ともどうぞよろしくお願いいたします。
+
+本当にありがとうございました。
+<(_ _)>
+
+## 📌 2025年 7月 28日 Thymeleaf SecurityCode Check
+>>>>>>> 1d236a3 (✅ 対策内容: JSoup + Commonmark による Markdown XSSフィルタリング)
+
+### ✅ 対策内容: JSoup + Commonmark による Markdown XSSフィルタリング
+
+このプロジェクトでは、`th:utext`を用いたMarkdownレンダリングにおいて  
+外部からのスクリプト挿入（XSS）を遮断するために、以下の対応を行いました。
+
+### 🔧 適用技術
+- [`commonmark-java`](https://github.com/commonmark/commonmark-java) による Markdown → HTML変換
+- [`jsoup`](https://jsoup.org/) による HTML サニタイズ（`Safelist.basicWithImages()`）
+
+### 🔒 適用目的
+- ユーザーが投稿した Markdown テキストを安全に HTML 表示すること
+- HTMLタグのうち、見出し・リンク・画像など基本的な要素のみを許可
+- `<script>`, `onerror`, `iframe`, `style` などの危険な要素は完全除去
+
+### 📄 対象箇所
+- `question_detail.html` および `answer.content` を表示する箇所の `th:utext` に適用
+- Java側では `CommonUtil.java` 内の `markdown()` メソッドを通じてフィルタリング処理を統一
+
+### 📁 該当クラス
+```java
+@Component
+public class CommonUtil {
+    public String markdown(String markdownText) {
+        ...
+        return Jsoup.clean(html, Safelist.basicWithImages());
+    }
+}
+
+🧪 確認方法
+以下のようなマークダウンを投稿し、意図した HTML だけが表示されているかを確認：
+
+# タイトル
+<script>alert('XSS')</script>
+[リンク](https://example.com)
+<img src="x" onerror="alert('XSS')">
+→ 結果: script や onerror は削除され、リンクと見出しのみが安全に表示される
+
+📌 注意事項
+JSoupの Safelist 設定は必要に応じて拡張可能です。
+MarkdownエディタやWYSIWYG導入時にもこの処理を通す必要があります。
 
 ## License
 This project is **NOT open source**.  
