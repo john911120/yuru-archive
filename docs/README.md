@@ -95,6 +95,7 @@ com.yuru.archive.attach
 | spring-security Auth | [devlog-springSecurity.md](docs/devlog-springSecurity.md) |
 | Database設計 | [devlog-database.md](docs/devlog-database.md) |
 | 時間帯に合わせてログインする時に挨拶出力機能 | [devlog-greeting_Japan.md](docs/devlog-greeting_Japan.md) |
+| MFE統合ステップ1 | [MFE_Integration_Step1.md](docs/MFE_Integration_Step1.md) |
 | 🚨 開発メモ：バグと修正履歴 | [devlog-troubleshootetc.md](docs/devlog-troubleshootetc.md) |
 
 

@@ -1,0 +1,38 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <!-- 
+    FOUC防止
+    Vueがマウントされる前に使用者から設定されたシステムの好みを先に適応する。
+    -->
+    <script>
+      (() => {
+        const key = 'yuru-theme'
+        const saved = localStorage.getItem(key) // 'light' | 'dark' | 'auto' | null
+        const sysDark = window.matchMedia('(prefers-color-scheme: dark)').matches
+        const mode = saved || 'auto'
+        const theme = mode === 'auto'? (sysDark ? 'dark' : 'light') :mode
+        document.documentElement.setAttribute('data-bs-theme', theme)
+        document.documentElement.dataset.userThemeMode = mode // 現在のモードを記憶する「選択用のUI表示」
+      })();
+    </script>
+    <meta charset="UTF-8" />
+    <link
+    rel="stylesheet"
+    href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/css/bootstrap.min.css"
+    crossorigin="anonymous"
+    referrerpolicy="no-referrer"
+    />
+    <link rel="icon" href="/memo/favicon.ico" />
+<!-- <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/js/bootstrap.min.js"
+ integrity="sha512-3dZ9wIrMMij8rOH7X3kLfXAzwtcHpuYpEgQg1OA4QAob1e81H8ntUQmQm3pBudqIoySO5j0tHN4ENzA6+n2r4w=="
+  crossorigin="anonymous" referrerpolicy="no-referrer"></script> -->
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Vite App</title>
+    <script type="module" crossorigin src="/memo/assets/index-Uh-PBvu9.js"></script>
+    <link rel="stylesheet" crossorigin href="/memo/assets/index-B-fyMROc.css">
+  </head>
+  <body>
+    <div id="app"></div>
+  </body>
+</html>
