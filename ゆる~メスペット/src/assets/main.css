@@ -1,0 +1,11 @@
+@import './base.css';
+
+html, body { height:100%; }
+body {
+    background-color: var(--bs-body-bg);
+    color: var(--bs-body-color);
+}
+
+a, .logo-link {
+    color: var(--bs-link-color)
+}
