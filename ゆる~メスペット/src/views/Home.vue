@@ -51,6 +51,10 @@ const remove = (id: number) => {
     </div>
 
     <router-link to="/memos/add" class="add btn btn-light w-100 mt-3">+ 追加する</router-link>
+	<!-- 🔽 ゆるアーカイブに戻る ボタン -->
+	<a href="/question/list" class="btn btn-outline-secondary w-100 mt-3">
+	  ゆるアーカイブに戻る
+	</a>
   </div>
 </template>
 

@@ -6,7 +6,7 @@ import vue from '@vitejs/plugin-vue'
 
 // https://vitejs.dev/config/
 export default defineConfig({
-	base : '/memo/', // /memo directory standard setting
+	base : '/memos/', // /memo directory standard setting
   plugins: [
     vue()
     //vueDevTools()
