@@ -2,7 +2,7 @@
 ## 🗃️ データベース設計
 
 ### ER図（最新版）
-![ERD](../assets/ゆるアーカイブ修正6版_ERD.png)
+![ERD](../assets/ゆるアーカイブ修正7版_ERD.png)
 
 ### テーブル定義（SQL）
 📎 [ゆるアーカイブQuery.sql](https://raw.githubusercontent.com/john911120/yuru-archive/main/sql/ゆるアーカイブQuery.sql)
@@ -56,6 +56,9 @@ ERDおよび初期化SQLスクリプトを更新
        
 ## 20250617 ERD_Diagram イマージを更新しました。    
 
+## 20251022 ERD_Diagram イマージを更新しました。 
+関連SQL:  
+[`ゆるアーカイブ_FK&Index.sql`](../sql/ゆるアーカイブ_FK&Index.sql)  
 
 
 ## License

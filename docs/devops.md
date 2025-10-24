@@ -157,6 +157,8 @@ public class CommonUtil {
 📌 注意事項
 JSoupの Safelist 設定は必要に応じて拡張可能です。
 MarkdownエディタやWYSIWYG導入時にもこの処理を通す必要があります。
+```
+
 
 ## License
 This project is **NOT open source**.  

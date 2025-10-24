@@ -21,6 +21,21 @@
 		</div>
 
       </form>
+	  
+	  <script th:inline="javascript">
+		/*<![CDATA[*/
+		document.addEventListener('DOMContentLoaded', function () {
+		  const form = document.getElementById('searchForm');
+		  const page = document.getElementById('page');
+			
+			if(form && page) {
+			    form.addEventListener('submit', function () {
+					page.value = 0;  // 🔑 検索を提出するときに常に0ページから始める。
+				})
+			}
+		})
+		/*]]>*/
+	  </script>
     </div>
   </div>
   

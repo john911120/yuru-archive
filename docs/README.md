@@ -54,7 +54,7 @@ Spring Boot × PostgreSQLをベースに、
 | 日本住所API | 郵便番号による自動入力（ZipCloud） |
 
 ## 技術スタック
-- Java 17 / Spring Boot 3.2.12（DoS対策適用版）
+- Java 17 / Spring Boot 3.2.12 → 3.5.6（3.2.xバージョンEOL対策適用版）
 - PostgreSQL 16 / H2 Database（テスト用）
 - Thymeleaf / Bootstrap 5.3
 - Docker / Docker Compose
@@ -86,6 +86,7 @@ com.yuru.archive.attach
 
 | カテゴリ | ドキュメント |
 |----------|--------------|
+| 🚀**DevOps アップグレード履歴** | [devops-upgrade.md](devlog-upgrade.md) |
 | Lombok設定（Ubuntu） | [devlog-lombok.md](devlog-lombok.md) |
 | PostgreSQLリモート接続 | [devlog-postgres-remote.md](devlog-postgres-remote.md) |
 | 添付ファイルの構成と仕様 | [devlog-fileupload.md](devlog-fileupload.md) |
