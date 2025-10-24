@@ -86,7 +86,7 @@ com.yuru.archive.attach
 
 | カテゴリ | ドキュメント |
 |----------|--------------|
-| 🚀**DevOps アップグレード履歴** | [devops-upgrade.md](devlog-upgrade.md) |
+| 🚀**DevOps アップグレード履歴** | [devops_upgrade.md](devlog_upgrade.md) |
 | Lombok設定（Ubuntu） | [devlog-lombok.md](devlog-lombok.md) |
 | PostgreSQLリモート接続 | [devlog-postgres-remote.md](devlog-postgres-remote.md) |
 | 添付ファイルの構成と仕様 | [devlog-fileupload.md](devlog-fileupload.md) |
