@@ -1,4 +1,4 @@
-## 20251110 DisCordや各種のSNSのリンクをつけて移動できるような機能追加（開発中です。）
+## 20251110 各種SNSのリンクプリビュー機能追加（開発中です。）
 Microlink + Cloudinary + medium-zoom + Autolinker + セキュリティ対策を含み開発をしておりました。
 
 **Develop Environment**  
