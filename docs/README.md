@@ -86,7 +86,7 @@ com.yuru.archive.attach
 
 | カテゴリ | ドキュメント |
 |----------|--------------|
-| SNSLink機能 | [devlog-SNS.md](devlog-SNS.md) |
+| SNSのリンクプリビュー機能 | [devlog-SNS.md](devlog-SNS.md) |
 | 🚀**DevOps アップグレード履歴** | [devops_upgrade.md](devops_upgrade.md) |
 | Lombok設定（Ubuntu） | [devlog-lombok.md](devlog-lombok.md) |
 | PostgreSQLリモート接続 | [devlog-postgres-remote.md](devlog-postgres-remote.md) |
