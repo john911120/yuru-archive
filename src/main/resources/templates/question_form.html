@@ -20,11 +20,39 @@
 	        <input type="text" th:field="*{subject}" class="form-control">
 	    </div>
 
+		<!-- 
 	    <div class="mb-3">
 	        <label for="content" class="form-label">コンテンツ</label>
-	        <textarea th:field="*{content}" class="form-control" rows="10"></textarea>
+	        <textarea th:field="*{content}" id="content" class="form-control" rows="10"></textarea>
 	    </div>
+				<div class="mb-4">
+				  <label class="form-label">リンクプレビューを挿入</label>
+				  <div class="input-group">
+				    <input type="url" id="linkPreviewUrl" class="form-control" placeholder="https://example.com/article">
+				    <button type="button" id="btnInsertLinkCard" class="btn btn-outline-primary">本文に挿入</button>
+				  </div>
+				  <small class="text-muted">
+				    ※ 本文には <code>&#91;&#91;linkcard url="..."&#93;&#93;</code> として挿入されます。
+				  </small>
+				</div>
+		-->
+		<div class="mb-3">
+		    <label for="content" class="form-label">コンテンツ</label>
+		    <textarea th:field="*{content}" class="form-control js-content" rows="10"></textarea>
+		</div>
 
+		<div class="mb-4 js-linkcard-box">
+		  <label class="form-label">リンクプレビューを挿入</label>
+		  <div class="input-group">
+		    <input type="url" class="form-control js-linkcard-url" placeholder="https://example.com/article">
+		    <button type="button" class="btn btn-outline-primary js-linkcard-insert">本文に挿入</button>
+		  </div>
+		  <small class="text-muted">
+		    ※ 本文には <code>&#91;&#91;linkcard url="..."&#93;&#93;</code> として挿入されます。
+		  </small>
+		</div>
+
+		
 	    <div class="mb-3">
 	        <label for="uploadFiles" class="form-label">ファイル選択</label>
 	        <input type="file" class="form-control" id="uploadFiles" name="uploadFiles" multiple style="max-width: 100%;" accept=".jpg,.jpeg,.png,.gif,.webp">
@@ -63,11 +91,40 @@
 	        <input type="text" th:field="*{subject}" class="form-control">
 	    </div>
 
+		<!-- 
 	    <div class="mb-3">
 	        <label for="content" class="form-label">コンテンツ</label>
-	        <textarea th:field="*{content}" class="form-control" rows="10"></textarea>
+	        <textarea th:field="*{content}" id="content" class="form-control" rows="10"></textarea>
 	    </div>
+		
+		<div class="mb-4">
+		  <label class="form-label">リンクプレビューを挿入</label>
+		  <div class="input-group">
+		    <input type="url" id="linkPreviewUrl" class="form-control" placeholder="https://example.com/article">
+		    <button type="button" id="btnInsertLinkCard" class="btn btn-outline-primary">本文に挿入</button>
+		  </div>
+		  <small class="text-muted">
+		    ※ 本文には <code>&#91;&#91;linkcard url="..."&#93;&#93;</code> として挿入されます。
+		  </small>
+		</div>
+		-->
+		<div class="mb-3">
+		    <label for="content" class="form-label">コンテンツ</label>
+		    <textarea th:field="*{content}" class="form-control js-content" rows="10"></textarea>
+		</div>
 
+		<div class="mb-4 js-linkcard-box">
+		  <label class="form-label">リンクプレビューを挿入</label>
+		  <div class="input-group">
+		    <input type="url" class="form-control js-linkcard-url" placeholder="https://example.com/article">
+		    <button type="button" class="btn btn-outline-primary js-linkcard-insert">本文に挿入</button>
+		  </div>
+		  <small class="text-muted">
+		    ※ 本文には <code>&#91;&#91;linkcard url="..."&#93;&#93;</code> として挿入されます。
+		  </small>
+		</div>
+
+		
 	    <div class="mb-3">
 	        <label for="uploadFiles" class="form-label">ファイル選択</label>
 	        <input type="file" class="form-control" id="uploadFiles" name="uploadFiles" multiple style="max-width: 100%;" accept=".jpg,.jpeg,.png,.gif,.webp">
@@ -77,4 +134,70 @@
 	    <input type="submit" value="セーブする" class="btn btn-primary my-2">
 	</form>
 </div>
+
+<!-- 
+<script>
+	/*
+	(() => {
+	  const $ = s => document.querySelector(s);
+	  const urlInput = $('#linkPreviewUrl');
+	  const btn = $('#btnInsertLinkCard');
+	  const content = $('#content');
+
+	  function insertAtCaret(textarea, text) {
+	    const start = textarea.selectionStart;
+	    const end   = textarea.selectionEnd;
+	    const before = textarea.value.substring(0, start);
+	    const after  = textarea.value.substring(end);
+	    textarea.value = before + text + after;
+	    textarea.selectionStart = textarea.selectionEnd = start + text.length;
+	    textarea.focus();
+	  }
+
+	  btn.addEventListener('click', () => {
+	    const u = (urlInput.value || '').trim();
+	    if (!u) { alert('URLを入力してください。'); return; }
+	    insertAtCaret(content, `[[linkcard url="${u}"]]\n`);
+	  });
+	})();	
+	*/
+</script>	
+-->
+<th:block layout:fragment="script">
+<script th:inline="none">
+(() => {
+  const $ = sel => document.querySelector(sel);
+
+  const btn = $('.js-linkcard-insert');
+  const urlInput = $('.js-linkcard-url');
+  const content = $('.js-content');   // textarea
+
+  if (!btn || !urlInput || !content) return;
+
+  function insertAtCaret(textarea, text) {
+    const start = textarea.selectionStart;
+    const end = textarea.selectionEnd;
+    const before = textarea.value.substring(0, start);
+    const after  = textarea.value.substring(end);
+    textarea.value = before + text + after;
+    textarea.selectionStart = textarea.selectionEnd = start + text.length;
+    textarea.focus();
+  }
+
+  btn.addEventListener('click', () => {
+    const url = urlInput.value.trim();
+    if (!url) {
+      alert('URLを入力してください。');
+      return;
+    }
+	
+	const shortcode = `[[linkcard url="${url}"]]\n`;
+
+	    insertAtCaret(content, shortcode);
+  });
+
+})();
+</script>
+</th:block>
+
 </html>

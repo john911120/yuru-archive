@@ -1,0 +1,19 @@
+<div class="post-body" th:utext="${htmlBody}"></div>
+
+<script src="https://cdn.jsdelivr.net/npm/autolinker@4.0.0/dist/Autolinker.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/medium-zoom@1.0.6/dist/medium-zoom.min.js"></script>
+
+
+<script>
+	// 詳細ページから、自動的にイメージが拡大する機能と、テキストをリンク化を適応。	
+	  mediumZoom('.link-card .card-img-top', { background:'#000', margin: 24 });
+
+	  document.querySelectorAll('.card-text').forEach(el => {
+	    el.innerHTML = Autolinker.link(el.textContent || '', {
+	      urls:true, email:false, phone:false, mention:'twitter',
+	      stripPrefix:true, sanitizeHtml:true,
+	      newWindow:true,
+	      rel:'noopener noreferrer ugc nofollow'
+	    });
+	  });	
+</script>

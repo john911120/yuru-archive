@@ -12,6 +12,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
+import java.util.regex.*;
 
 import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
@@ -26,6 +27,8 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.server.ResponseStatusException;
+import org.thymeleaf.TemplateEngine;
+import org.thymeleaf.context.Context;
 
 import com.yuru.archive.answer.AnswerForm;
 import com.yuru.archive.answer.AnswerRepository;
@@ -33,6 +36,8 @@ import com.yuru.archive.attach.dto.AttachFileDTO;
 import com.yuru.archive.attach.entity.UploadedFile;
 import com.yuru.archive.attach.repository.AttachFileRepository;
 import com.yuru.archive.attach.service.AttachService;
+import com.yuru.archive.linkpreview.dto.OgDto;
+import com.yuru.archive.linkpreview.service.ExternalOgService;
 import com.yuru.archive.user.SiteUser;
 import com.yuru.archive.user.UserService;
 
@@ -51,6 +56,36 @@ public class QuestionController {
 	private final QuestionService questionService;
 	private final UserService userService;
 	private final AnswerRepository answerRepository;
+	// LinkCard Include version
+	private final ExternalOgService ogService;
+	private final TemplateEngine templateEngine;
+	
+    // [[linkcard url="..."]] pattern
+    private static final Pattern LINKCARD = 
+            Pattern.compile("\\[\\[linkcard\\s+url=\"([^\"]+)\"\\s*]]");
+	
+    private String expandLinkCards(String content) {
+        if (content == null || content.isBlank()) return content;
+
+        Matcher m = LINKCARD.matcher(content);
+        StringBuffer sb = new StringBuffer();
+
+        while (m.find()) {
+            String url = m.group(1);
+
+            OgDto og = ogService.fetch(url);
+
+            Context ctx = new Context();
+            ctx.setVariable("og", og);
+
+           // String html = templateEngine.process("cards/_card :: linkCard", ctx);
+            String html = templateEngine.process("card", ctx);
+            
+            m.appendReplacement(sb, Matcher.quoteReplacement(html));
+        }
+        m.appendTail(sb);
+        return sb.toString();
+    }
 		
 	@GetMapping("/list")
 	public String list(Model model, @RequestParam(value = "page", defaultValue = "0") int page,
@@ -77,9 +112,13 @@ public class QuestionController {
 	public String detail(Model model, @PathVariable("id") Long id, AnswerForm answerForm) {
 		Question question = this.questionService.getQuestion(id);
 		List<UploadedFile> uploadedFiles = this.attachFileRepository.findByQuestionId(id);
+		// content → linkCard HTML transfer
+		String htmlBody = expandLinkCards(question.getContent());
 		
 		model.addAttribute("question", question);
 		model.addAttribute("uploadedFiles", uploadedFiles);
+		model.addAttribute("htmlBody", htmlBody);
+		
 		return "question_detail";
 	}
 

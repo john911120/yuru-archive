@@ -39,6 +39,129 @@ Microlink + Cloudinary + medium-zoom + Autolinker + セキュリティ対策を�
 		<dd> 5. CSP/Referrer/nosniff/HSTS(production)Applyed.</dd>
 	</dl>
 
+## 20251128 各種SNSのリンクプリビュー機能追加（開発完了です。）
+ - 開発期間 : 総18日
+
+## 📘 リンクカード機能の実装記録（開発ログ）
+
+## 🚀 概要
+本プロジェクトでは、**質問投稿内の URL を自動解析し、OGP(Open Graph Protocol) を基に「リンクカード」を生成する機能**を実装しました。  
+Markdown の表現力を損なわず、ユーザー体験を向上させることを目的としています。
+
+本機能により、以下のような記述が可能になります：
+
+``[[linkcard url="https://example.com"]]``
+ 
+
+---
+
+## 🧩 機能仕様
+
+### ✔ 1. OGP メタデータの取得
+- 指定 URL へサーバー側からアクセスし、以下の OGP 情報を解析  
+  - `og:title`  
+  - `og:description`  
+  - `og:image`  
+  - `og:url`  
+
+取得したデータは `OgMetadata` としてコントローラに渡されます。
+
+---
+
+### ✔ 2. テンプレートレンダリング
+- `card.html` にてリンクカード用テンプレートを作成  
+- `Thymeleaf TemplateEngine` を用いて HTML として描画  
+- **DB の question.content はそのまま保持し、画面描画時のみリンクカードを反映**  
+　（Markdown と干渉しない安全な構造設計）
+
+---
+
+### ✔ 3. フォールバック処理（Graceful Degradation）
+
+外部サーバーが画像リンクをブロックしたり、CORS、404 を返すケースに備え、  
+以下のフェイルセーフ処理を実装：
+
+- 画像取得エラー → `<img>` タグを自動削除する  
+- ダウンロードボタンも同時に非表示  
+- タイトル / 説明 / URL は正常表示  
+- UI の崩壊を完全防止
+
+---
+
+## 🎨 UI / レイアウト改善
+
+### ✔ カード本体スタイル
+```
+<div th:fragment="linkCard(og)"
+     class="card shadow link-card"
+     style="width:100%; max-width:min(1060px, 90vw); margin-top:1.6rem; margin-bottom:1.4rem;">
+```
+ - PC・モバイル両対応
+ - 最大幅を柔軟に調整（min(1060px, 90vw)）
+ - 適切な余白で読みやすさ向上
+
+## ✔ 画像処理
+```
+<img th:if="${og.image != null}" th:src="${og.image}"
+     class="card-img-top zoomable"
+     style="max-width:420px; width:100%; margin:0;"
+     alt="preview"
+     onerror="this.remove()">
+```
+ - 画像取得エラー時は 即時削除
+ - CORS でも崩れないカード構成
+
+## 🧪 question_detail.html への統合
+リンクカードが存在する場合は htmlBody を優先的に描画：
+
+```<!-- リンクカードを優先表示 -->
+<div th:if="${htmlBody != null}"
+     th:utext="${htmlBody}">
+</div>
+
+<!-- 無ければ通常の Markdown 出力 -->
+<div th:if="${htmlBody == null}"
+     th:utext="${@commonUtil.markdown(question.content)}">
+</div>
+```
+Markdown の二重描画を防ぐため、旧ロジックは整理済み。
+
+## ✔ 開発済みの画面
+![ゆるアーカイブSNS画面](../assets/ゆるアーカイブSNS画面.jpg)
+- 画像を提供するサーバー側で **404 エラー** が発生した場合、  
+  プレビュー画像の `<img>` タグを削除し、**ダウンロードボタンも自動的に非表示** にします。
+- 404 エラーが発生しなければ、プレビュー画像を表示し、  
+  あわせて **JPG ダウンロードボタンも有効** な状態で表示されます。
+ 
+## 🔄 バックアッププロジェクトについて（補足）
+リンクカード開発中の破損リスクに備え、
+バックアッププロジェクト側にも同等のリンクカード処理を実装済みです。
+
+含まれている実装：
+ - OGP 解析ロジック
+ - TemplateEngine レンダリング
+ - card.html のリンクカード fragment
+ - question_detail 相当の統合ロジック（htmlBody 優先描画）
+
+#🔹 万が一メインプロジェクトに不具合が発生した場合は、バックアップ側のコードを参考実装として利用できます。
+
+# 🏁 完成度と総評
+今回のリンクカード実装は、UI / 安定性 / データ整合性 を高レベルで満たした完成度の高い仕上がりになりました。
+
+# 📌 達成したポイント
+✔ URL → OGP → リンクカード自動生成
+
+✔ Markdown を壊さない安全な仕組み
+
+✔ 外部ホストの画像エラーに強い堅牢設計
+
+✔ PC / モバイル両方で自然なレイアウト
+
+✔ バックアッププロジェクトにも実装済み（参照性◎）
+
+# 今後は、キャッシュ化・複数 URL 対応などへ発展できます。
+
+ 
 ## License
 This project is **NOT open source**.  
 All rights reserved by © 2025 John Dev.  

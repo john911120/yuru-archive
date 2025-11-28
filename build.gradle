@@ -22,6 +22,9 @@ dependencies {
     // XSSフィルターリング専用 HTMLフィルター
     implementation 'org.jsoup:jsoup:1.17.2'
     
+    implementation 'org.springframework.boot:spring-boot-starter-webflux' // WebClient専用
+    implementation 'com.github.ben-manes.caffeine:caffeine:3.1.8'
+    
 	implementation 'org.springframework.boot:spring-boot-starter-web'
 	testImplementation 'org.springframework.boot:spring-boot-starter-test'
 	developmentOnly 'org.springframework.boot:spring-boot-devtools'
@@ -39,6 +42,14 @@ dependencies {
 	implementation 'org.thymeleaf.extras:thymeleaf-extras-springsecurity6'
 	implementation 'org.commonmark:commonmark:0.21.0'
 	runtimeOnly 'org.postgresql:postgresql'
+}
+/*
+ gradle 8.x + Java 17の組み合わせは、基本的にサポートされていて、下位バージョンのために残した最後の安全処置です。
+ Gradle 6.x以下のバージョンを使っているか、Windows Locale(cp949)環境でbuildされている場合、この設定がなければ、ローカル基本インコディングに変えてしまいコメントが壊れる可能性がある。
+ なので、保守運用の次元に残しました。
+*/
+tasks.withType(JavaCompile) {
+    options.encoding = 'UTF-8'
 }
 
 tasks.named('test') {

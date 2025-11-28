@@ -8,7 +8,26 @@
 	<div class="card my-3">
 		<div class="card-body">
 			<!--<script>alert('XSS')</script>-->
-			<div class="card-text" th:utext="${@commonUtil.markdown(question.content)}"></div>			
+			<!--<div class="card-text" th:utext="${@commonUtil.markdown(question.content)}"></div>	-->
+			<!--
+				DBには、元々のquestion.contentは、そのまま維持されており、
+				Controllerにもquestionがそのまま、モデルに載せられます。
+				画面だけでのリンクカード適応バージョン(htmlBody)を見せます。
+				コメントの返事ロジック, 修正画面, ファイルのアップロード等々には影響はございません。
+				データは維持されていて、表示方だけが変わることだけです。
+			-->
+			
+			<!-- リンクカード拡張 HTMLがあれば、優先的に適応する。-->
+			<div th:if="${htmlBody != null}"
+			     th:utext="${htmlBody}">
+			</div>
+						
+			<!-- リンクカードが無ければ、既存の Markdownを出力します。-->
+			<div th:if="${htmlBody == null}"
+			     th:utext="${@commonUtil.markdown(question.content)}">
+			</div>
+			
+		<!--	<div class="card-text" th:utext="${@commonUtil.markdown(question.content)}"></div>			-->
 			<div class="d-flex justify-content-end">
 				<div class="badge bg-light text-dark p-2 text-start">
 					<div class="mb-2">
