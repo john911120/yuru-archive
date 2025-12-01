@@ -159,6 +159,34 @@ JSoupの Safelist 設定は必要に応じて拡張可能です。
 MarkdownエディタやWYSIWYG導入時にもこの処理を通す必要があります。
 ```
 
+### 🧪 2025-12-01 Fasttrack 追加内容
+
+##🛠 表示上の改修：質問詳細ページの改行保持について
+質問詳細ページ（question_detail.html）において、
+リンクカード拡張機能を適用した際に生成される htmlBody を表示すると、
+元のテキストに含まれる改行（\\n）が反映されず、
+1 行に詰まって表示される問題が確認されました。
+
+# ■ 原因
+htmlBody は Markdown を通さず そのまま HTML として描画されるため、
+HTML の仕様上、改行文字は表示上無視されます。（Markdown 経由の場合は <br> に変換されるため問題なし）
+
+# ■ 対応内容
+htmlBody を描画する要素に、CSS の white-space: pre-wrap; を付与し、改行をそのまま表示できるようにしました。
+
+```
+<div th:if="${htmlBody != null}"
+     th:utext="${htmlBody}"
+     style="white-space: pre-wrap;">
+</div>
+```
+
+# ■ 影響範囲
+- 表示処理のみの変更であり、DB への保存内容、Markdown 処理、リンクカード生成処理には影響しません。
+- 質問編集、コメント投稿、ファイルアップロード等の既存機能にも影響ありません。
+
+# ■ 補足
+- htmlBody が存在しない場合は従来通り Markdown を使用するため、改行は引き続き自動的に保持されます。
 
 ## License
 This project is **NOT open source**.  

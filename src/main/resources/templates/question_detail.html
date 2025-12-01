@@ -19,7 +19,8 @@
 			
 			<!-- リンクカード拡張 HTMLがあれば、優先的に適応する。-->
 			<div th:if="${htmlBody != null}"
-			     th:utext="${htmlBody}">
+			     th:utext="${htmlBody}"
+				 style="white-space: pre-wrap;">
 			</div>
 						
 			<!-- リンクカードが無ければ、既存の Markdownを出力します。-->
