@@ -87,8 +87,9 @@ public class ExternalOgService {
 	    if (image == null || image.isBlank()) image = "https://via.placeholder.com/1200x630.png?text=No+Image";
 
 	    // Cloudinary fetch → JPG force
-	    String jpg = cloudFetchJpg(image);
-
+	    // String jpg = cloudFetchJpg(image);
+	    String jpg = image;
+	    
 	    OgDto dto = new OgDto(url != null ? url : targetUrl, title, desc, jpg);
 	    ogCache.put(targetUrl, dto);
 	    return dto;
