@@ -1,21 +1,38 @@
 <!-- preview fragment html file -->
 <div th:fragment="linkCard(og)" class="card shadow-sm link-card" style="width:100%; max-width:min(1150px, 90vw); margin-top:1.6rem; margin-bottom:1.4rem; ">
-  <a th:href="${og.url}" target="_blank" rel="noopener noreferrer">
+	<!--  
+	    🔒 [TEMP DISABLED] 2025-12-04
+	    SNS 側の thumbnail / description 取得制限によりプレビュー機能を一時停止。
+	    今後 API / ポリシーが安定次第、復元予定。
+	 -->
+	<!--  
+	<a th:href="${og.url}" target="_blank" rel="noopener noreferrer">
     <img th:if="${og.image != null}" th:src="${og.image}" class="card-img-top zoomable"
          style="width:100%; max-width:420px; max-height:420px; object-fit:cover; display:block; margin:0;" alt="preview" onerror="this.parentElement.style.display='none'" >
   </a>
-
+  -->
   <div class="card-body" style="padding:1.4rem 1.6rem">
     <h5 class="card-title" th:text="${og.title}">Title</h5>
-    <p class="card-text" th:text="${og.description}">説明</p>
-	
-	<!-- button area(Flex align apply) -->
+	<!--  
+	    🔒 [TEMP DISABLED] 2025-12-04
+	    SNS 側の thumbnail / description 取得制限によりプレビュー機能を一時停止。
+	    今後 API / ポリシーが安定次第、復元予定。
+	 -->
+	<!-- 
+	<p class="card-text" th:text="${og.description}">説明</p>
+	-->
+	<!-- 
+		ボタンエリア（原文を開くボタンのみ稼働）
+		・JPG ダウンロードボタンは、SNS 側が image を返さないため一時停止
+		・プレビュー/画像取得 API が復帰次第、解除予定
+	-->
 	<div class="d-flex align-items-center gap-2">
 	    <a class="btn btn-primary" th:href="${og.url}"
 	       target="_blank" rel="noopener noreferrer">原文を開く</a>
-	
+		<!-- 
 	    <a th:if="${og.image != null}" class="btn btn-outline-secondary ms-2 js-download-btn"
 	       th:href="${og.image}" download="image.jpg">JPG ダウンロード</a>
+		-->
 	</div>   
   </div>
 </div>
