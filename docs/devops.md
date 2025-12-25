@@ -190,5 +190,5 @@ htmlBody を描画する要素に、CSS の white-space: pre-wrap; を付与し�
 
 ## License
 This project is **NOT open source**.  
-All rights reserved by © 2025 John Dev.  
+All rights reserved by © 2025~2026 John Dev.  
 Commercial use is strictly prohibited unless prior written permission is obtained.

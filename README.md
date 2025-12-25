@@ -47,5 +47,5 @@ Spring Boot × PostgreSQLをベースに、
 
 ## License
 This project is **NOT open source**.  
-© 2025 John Dev – All rights reserved.  
+© 2025~2026 John Dev – All rights reserved.  
 Commercial use without prior written permission is strictly prohibited.
