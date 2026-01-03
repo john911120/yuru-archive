@@ -86,6 +86,7 @@ com.yuru.archive.attach
 
 | カテゴリ | ドキュメント |
 |----------|--------------|
+| 2026年JDK17→JDK21 | [updateJDK21log.md](devlog-updateJDK21log.md) |
 | 2025年〆メッセージ | [closing_2025.md](closing_2025.md) |
 | SNSのリンクプリビュー機能 | [devlog-SNS.md](devlog-SNS.md) |
 | 🚀**DevOps アップグレード履歴** | [devops_upgrade.md](devops_upgrade.md) |
