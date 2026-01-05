@@ -54,7 +54,7 @@ Spring Boot × PostgreSQLをベースに、
 | 日本住所API | 郵便番号による自動入力（ZipCloud） |
 
 ## 技術スタック
-- Java 17 / Spring Boot 3.2.12 → 3.5.6（3.2.xバージョンEOL対策適用版）
+- Java 17.0.6 → 21.0.2 / Spring Boot 3.2.12 → 3.5.6（3.2.xバージョンEOL対策適用版）
 - PostgreSQL 16 / H2 Database（テスト用）
 - Thymeleaf / Bootstrap 5.3
 - Docker / Docker Compose
