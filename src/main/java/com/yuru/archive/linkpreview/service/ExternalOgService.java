@@ -3,8 +3,8 @@ package com.yuru.archive.linkpreview.service;
 import java.net.Inet4Address;
 import java.net.InetAddress;
 import java.net.URI;
-import java.net.URLEncoder;
-import java.nio.charset.StandardCharsets;
+//import java.net.URLEncoder;
+//import java.nio.charset.StandardCharsets;
 import java.time.Duration;
 import java.util.Map;
 
@@ -105,7 +105,7 @@ public class ExternalOgService {
 	        ogCache.put(targetUrl, dto);
 	        return dto;
 	      }
-
+	    /*
 		  private String cloudFetchJpg(String originalUrl) {
 			if (originalUrl == null || originalUrl.isBlank() || originalUrl.startsWith("data:")) {
 			    return "https://via.placeholder.com/1200x630.png?text=No+Image";
@@ -114,4 +114,5 @@ public class ExternalOgService {
 		    // 大きさの最適化が必要としたら、/c_fill,w_1200,h_630 等々のパラメーター追加も可能。
 		    return "https://res.cloudinary.com/" + cloudName + "/image/fetch/f_jpg/" + enc;
 		  }
+		  */
 	}
