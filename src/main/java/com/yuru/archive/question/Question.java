@@ -52,6 +52,7 @@ public class Question {
 	@JoinColumn(name = "user_id")
 	private SiteUser author;
 
+	@Builder.Default
 	@OneToMany(mappedBy = "question", cascade = CascadeType.ALL)
 	private List<Answer> answerList = new ArrayList<>();
 

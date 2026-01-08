@@ -31,6 +31,7 @@ public class UploadedFile {
 		
 	private String folderPath;
 	
+	@Builder.Default
 	private LocalDateTime createdAt = LocalDateTime.now();
 	
 	// Question entityとの連関関係を追加します。
