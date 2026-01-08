@@ -19,6 +19,8 @@ import lombok.Setter;
 @Data
 @AllArgsConstructor
 public class AttachFileDTO  implements Serializable {
+	
+	private static final long serialVersionUID = 1L;
 
     private String fileName;
     private String uuid;
