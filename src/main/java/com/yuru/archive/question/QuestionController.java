@@ -64,6 +64,13 @@ public class QuestionController {
     private static final Pattern LINKCARD = 
             Pattern.compile("\\[\\[linkcard\\s+url=\"([^\"]+)\"\\s*]]");
 	
+
+    /**
+     * 本文中の [[linkcard url="..."]] をリンクカードHTMLに変換する
+     *
+     * ・外部API失敗時でもページ全体は必ず描画する
+     * ・リンクカードは「オプション機能」として扱う
+     */
     private String expandLinkCards(String content) {
         if (content == null || content.isBlank()) return content;
 
@@ -72,16 +79,26 @@ public class QuestionController {
 
         while (m.find()) {
             String url = m.group(1);
+            String html;
 
-            OgDto og = ogService.fetch(url);
-
-            Context ctx = new Context();
-            ctx.setVariable("og", og);
-
-           // String html = templateEngine.process("cards/_card :: linkCard", ctx);
-            String html = templateEngine.process("card", ctx);
+            try {
+                // OG取得（失敗しても例外は握り潰される）
             
-            m.appendReplacement(sb, Matcher.quoteReplacement(html));
+	            OgDto og = ogService.fetch(url);
+	
+	            Context ctx = new Context();
+	            ctx.setVariable("og", og);
+	
+	           // String html = templateEngine.process("cards/_card :: linkCard", ctx);
+	            html = templateEngine.process("card", ctx);
+            } catch(Exception e) {
+                /*
+                 * 念のため Controller 側でもガード
+                 * 外部サービス起因で画面が壊れるのは絶対に避ける
+                 */
+            	 html = "<a href=\"" + url + "\" target=\"_blank\" rel=\"noopener noreferrer\">" + url + "</a>";
+            }
+	            m.appendReplacement(sb, Matcher.quoteReplacement(html));
         }
         m.appendTail(sb);
         return sb.toString();
