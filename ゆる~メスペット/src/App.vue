@@ -21,7 +21,7 @@
       </main>
       <!-- footer-->
       <footer class="pt-4 mt-4 border-top text-body-secondary">
-        &copy; 2025, JohnDev ゆる〜メスペット. All rights reserved.
+        &copy; 2025~2026, JohnDev ゆる〜メスペット. All rights reserved.
       </footer>
     </div>
   </div>
