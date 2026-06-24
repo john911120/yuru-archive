@@ -17,6 +17,9 @@ bin/
 !**/src/main/**/bin/
 !**/src/test/**/bin/
 
+# MFE deployed static output (generated files)
+src/main/resources/static/memo/**
+
 ### IntelliJ IDEA ###
 .idea
 *.iws

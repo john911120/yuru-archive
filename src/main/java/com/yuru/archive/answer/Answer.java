@@ -26,6 +26,7 @@ public class Answer {
 
 	@Column(name = "created_at")
 	private LocalDateTime createDate;
+	
 
 	@ManyToOne
 	private Question question;

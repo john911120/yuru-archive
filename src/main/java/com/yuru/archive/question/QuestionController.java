@@ -12,7 +12,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
-import java.util.regex.*;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
@@ -30,6 +31,7 @@ import org.springframework.web.server.ResponseStatusException;
 import org.thymeleaf.TemplateEngine;
 import org.thymeleaf.context.Context;
 
+import com.yuru.archive.CommonUtil;
 import com.yuru.archive.answer.AnswerForm;
 import com.yuru.archive.answer.AnswerRepository;
 import com.yuru.archive.attach.dto.AttachFileDTO;
@@ -59,6 +61,9 @@ public class QuestionController {
 	// LinkCard Include version
 	private final ExternalOgService ogService;
 	private final TemplateEngine templateEngine;
+	
+	// 3.5.15 PatchUpdate目的のコードです。
+	private final CommonUtil commonUtil;
 	
     // [[linkcard url="..."]] pattern
     private static final Pattern LINKCARD = 
@@ -129,12 +134,23 @@ public class QuestionController {
 	public String detail(Model model, @PathVariable("id") Long id, AnswerForm answerForm) {
 		Question question = this.questionService.getQuestion(id);
 		List<UploadedFile> uploadedFiles = this.attachFileRepository.findByQuestionId(id);
-		// content → linkCard HTML transfer
+		// 本文中のリンクカードをHTMLへ変換
 		String htmlBody = expandLinkCards(question.getContent());
 		
+		// 回答本文のMarkdown変換結果を格納
+		Map<Integer, String> answerHtmlMap = new HashMap<>();
+		
+		question.getAnswerList().forEach(answer -> {
+			String answerHtml = 
+					this.commonUtil.markdown(answer.getContent());
+			answerHtmlMap.put(answer.getId(), answerHtml);
+		});
+		
+				
 		model.addAttribute("question", question);
 		model.addAttribute("uploadedFiles", uploadedFiles);
 		model.addAttribute("htmlBody", htmlBody);
+		model.addAttribute("answerHtmlMap", answerHtmlMap);
 		
 		return "question_detail";
 	}
