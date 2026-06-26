@@ -18,6 +18,9 @@
 	git push -u origin main
 ```
 
+## 📡 Docker Java17 → Java 21 に環境再調整 [260626]
+1. LocalのJava環境はJava21なのに、Localと一致していないことを確認、環境を再調整しました。
+
 ## License
 This project is **NOT open source**.  
 All rights reserved by © 2025~2026 John Dev.  
