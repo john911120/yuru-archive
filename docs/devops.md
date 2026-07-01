@@ -267,11 +267,16 @@ model.addAttribute("answerHtmlMap", answerHtmlMap);
 * エンティティの元データを変更せずにHTML変換を実施
 * Controllerが変換処理を担当し、テンプレートは表示処理に専念する構造へ改善
 
-今回の修正により、Spring Boot 3.5.15環境での互換性を確保するとともに、ControllerとViewの責務をより明確に分離しました。
+今回の修正により、Spring Boot 3.5.16環境での互換性を確保するとともに、ControllerとViewの責務をより明確に分離しました。
 
 
-
-
+## Spring Boot 3.5.16アップデート + ＠MockBeanを＠MockitoBeanに入れ替え[20260701]
+### 対応結果
+- Replaced deprecated `@MockBean` with `@MockitoBean`
+- Updated `AttachServiceTest` test data to use a valid image
+- Added a test user to the dummy `Question`
+- Verified file repository save behavior
+- Confirmed test execution with Spring Boot 3.5.16
 
 ## License
 This project is **NOT open source**.  
