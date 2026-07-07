@@ -54,13 +54,14 @@ Spring Boot × PostgreSQLをベースに、
 | 日本住所API | 郵便番号による自動入力（ZipCloud） |
 
 ## 技術スタック
-- Java 17.0.6 → 21.0.2 → 21.0.11 / Spring Boot 3.5.6 → 3.5.9 → 3.5.16（3.5.xバージョンUpdate Patch）
+- Java 21.0.2 → 21.0.11 / Spring Boot 3.5.16 → 4.1.0
 - PostgreSQL 16 / H2 Database（テスト用）
+- Gradle 8.14.5
 - Thymeleaf / Bootstrap 5.3
 - Docker / Docker Compose
 - Thumbnailator（画像サムネイル）
 - 郵便番号API：[ZipCloud](https://zipcloud.ibsnet.co.jp/doc/api)
-
+※ 過去のJavaおよびSpring Bootの更新履歴については、README上では現在の利用バージョンのみを記載し、詳細な変更履歴はコミットログで管理する方針としています。
 
 ## 特徴
 - 質問・回答の投稿、編集、削除機能
