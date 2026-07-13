@@ -7,7 +7,7 @@ Spring Boot / PostgreSQL アップグレード内容を記録します。
 ## 🔧 対応内容
 | 分類 | 対象 | 概要 |
 |------|------|------|
-| Framework | Spring Boot | 3.2.12 → 3.5.6 （3.2.xバージョンEOL対策適用版） |
+| Framework | Spring Boot | 3.5.6 → 4.1.0  |
 | Java | JDK | 17 → 21 (準備段階) |
 | DB | PostgreSQL | 外部キー制約とインデックス再構成 |
 | Thymeleaf | Thymeleaf | 検索処理修正 (page=0 reset fix) |
@@ -42,7 +42,7 @@ ERD 更新版:
 ---
 
 ## 🧾 変更理由
-Spring Boot 4.0 への移行準備段階として、  
+Spring Boot 4.1 への移行準備段階として、  
 3.5.x 系安定版に統一し、DB構造整合性と性能改善を目的とする。
 
 
