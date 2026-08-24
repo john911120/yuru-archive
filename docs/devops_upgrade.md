@@ -47,8 +47,8 @@ Spring Boot 4.1 への移行準備段階として、
 
 
 ## 🧾 マイナーバージョンアップデート
-Spring Boot 4.1 → Spring Boot 4.1.1 マイナーバージョンアップデート(20260824)
-特定拡張子の添付ファイルが見えなかったことを修正しました。
+- Spring Boot 4.1 → Spring Boot 4.1.1 マイナーバージョンアップデート(20260824)
+- 特定拡張子の添付ファイルが見えなかったことを修正しました。
 
 ## License
 This project is **NOT open source**.  
