@@ -9,19 +9,17 @@ import org.springframework.stereotype.Component;
 
 @Component
 public class CommonUtil {
-	public String markdown(String markdown) {
-		
-		if(markdown == null ) return "";
-		
-		// Convert to HTML
-		Parser parser = Parser.builder().build();
-		Node document = parser.parse(markdown);
-		HtmlRenderer renderer = HtmlRenderer.builder().build();
-		String html = renderer.render(document);
-		
-		// Prevent the XSS for HTML Filltering.
-		return Jsoup.clean(html, Safelist.basicWithImages());
-		
-		//return renderer.render(document);
-	}
+
+    private final Parser parser = Parser.builder().build();
+    private final HtmlRenderer renderer = HtmlRenderer.builder().build();
+
+    public String markdown(String markdown) {
+        if (markdown == null) {
+            return "";
+        }
+
+        Node document = parser.parse(markdown);
+        String html = renderer.render(document);
+        return Jsoup.clean(html, Safelist.basicWithImages());
+    }
 }

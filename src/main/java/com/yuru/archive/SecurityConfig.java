@@ -23,80 +23,69 @@ import lombok.RequiredArgsConstructor;
 @EnableMethodSecurity(prePostEnabled = true)
 @RequiredArgsConstructor
 public class SecurityConfig {
-	
-	private final UserSecurityService userSecurityService;
-	
-	@Bean
-	SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
-		 // ✅ Spring Security 6.5: servlet パッケージの PathPatternRequestMatcherを使用しました。
-		PathPatternRequestMatcher.Builder matcher = PathPatternRequestMatcher.withDefaults();
-		
-		http.authorizeHttpRequests((authorizeHttpRequests) -> authorizeHttpRequests
-				// ✅ 認証が必要なDirectory
-				.requestMatchers(
-					    "/question/create",
-					    "/question/modify/**",
-					    "/question/delete/**",
-					    "/answer/create/**",
-					    "/answer/vote/**"
-					).authenticated()
-					// ✅ 他のDirectoryはすべて許容。
-					.anyRequest().permitAll()
-				);
-		        http.csrf(csrf -> csrf.ignoringRequestMatchers(
-		                matcher.matcher("/h2-console/**"),
-		                matcher.matcher("/answer/create/**"),
-		                matcher.matcher("/answer/debu-upload")
-		        ));
-				http.headers((headers) -> headers.addHeaderWriter(
-						new XFrameOptionsHeaderWriter(XFrameOptionsHeaderWriter.XFrameOptionsMode.SAMEORIGIN)));
-				http.formLogin((formLogin) -> formLogin.loginPage("/user/login").defaultSuccessUrl("/"));
-				http.logout((logout) -> logout.
-						//既にGETログアウトを維持するためにrequestMatcherを明示します。
-						logoutRequestMatcher(matcher.matcher("/user/logout"))
-						.logoutSuccessUrl("/")
-						.invalidateHttpSession(true));
-				// ログインしないユーザが /answer/vote/**をリクエストした時
-				// 403 エラーコード + "ログインが必要です。" メッセージがリターンできるように設定
-				http.exceptionHandling((exceptionHandling) -> exceptionHandling
-			            .authenticationEntryPoint((request, response, authException) -> {
-			                // Ajax リクエストした場合は、 401 + メッセージリターン
-			                if ("XMLHttpRequest".equals(request.getHeader("X-Requested-With"))) {
-			                    response.setStatus(HttpStatus.UNAUTHORIZED.value()); // 401
-			                    response.setContentType("text/plain;charset=UTF-8");
-			                    response.getWriter().write("ログインが必要です。");
-			                } else {
-			                    // 一般のリクエストはログインページにリダイレクトします。
-			                    response.sendRedirect("/user/login");
-			                }
-			            })
-			            .accessDeniedHandler((request, response, accessDeniedException) -> {
-			                response.setStatus(HttpStatus.FORBIDDEN.value());
-			                response.setContentType("text/plain;charset=UTF-8");
-			                response.getWriter().write("アクセスが拒否されました。");
-			            })
-					);
-		return http.build();
-	}
 
-	@Bean
-	PasswordEncoder passwordEncoder() {
-		return new BCryptPasswordEncoder();
-	}
-/*
-	@Bean
-	AuthenticationManager authenticationManager(AuthenticationConfiguration authenticationConfiguration)
-			throws Exception {
-		return authenticationConfiguration.getAuthenticationManager();
-	}
-*/
-	// .and()を消去し、6.1+のdeprecatedを対応します。
-	@Bean
-	AuthenticationManager authenticationManager(HttpSecurity http) throws Exception {
-		AuthenticationManagerBuilder builder = http.getSharedObject(AuthenticationManagerBuilder.class);
-			builder.userDetailsService(userSecurityService)
-			.passwordEncoder(passwordEncoder());
-		return builder.build();
+    private final UserSecurityService userSecurityService;
 
-	}
+    @Bean
+    SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
+        PathPatternRequestMatcher.Builder matcher = PathPatternRequestMatcher.withDefaults();
+
+        http.authorizeHttpRequests(authorize -> authorize
+                .requestMatchers(
+                        "/question/create",
+                        "/question/modify/**",
+                        "/question/delete/**",
+                        "/answer/create/**",
+                        "/answer/vote/**")
+                .authenticated()
+                .anyRequest().permitAll());
+
+        http.csrf(csrf -> csrf.ignoringRequestMatchers(
+                matcher.matcher("/h2-console/**"),
+                matcher.matcher("/answer/create/**"),
+                matcher.matcher("/answer/debu-upload")));
+
+        http.headers(headers -> headers.addHeaderWriter(
+                new XFrameOptionsHeaderWriter(XFrameOptionsHeaderWriter.XFrameOptionsMode.SAMEORIGIN)));
+
+        http.formLogin(form -> form
+                .loginPage("/user/login")
+                .defaultSuccessUrl("/"));
+
+        http.logout(logout -> logout
+                .logoutRequestMatcher(matcher.matcher("/user/logout"))
+                .logoutSuccessUrl("/")
+                .invalidateHttpSession(true));
+
+        http.exceptionHandling(exception -> exception
+                .authenticationEntryPoint((request, response, authException) -> {
+                    if ("XMLHttpRequest".equals(request.getHeader("X-Requested-With"))) {
+                        response.setStatus(HttpStatus.UNAUTHORIZED.value());
+                        response.setContentType("text/plain;charset=UTF-8");
+                        response.getWriter().write("ログインが必要です。");
+                    } else {
+                        response.sendRedirect("/user/login");
+                    }
+                })
+                .accessDeniedHandler((request, response, accessDeniedException) -> {
+                    response.setStatus(HttpStatus.FORBIDDEN.value());
+                    response.setContentType("text/plain;charset=UTF-8");
+                    response.getWriter().write("アクセスが拒否されました。");
+                }));
+
+        return http.build();
+    }
+
+    @Bean
+    PasswordEncoder passwordEncoder() {
+        return new BCryptPasswordEncoder();
+    }
+
+    @Bean
+    AuthenticationManager authenticationManager(HttpSecurity http) throws Exception {
+        AuthenticationManagerBuilder builder = http.getSharedObject(AuthenticationManagerBuilder.class);
+        builder.userDetailsService(userSecurityService)
+                .passwordEncoder(passwordEncoder());
+        return builder.build();
+    }
 }

@@ -2,8 +2,10 @@ package com.yuru.archive.attach.service;
 
 import java.io.File;
 import java.io.IOException;
+import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.nio.file.StandardCopyOption;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
@@ -28,169 +30,167 @@ import net.coobird.thumbnailator.Thumbnailator;
 @RequiredArgsConstructor
 @Slf4j
 public class AttachServiceImpl implements AttachService {
-	
+
     @Value("${com.yuru.archive.upload.path}")
-	private String uploadPath;
-    
+    private String uploadPath;
+
     private final AttachFileRepository attachFileRepository;
 
-	//添付ファイルをアップロードロジックを処理します。
-	@Override
-	public List<AttachFileDTO> uploadFiles(MultipartFile[] uploadFiles, Question question, SiteUser user) {
-		List<AttachFileDTO> resultDTOList = new ArrayList<>();
-	
-		for(MultipartFile uploadFile : uploadFiles) {
-			// 拡張子検証
-			String originalName = uploadFile.getOriginalFilename();
-			
-			if(originalName == null || !isAllowedExtension(originalName)) {
-				log.warn("❌ 拡張子が許可されていないファイルです: {}", originalName);
-				continue;
-			}
-			
-			// Content-Typeを検証
-			if (!uploadFile.getContentType().startsWith("image")) {
-				log.warn("イメージファイルではありません。");
-				continue;
-			}	
-			
-			try {
-				// ファイル名処理 
-				String fileName = originalName.substring(originalName.lastIndexOf("\\")+1);
-				String folderPath = makeFolder();
-				log.info("✅ folderPath = {}", folderPath);
-				String uuid = UUID.randomUUID().toString();
-				String folderForDisk = folderPath.replace("/", File.separator); // OSに 合うDirectory (Windows: "\", Unix: "/")
-				String saveName = uploadPath + File.separator + folderForDisk + File.separator + uuid + "_" + fileName;
-				Path savePath = Paths.get(saveName);
-						
-				// ファイルをセーフする
-				uploadFile.transferTo(savePath);
-				
-				// サムネールを作る。
-                String thumbnailSaveName = uploadPath + File.separator + folderPath + File.separator +
-                        "s_" + uuid + "_" + fileName;
-                Thumbnailator.createThumbnail(savePath.toFile(), new File(thumbnailSaveName), 100, 100);
-                
-                // ユーザ情報検証
-                if (user == null) {
-                	log.warn("❌ user is null!! DB登録をスキップします。");
-                	continue;
-                } else {
-                	log.info("✅ user.getId() = {}", user.getId());
-                }
+    @Override
+    public List<AttachFileDTO> uploadFiles(MultipartFile[] uploadFiles, Question question, SiteUser user) {
+        List<AttachFileDTO> result = new ArrayList<>();
+        if (uploadFiles == null) {
+            return result;
+        }
 
-                // 結果DTOを作る。
-                Long userId = user.getId(); // 👍 OK
+        for (MultipartFile uploadFile : uploadFiles) {
+            if (uploadFile == null || uploadFile.isEmpty()) {
+                continue;
+            }
 
+            String originalName = uploadFile.getOriginalFilename();
+            if (originalName == null || !isAllowedExtension(originalName)) {
+                log.warn("許可されていない拡張子です: {}", originalName);
+                continue;
+            }
+
+            String contentType = uploadFile.getContentType();
+            if (contentType == null || !contentType.startsWith("image")) {
+                log.warn("画像ファイルではありません: {}", originalName);
+                continue;
+            }
+
+            try {
+                String fileName = originalName.substring(originalName.lastIndexOf('\\') + 1);
+                String folderPath = makeFolder();
+                String uuid = UUID.randomUUID().toString();
+                String folderForDisk = folderPath.replace("/", File.separator);
+                Path savePath = Paths.get(uploadPath, folderForDisk, uuid + "_" + fileName);
+
+                uploadFile.transferTo(savePath);
+
+                File thumbnail = Paths.get(uploadPath, folderForDisk, "s_" + uuid + "_" + fileName).toFile();
+                createThumbnailOrFallback(savePath, thumbnail, originalName);
+
+                Long userId = user != null ? user.getId() : null;
                 AttachFileDTO dto = new AttachFileDTO(fileName, uuid, folderPath, userId);
-                resultDTOList.add(dto);
-                
-                
-                //DBにセーフする
-                UploadedFile entity = UploadedFile.builder()
-                		.userId(user.getId()) //実際に構築する場合は、ローグインしたユーザIDを使用します。
-                		.fileName(fileName)
-                		.folderPath(folderPath)
-                		.uuid(uuid)
-                		.question(question)
-                		.build();
-                attachFileRepository.save(entity);
-                                
-                log.info("[attachService] file upload : fileName={}, questionId={}", fileName, question.getId());
-			} catch (IOException e) {
-				log.error("File Upload Failed" + e);
-			} 
-		}
-		return resultDTOList;
-	}
-	
-	// ✅ 拡張子検証ユーチルメソッド
-	private boolean isAllowedExtension(String filename) {
-	    String lowerName = filename.toLowerCase();
-	    return lowerName.endsWith(".jpg") || lowerName.endsWith(".jpeg") ||
-	           lowerName.endsWith(".png") || lowerName.endsWith(".gif") || lowerName.endsWith(".webp");
-	}
-	
+                result.add(dto);
 
-	//添付したファイルを削除するロジックを実行します。
-	@Override
-	public boolean deleteFile(String fileName) {
+                if (question != null && user != null) {
+                    UploadedFile entity = UploadedFile.builder()
+                            .userId(user.getId())
+                            .fileName(fileName)
+                            .folderPath(folderPath)
+                            .uuid(uuid)
+                            .question(question)
+                            .build();
+                    attachFileRepository.save(entity);
+                    log.info("添付ファイルを保存しました: fileName={}, questionId={}", fileName, question.getId());
+                }
+            } catch (IOException e) {
+                log.error("添付ファイルの保存に失敗しました: {}", originalName, e);
+            }
+        }
+
+        return result;
+    }
+
+    @Override
+    public List<AttachFileDTO> uploadFiles(MultipartFile[] uploadFiles) {
+        return uploadFiles(uploadFiles, null, null);
+    }
+
+    @Override
+    public List<AttachFileDTO> uploadFiles(MultipartFile[] uploadFiles, Question question) {
+        SiteUser user = question != null ? question.getAuthor() : null;
+        return uploadFiles(uploadFiles, question, user);
+    }
+
+    @Override
+    public List<UploadedFile> getFilesByQuestionId(Long questionId) {
+        return attachFileRepository.findByQuestion_Id(questionId);
+    }
+
+    @Override
+    public void deleteFileRecordsByQuestionId(Long questionId) {
+        attachFileRepository.deleteByQuestion_Id(questionId);
+    }
+
+    @Override
+    public boolean deleteFile(String fileName) {
         try {
             File file = new File(uploadPath + File.separator + fileName);
-            boolean result = file.delete();
+            boolean deleted = file.delete();
             File thumbnail = new File(file.getParent(), "s_" + file.getName());
-            thumbnail.delete();
-            return result;
+            if (thumbnail.exists() && !thumbnail.delete()) {
+                log.warn("サムネイルを削除できませんでした: {}", thumbnail.getAbsolutePath());
+            }
+            return deleted;
         } catch (Exception e) {
-            log.error("File deletion failed", e);
+            log.error("添付ファイルの削除に失敗しました: {}", fileName, e);
             return false;
         }
-	}
-	
-	/*
-	 *  uploadPathをサービスの内側で、インジェクションされて、
-	 *  コントローラーがそのValueだけを照会できるように
-	 *	getUploadPath()を追加しました。
-	 */
-	
-	@Override
-	public String getUploadPath() {
-		return uploadPath;
-	}
-
-	// ファイルが存在しない場合は、このクラスで、ファイルを作ります。
-    private String makeFolder() {
-        String str = LocalDate.now().format(DateTimeFormatter.ofPattern("yyyy/MM/dd"));
-        String folderPathForDisk = str.replace("/", File.separator); // OS別 実際にセーフする Directory
-        File uploadPathFolder = new File(uploadPath, folderPathForDisk);
-        if (!uploadPathFolder.exists()) {
-            uploadPathFolder.mkdirs();
-        }
-        // リターンするときは、URL専用のDirectoryに変換する
-        return str;
-        
     }
-    
-	@Override
-	public List<AttachFileDTO> uploadFiles(MultipartFile[] uploadFiles) {
-		return uploadFiles(uploadFiles, null, null);
-	}
-    
-    // added helper method
-	@Override
-	public List<AttachFileDTO> uploadFiles(MultipartFile[] uploadFiles, Question question) {
-		SiteUser user = (question != null) ? question.getAuthor() : null;
-		return uploadFiles(uploadFiles, question, user);
-	}
-    
-    // 添付ファイルを追加するメソッドを作成
-	@Override
-	public void uploadFilesFromDTOs(List<AttachFileDTO> fileDTOs, Question question, SiteUser user) {
-		for(AttachFileDTO dto : fileDTOs) {
-			UploadedFile entity = new UploadedFile();
-			entity.setFileName(dto.getFileName());
-			entity.setFolderPath(dto.getFolderPath());
-			entity.setUuid(dto.getUuid());
-			entity.setQuestion(question);
-			entity.setUserId(user.getId());
-			attachFileRepository.save(entity);
-		}
-	}
-	
-	// 添付ファイルを削除するサービスロジック
-	public boolean deleteFileById(Long fileId) {
-	    UploadedFile file = attachFileRepository.findById(fileId)
-	            .orElseThrow(() -> new RuntimeException("ファイルが存在しません"));
 
-	        File original = new File(uploadPath, file.getFolderPath() + "/" + file.getUuid() + "_" + file.getFileName());
-	        File thumbnail = new File(uploadPath, file.getFolderPath() + "/s_" + file.getUuid() + "_" + file.getFileName());
+    @Override
+    public boolean deleteFileById(Long fileId) {
+        UploadedFile file = attachFileRepository.findById(fileId)
+                .orElseThrow(() -> new IllegalArgumentException("ファイルが存在しません: " + fileId));
 
-	        if (original.exists()) original.delete();
-	        if (thumbnail.exists()) thumbnail.delete();
+        String folderForDisk = file.getFolderPath().replace("/", File.separator);
+        File original = Paths.get(uploadPath, folderForDisk, file.getUuid() + "_" + file.getFileName()).toFile();
+        File thumbnail = Paths.get(uploadPath, folderForDisk, "s_" + file.getUuid() + "_" + file.getFileName()).toFile();
 
-	        attachFileRepository.delete(file);
-	        return true;
-	}
-	
+        deleteIfExists(original);
+        deleteIfExists(thumbnail);
+        attachFileRepository.delete(file);
+        return true;
+    }
+
+    @Override
+    public String getUploadPath() {
+        return uploadPath;
+    }
+
+    private String makeFolder() {
+        String folderPath = LocalDate.now().format(DateTimeFormatter.ofPattern("yyyy/MM/dd"));
+        String folderPathForDisk = folderPath.replace("/", File.separator);
+        File directory = new File(uploadPath, folderPathForDisk);
+        if (!directory.exists() && !directory.mkdirs()) {
+            log.warn("アップロード先ディレクトリを作成できませんでした: {}", directory.getAbsolutePath());
+        }
+        return folderPath;
+    }
+
+    private void createThumbnailOrFallback(Path savePath, File thumbnail, String originalName) {
+        try {
+            Thumbnailator.createThumbnail(savePath.toFile(), thumbnail, 100, 100);
+        } catch (IOException thumbnailException) {
+            log.warn("サムネイル生成に失敗したため元画像を使用します: {}", originalName, thumbnailException);
+
+            try {
+                Files.copy(savePath, thumbnail.toPath(), StandardCopyOption.REPLACE_EXISTING);
+            } catch (IOException fallbackException) {
+                log.warn(
+                        "代替サムネイルの作成にも失敗しました。元画像の保存処理は継続します: {}",
+                        originalName,
+                        fallbackException);
+            }
+        }
+    }
+
+    private boolean isAllowedExtension(String filename) {
+        String lowerName = filename.toLowerCase();
+        return lowerName.endsWith(".jpg")
+                || lowerName.endsWith(".jpeg")
+                || lowerName.endsWith(".png")
+                || lowerName.endsWith(".gif")
+                || lowerName.endsWith(".webp");
+    }
+
+    private void deleteIfExists(File file) {
+        if (file.exists() && !file.delete()) {
+            log.warn("ファイルを削除できませんでした: {}", file.getAbsolutePath());
+        }
+    }
 }
