@@ -4,6 +4,7 @@ import java.util.Optional;
 
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import com.yuru.archive.DataNotFoundException;
 
@@ -39,4 +40,38 @@ public class UserService {
 			throw new DataNotFoundException("siteuser not found");
 		}
 	}
+
+    @Transactional
+    public SiteUser updateProfile(String username, UserProfileForm form) {
+        SiteUser user = getUser(username);
+        user.setEmail(form.getEmail().trim());
+        user.setZipcode(normalizeZipcode(form.getZipcode()));
+        user.setAddress1(trimToEmpty(form.getAddress1()));
+        user.setAddress2(trimToEmpty(form.getAddress2()));
+        user.setAddress3(trimToEmpty(form.getAddress3()));
+        user.setAddressDetail(trimToEmpty(form.getAddressDetail()));
+        return userRepository.save(user);
+    }
+
+    public UserProfileForm toProfileForm(SiteUser user) {
+        UserProfileForm form = new UserProfileForm();
+        form.setEmail(user.getEmail());
+        form.setZipcode(user.getZipcode());
+        form.setAddress1(user.getAddress1());
+        form.setAddress2(user.getAddress2());
+        form.setAddress3(user.getAddress3());
+        form.setAddressDetail(user.getAddressDetail());
+        return form;
+    }
+
+    private String normalizeZipcode(String zipcode) {
+        if (zipcode == null || zipcode.isBlank()) {
+            return null;
+        }
+        return zipcode.replace("-", "").trim();
+    }
+
+    private String trimToEmpty(String value) {
+        return value == null ? "" : value.trim();
+    }
 }

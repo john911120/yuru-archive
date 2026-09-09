@@ -36,7 +36,9 @@ public class SecurityConfig {
                         "/question/modify/**",
                         "/question/delete/**",
                         "/answer/create/**",
-                        "/answer/vote/**")
+                        "/answer/vote/**",
+                        "/user/profile",
+                        "/user/profile/**")
                 .authenticated()
                 .anyRequest().permitAll());
 

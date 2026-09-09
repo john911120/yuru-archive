@@ -1,5 +1,7 @@
 package com.yuru.archive.config;
 
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.Locale;
 
 import org.springframework.context.annotation.Bean;
@@ -46,10 +48,18 @@ public class WebConfig implements WebMvcConfigurer {
 	// WebMvcConfigurerを利用した静的リソース設定
 	@Override
 	public void addResourceHandlers(ResourceHandlerRegistry registry) {
+		/*
 		// access to /upload/** Show the Actual Local Upload Directory Files
 		registry.addResourceHandler("/upload/**")
 			.addResourceLocations("file:///" + uploadPath + "/")
 			.setCachePeriod(3600); // allow the caching
+		*/
+		Path uploadDir = Paths.get(uploadPath)
+				.toAbsolutePath().normalize();
+		
+		registry.addResourceHandler("/upload/**")
+				.addResourceLocations(uploadDir.toUri().toString())
+				.setCachePeriod(3600); // allow the caching	
 	}
 	
 	

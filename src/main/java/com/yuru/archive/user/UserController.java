@@ -4,6 +4,9 @@ import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
+import org.springframework.web.servlet.mvc.support.RedirectAttributes;
+
+import java.security.Principal;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -69,6 +72,49 @@ public class UserController {
         }
 
         return "redirect:/";
+    }
+
+
+    @GetMapping("/profile")
+    public String profile(Principal principal, Model model) {
+        SiteUser user = userService.getUser(principal.getName());
+        model.addAttribute("siteUser", user);
+        return "profile";
+    }
+
+    @GetMapping("/profile/edit")
+    public String editProfile(Principal principal, Model model) {
+        SiteUser user = userService.getUser(principal.getName());
+        model.addAttribute("siteUser", user);
+        model.addAttribute("userProfileForm", userService.toProfileForm(user));
+        return "profile_edit";
+    }
+
+    @PostMapping("/profile/edit")
+    public String editProfile(
+            Principal principal,
+            @Valid UserProfileForm userProfileForm,
+            BindingResult bindingResult,
+            Model model,
+            RedirectAttributes redirectAttributes) {
+
+        SiteUser currentUser = userService.getUser(principal.getName());
+        if (bindingResult.hasErrors()) {
+            model.addAttribute("siteUser", currentUser);
+            return "profile_edit";
+        }
+
+        try {
+            userService.updateProfile(principal.getName(), userProfileForm);
+        } catch (DataIntegrityViolationException e) {
+            log.warn("会員情報の更新に失敗しました。メールアドレス重複の可能性があります: {}", userProfileForm.getEmail());
+            bindingResult.rejectValue("email", "duplicateEmail", "既に使用されているメールアドレスです。");
+            model.addAttribute("siteUser", currentUser);
+            return "profile_edit";
+        }
+
+        redirectAttributes.addFlashAttribute("profileUpdated", true);
+        return "redirect:/user/profile";
     }
 
     @GetMapping("/login")
