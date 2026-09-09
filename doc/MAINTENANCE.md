@@ -34,3 +34,17 @@ Node.js依存関係は `package.json` / `package-lock.json` から再構築し�
 - AI回答案
 
 AI生成結果を自動投稿する構造は採用せず、ユーザ確認を前提とします。
+
+## MFE保守方針（Last Flight）
+
+現行コミットでは、Vue / Vite製メモSPAをSpring Boot内部の `static/memo` へ反映し、`MemoResourceConfig` 経由で `/memos/**` として提供しています。
+
+この方式は学習・検証用途として十分な成果を得た一方、以下の保守コストが明確になりました。
+
+- Java本体とNode.js/Viteの依存関係を同一プロジェクトで管理する必要がある
+- Vueの再ビルド後に `dist` をSpring静的リソースへ反映する同期作業が必要
+- フロントエンド依存関係の更新時にMFE結合部分まで回帰確認が必要
+- Javaのみを独立してGit管理・配布したい場合でもMFE構成を考慮する必要がある
+
+そのため、次フェーズではMFE統合を解消し、Java/Spring Boot本体とVue SPAを独立して保守できる構成へ移行します。
+本コミットではまだMFEを削除せず、**現行MFE構成の最終保守記録**として維持します。

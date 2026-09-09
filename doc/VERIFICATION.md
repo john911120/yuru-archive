@@ -59,7 +59,20 @@ java.net.UnknownHostException: services.gradle.org
 11. 回答へのいいね（重複・自己いいねも確認）
 12. Markdown表示
 13. リンクカード表示と外部API失敗時フォールバック
-14. MFEメモ画面
+14. MFEメモ画面 `/memos/`（Vue SPA表示、SPAルーティング、localStorage保存）
 15. 既存PostgreSQLデータの表示
 
 DBスキーマの自動更新は行わず、既存データを利用して確認します。
+
+## MFE Last Flight確認項目
+
+MFEを含む最終コミットでは、次の接続点が現行仕様として存在することを確認対象とします。
+
+- Vue側 `base: '/memos/'`
+- `src/main/resources/static/memo/` にVueビルド成果物を配置
+- `MemoResourceConfig` による `/memos/**` と `/memos/assets/**` の配信
+- `navbar.html` から `/memos/` への遷移
+- メモデータがSpring / PostgreSQLではなくブラウザ `localStorage` に保存されること
+
+次フェーズのMFE分離作業では、これらを「撤去・変更対象一覧」として利用します。
+本節は**Javaプロジェクト内部にMFEが存在する最後の回帰確認記録**です。

@@ -38,6 +38,34 @@ Spring Boot × PostgreSQLをベースに、
 
 Spring Bootおよび関連ライブラリの更新、セキュリティ対策、UI・UX改善を継続しています。
 
+### 🛫 MFEアーキテクチャ Last Flight
+
+本コミットは、Vue 3 / TypeScript / Viteで構築したメモSPA「ゆる~メスペット」を、
+Spring Bootプロジェクト内部へMFEスタイルで統合して運用する**最終状態（Last Flight）**を記録するものです。
+
+現在の統合経路は以下です。
+
+```text
+ゆる~メスペット (Vue 3 / TypeScript / Vite)
+        ↓ npm build
+      dist/
+        ↓ 手動反映
+src/main/resources/static/memo/
+        ↓ MemoResourceConfig
+      /memos/**
+```
+
+- Vite側の `base` は `/memos/`
+- Spring側は `MemoResourceConfig` で `/memos/`、`/memos/assets/**`、SPA fallbackを提供
+- Thymeleafのナビゲーションから `/memos/` へ遷移
+- メモデータはブラウザ `localStorage` を使用し、Spring / PostgreSQLの業務データとは分離
+
+約1年以上、Java Webとモダンフロントエンドを接続する実験・学習用途として運用してきましたが、
+今後はJava本体の独立ビルド・保守・Git管理を容易にするため、MFE統合を解消し、Vue SPAをJavaプロジェクト外へ分離する方針です。
+
+したがって、このコミットは**Javaプロジェクト内部にMFEアーキテクチャが存在する最後の記録**として扱います。
+過去のMFE統合手順は `docs/MFE_Integration_Step1.md` および `docs/MFE_Integration_Step1_Plus.md` に残します。
+
 ### 🔐 セキュリティ対応
 
 Spring BootのRabbitMQ自動構成に関する脆弱性

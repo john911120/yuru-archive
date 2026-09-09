@@ -65,3 +65,29 @@ Microlink API
 - PostgreSQL既存データ
 
 `QuestionRepository` のジェネリックID型のみ、Entityの `Long` と一致するようJava側で修正しています。DBスキーマ変更ではありません。
+
+## MFEメモ機能（Last Flight時点）
+
+本コミットは、MFEスタイルのVue SPAをSpring Boot内部へ統合している最終構成です。
+
+```text
+Browser
+  ↓ /memos/**
+MemoResourceConfig
+  ↓
+classpath:/static/memo/
+  ↑
+Vue / Vite build output
+```
+
+接続点は限定されています。
+
+- `src/main/java/com/yuru/archive/web/MemoResourceConfig.java`
+- `src/main/resources/static/memo/**`
+- `src/main/resources/templates/navbar.html` の `/memos/` リンク
+- Vue側 `vite.config.ts` の `base: '/memos/'`
+
+Vue側のメモデータはブラウザ `localStorage` に保存され、Spring Controller / Service / Repository / PostgreSQLとは直接結合していません。
+
+この構成はJava Webとモダンフロントエンドの統合検証を目的として維持してきましたが、今後は保守性と独立性を優先し、Java本体からMFE統合を外してVue SPAを分離する予定です。
+このため、本節は**MFE統合状態の最終アーキテクチャ記録**として残します。

@@ -54,3 +54,24 @@ Eclipse / STSで `log cannot be resolved`、`setXxx() is undefined`、`blank fin
 5. IDEへExisting Gradle Projectとして再Import
 
 キャッシュ・生成物はソース配布ZIPへ含めない方針です。
+
+## MFEメモSPAのビルド（Last Flight）
+
+本コミットでは、Vue / Vite製「ゆる~メスペット」をSpring Boot内部へ統合する従来方式を最後に記録します。
+
+Vueプロジェクト側でビルドします。
+
+```bash
+npm install
+npm run build
+```
+
+Viteの `base` は `/memos/` です。生成された `dist` の内容をSpring Boot側の以下へ反映します。
+
+```text
+src/main/resources/static/memo/
+```
+
+Spring Boot側では `MemoResourceConfig` が `/memos/` と `/memos/assets/**` を提供し、拡張子のないSPAルートを `index.html` へフォールバックします。
+
+この手動同期方式は本コミットを最後に終了予定です。次フェーズではJava/Spring BootとVue/Viteを分離し、それぞれ単独でビルド・テスト・Git管理できる構成へ移行します。

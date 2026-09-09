@@ -1,5 +1,14 @@
 # 変更履歴
 
+## MFE Last Flight（最終統合記録）
+
+- Vue 3 / TypeScript / Vite製メモSPA「ゆる~メスペット」をSpring Boot内部で提供する現行MFE構成を最終記録
+- `/memos/**`、`static/memo/**`、`MemoResourceConfig`、navbarリンクによる接続点を文書化
+- 約1年以上の実験運用でJava Webとモダンフロントエンドの統合経験を完了
+- 今後はJava本体の独立ビルド・保守・Git管理を優先し、MFE統合を解消してVue SPAを分離する方針
+- 本コミットではコード・ビルド設定・MFE構成そのものは変更せず、ドキュメントのみ更新
+
+
 ## 0.1
 
 ### リファクタリング
