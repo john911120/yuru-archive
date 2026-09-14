@@ -38,15 +38,9 @@ out/
 ### VS Code ###
 .vscode/
 
-### Node / Vite ###
-node_modules/
-**/node_modules/
 
 ### Local / generated files ###
 .env
 *.log
 *.class
 lombok.jar
-
-# MFE deployed static output (generated files)
-src/main/resources/static/memo/**
