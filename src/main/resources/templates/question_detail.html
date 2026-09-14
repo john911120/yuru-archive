@@ -7,28 +7,9 @@
 	<h2 class="border-bottom py-2" th:text="${question.subject}"></h2>
 	<div class="card my-3">
 		<div class="card-body">
-			<!--<script>alert('XSS')</script>-->
-			<!--<div class="card-text" th:utext="${@commonUtil.markdown(question.content)}"></div>	-->
-			<!--
-				DBには、元々のquestion.contentは、そのまま維持されており、
-				Controllerにもquestionがそのまま、モデルに載せられます。
-				画面だけでのリンクカード適応バージョン(htmlBody)を見せます。
-				コメントの返事ロジック, 修正画面, ファイルのアップロード等々には影響はございません。
-				データは維持されていて、表示方だけが変わることだけです。
-			-->
-			
-			<!-- リンクカード拡張 HTMLがあれば、優先的に適応する。-->
-			<div th:if="${htmlBody != null}"
-			     th:utext="${htmlBody}"
-				 style="white-space: pre-wrap;">
-			</div>
-						
-			<!-- リンクカードが無ければ、既存の Markdownを出力します。-->
-			<div th:if="${htmlBody == null}"
-			     th:utext="${@commonUtil.markdown(question.content)}">
-			</div>
-			
-		<!--	<div class="card-text" th:utext="${@commonUtil.markdown(question.content)}"></div>			-->
+			<!-- ユーザー本文は LinkCardRenderService で Markdown 変換 + jsoup サニタイズ済み -->
+			<div class="question-body" th:utext="${htmlBody}"></div>
+
 			<div class="d-flex justify-content-end">
 				<div class="badge bg-light text-dark p-2 text-start">
 					<div class="mb-2">
@@ -58,7 +39,7 @@
 	 <div th:if="${question.uploadedFileList != null}" class="row mt-4">
 	     <h5>添付ファイル</h5>
 	     <div th:each="file : ${question.uploadedFileList}" class="col-md-3 mb-4">
-	         <div class="card h-100 shadow-sm">
+	         <div class="card h-100 attachment-card">
 	             <img th:src="@{|/upload/${file.folderPath}/${file.uuid}_${file.fileName}|}"
 	                  class="card-img-top img-fluid"
 	                  alt="添付画像"
@@ -86,7 +67,7 @@
 		<a th:id="|answer_${answer.id}|"></a>
 		<div class="card-body">
 			<!--<script>alert('XSS')</script>-->
-			<div class="card-text" th:utext="${answerHtmlMap[answer.id]}"></div>
+			<div class="card-text answer-body" th:utext="${answerHtmlMap[answer.id]}"></div>
 			<!-- 3.5.14 PatchUp Code Add -->
 			<!-- <div class="card-text" th:utext="${answer.contentHtml}"></div> -->
 			<div class="d-flex justify-content-end">

@@ -5,7 +5,7 @@
 			<h4>会員加入</h4>
 		</div>
 	</div>
-	<form th:action="@{/user/signup}" th:object="${userCreateForm}" method="post">
+	<form th:action="@{/user/signup}" th:object="${userCreateForm}" method="post" class="app-form-panel app-form-narrow">
 		<div th:replace="~{form_errors :: formErrorsFragment}"></div>
 		<div class="mb-3">
 			<label for="username" class="form-label">ユーザーID</label>

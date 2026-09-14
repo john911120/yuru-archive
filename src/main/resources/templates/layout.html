@@ -1,51 +1,42 @@
 <!doctype html>
-<html lang="ja">
-
+<html lang="ja" data-bs-theme="light">
 <head>
-	<!-- Required meta tags -->
-	<meta charset="utf-8">
-	<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-	<!-- Bootstrap CSS -->
-	<link rel="stylesheet" type="text/css" th:href="@{/bootstrap.min.css}">
-	<!-- sbb CSS -->
-	<link rel="stylesheet" type="text/css" th:href="@{/style.css}">
-	<title>ゆる~アーカイブへようこそ!</title>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <link rel="stylesheet" type="text/css" th:href="@{/bootstrap.min.css}">
+    <link rel="stylesheet" type="text/css" th:href="@{/style.css}">
+    <title>ゆる~アーカイブへようこそ!</title>
 </head>
+<body>
+    <nav th:replace="~{navbar :: navbarFragment}"></nav>
 
-<body data-bs-theme="light">
-	<!-- navigation bar -->
-	<nav th:replace="~{navbar :: navbarFragment}"></nav>
-	<!-- 基本テンプレートの中にインサートされるコンテンツ Start -->
-	
-	<!-- dark toggle button -->
-	<div class="container mt-2 text-end">
-		<button class="btn btn-outline-secondary btn-sm" onclick="toggleDarkMode()">🌓 テーマ切替（ライト／ダーク）</button>
-	</div>
-	
-	<th:block layout:fragment="content"></th:block>
-	<!-- 基本テンプレートの中にインサートされるコンテンツ End -->
-	<!-- Bootstrap JS -->
-	<script th:src="@{/bootstrap.min.js}"></script>
-	
-	<!-- darkmode JavaScript -->
-		<script>
-			document.addEventListener('DOMContentLoaded', () => {
-				const theme = localStorage.getItem('theme') || 'light';
-				document.body.setAttribute('data-bs-theme', theme);
-			});
+    <div class="theme-toolbar">
+        <button class="btn btn-outline-secondary btn-sm" onclick="toggleDarkMode()">
+            🌓 テーマ切替（ライト／ダーク）
+        </button>
+    </div>
 
-			function toggleDarkMode() {
-				const current = document.body.getAttribute('data-bs-theme');
-				const next = current === 'dark' ? 'light' : 'dark';
-				document.body.setAttribute('data-bs-theme', next);
-				localStorage.setItem('theme', next);
-			}
-		</script>
-	
-	<!-- JavaScript Start -->
-	<th:block layout:fragment="script"></th:block>
-	<!-- JavaScript End -->
+    <main class="app-main">
+        <th:block layout:fragment="content"></th:block>
+    </main>
+
+    <script th:src="@{/bootstrap.min.js}"></script>
+	<script th:src="@{/greeting.js}"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const theme = localStorage.getItem('theme') || 'light';
+            document.documentElement.setAttribute('data-bs-theme', theme);
+        });
+
+        function toggleDarkMode() {
+            const root = document.documentElement;
+            const current = root.getAttribute('data-bs-theme') || 'light';
+            const next = current === 'dark' ? 'light' : 'dark';
+            root.setAttribute('data-bs-theme', next);
+            localStorage.setItem('theme', next);
+        }
+    </script>
+
+    <th:block layout:fragment="script"></th:block>
 </body>
-
-	
 </html>

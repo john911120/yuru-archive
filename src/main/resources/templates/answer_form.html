@@ -1,7 +1,7 @@
 <html layout:decorate="~{layout}">
 <div layout:fragment="content" class="container">
 	<h5 class="my-3 border-bottom pb-2">返事 修正</h5>
-	<form th:object="${answerForm}" method="post">
+	<form th:object="${answerForm}" method="post" class="app-form-panel">
 		<input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}" />
 		<div th:replace="~{form_errors :: formErrorsFragment}"></div>
 		<div class="mb-3">
