@@ -75,7 +75,7 @@ Markdown Parser / Rendererをリクエストごとに再生成せず、`CommonUt
 - リンクカード用HTTPクライアントは `spring-boot-starter-webflux` から `spring-boot-starter-webclient` へ整理
 - JUnitの重複明示依存を整理
 - Lombokを1.18.46へ統一
-- Spring Boot 4.1.0 / Java 21を現行基準として文書化
+- Spring Boot 4.1.1 / Java 21を現行基準として文書化
 
 ## DB保護
 

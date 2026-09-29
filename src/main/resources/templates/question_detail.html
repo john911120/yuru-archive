@@ -38,10 +38,10 @@
 	 <!-- thumbnail + download card UI -->
 	 <div th:if="${question.uploadedFileList != null}" class="row mt-4">
 	     <h5>添付ファイル</h5>
-	     <div th:each="file : ${question.uploadedFileList}" class="col-md-3 mb-4">
+	     <div th:each="file : ${question.uploadedFileList}" class="col-md-3 mb-4 attachment-column">
 	         <div class="card h-100 attachment-card">
 	             <img th:src="@{|/upload/${file.folderPath}/${file.uuid}_${file.fileName}|}"
-	                  class="card-img-top img-fluid"
+	                  class="card-img-top img-fluid attachment-preview"
 	                  alt="添付画像"
 	                  style="width:100%; height:auto; max-height:320px; object-fit:contain;">
 

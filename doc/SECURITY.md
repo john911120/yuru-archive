@@ -10,6 +10,7 @@ Spring Securityによるフォームログインを使用します。
 - 質問修正・削除
 - 回答作成
 - いいね
+- 会員情報参照・編集
 
 投稿の修正・削除ではController側でも投稿者を確認します。
 
@@ -17,23 +18,47 @@ Spring Securityによるフォームログインを使用します。
 
 `BCryptPasswordEncoder` を使用します。
 
-## Markdown
+## Markdown / HTML
 
-CommonMarkでHTMLへ変換した後、jsoup `Safelist.basicWithImages()` でサニタイズします。
+ユーザー本文はCommonMarkでHTMLへ変換した後、jsoup `Safelist.basicWithImages()` でサニタイズします。
+
+質問本文もリンクカード部分を除き必ず同じサニタイズ経路を通過し、生の投稿本文を直接 `th:utext` へ渡しません。
+
+jsoupは1.23.2を使用します。
 
 ## リンクカード
 
-外部URLは `http` / `https` のみ許可し、ループバック・プライベート・リンクローカルアドレスを拒否します。
+外部URLは `http` / `https` の公開ホストのみ許可します。
+
+以下は拒否します。
+
+- loopback
+- private / site-local
+- link-local
+- user-info付きURL
+- 非HTTPスキーム
+- 名前解決できないホスト
+
+無効URLはクリック可能なフォールバックリンクとして出力しません。
+
+## 添付ファイル
+
+未使用だったlegacy `AttachController` は撤去しました。
+
+現在の添付処理は `AttachService` に集約し、以下を実施します。
+
+- 拡張子確認
+- Content-Type確認
+- 元ファイル名のbasename化
+- UUID付きファイル名で保存
+- 保存先パスのnormalize
+- アップロード領域外パスの拒否
+- IDベースの削除
 
 ## CSRF
 
-既存互換性のため一部パスをCSRF除外しています。0.1では既存挙動を優先し、大幅なSecurity設計変更は行っていません。
+既存互換性のため一部パスをCSRF除外しています。既存挙動を維持しながら、今後も不要な除外経路を段階的に見直します。
 
-## MFE / Vite開発サーバ（Last Flight時点）
+## 詳細
 
-MFEメモSPAはVue 3 / Viteで構築されています。現行 `vite.config.ts` では開発サーバに `host: true` を設定しており、ローカル端末以外からも接続できる構成です。
-
-これは開発・動作確認には便利ですが、開発サーバをLANや外部ネットワークへ不用意に公開すると、Viteのバージョンや開発サーバ機能に依存する攻撃面が増えるため、運用サーバとして使用しません。
-
-本コミットはMFE統合状態の最終記録であり、次フェーズではJava本体からVue SPAを分離してフロントエンドの依存関係と公開範囲を独立管理します。
-MFE分離完了までは、Vite開発サーバの公開範囲を必要最小限に制限します。
+2026年9月の改善内容は [SECURITY_IMPROVEMENTS_2026-09-10.md](SECURITY_IMPROVEMENTS_2026-09-10.md) を参照してください。

@@ -37,6 +37,8 @@ public class SecurityConfig {
                         "/question/delete/**",
                         "/answer/create/**",
                         "/answer/vote/**",
+                        "/user/password",
+                        "/user/password/**",
                         "/user/profile",
                         "/user/profile/**")
                 .authenticated()

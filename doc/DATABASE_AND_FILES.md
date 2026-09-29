@@ -8,7 +8,7 @@
 spring.jpa.hibernate.ddl-auto=none
 ```
 
-0.1のリファクタリングではDBスキーマおよび既存データを変更していません。
+0.1のリファクタリングおよび2026年9月のセキュリティ改善では、DBスキーマおよび既存データを変更していません。
 
 ## 主なEntity
 
@@ -28,18 +28,27 @@ com.yuru.archive.upload.path=C:/Upload
 `AttachService` が以下を一元管理します。
 
 - 拡張子・Content-Typeの確認
+- 元ファイル名のbasename化
 - 日付別フォルダ生成
 - UUID付きファイル名で保存
+- 保存先パスの正規化
+- アップロード領域外パスの拒否
 - サムネイル作成
 - `uploaded_file` レコード登録
 - 投稿修正時の添付削除
 
-## 0.1で解消した重複
+## legacy endpointの撤去
 
-以前は質問登録時に `QuestionController` がファイルを直接保存した後、`AttachService` でも同じMultipartFileを処理する経路が存在しました。
+以前存在した `/attach/display` / `/attach/remove` / `/attach/upload` 用の `AttachController` は、現在の画面処理で利用されていなかったため撤去しました。
 
-0.1ではController側の直接ファイルI/OとDTO経由の重複保存経路を削除し、`AttachService` のみで保存する構造へ統合しました。
+ファイル削除は利用者からファイル名を直接受け取らず、DB上のファイルIDを基準に `AttachService.deleteFileById()` で処理します。
 
-## 注意
+## DB保護
 
-質問削除時のDBレコード削除については既存動作を維持しています。物理ファイルを含めた削除方式の変更はDB・運用影響を確認したうえで別フェーズにします。
+今回の改善では以下を変更していません。
+
+- PostgreSQLテーブル
+- カラム
+- 外部キー
+- Entityのマッピング
+- 既存レコード

@@ -181,6 +181,8 @@ input[type="submit"] {
     border-radius: var(--yuru-radius);
     background: var(--yuru-surface);
     box-shadow: var(--yuru-shadow);
+
+    /* テーブル全体をコンテナ内に収め、横スクロールを発生させない。 */
     overflow: hidden;
 }
 
@@ -220,8 +222,47 @@ input[type="submit"] {
     border-radius: .65rem;
 }
 
+.attachment-card {
+    position: relative;
+    overflow: visible;
+}
+
 .attachment-card img {
     background: var(--yuru-surface-soft);
+}
+
+.attachment-preview {
+    position: relative;
+    cursor: zoom-in;
+    transition: transform .2s ease, box-shadow .2s ease;
+    transform-origin: center center;
+}
+
+@media (hover: hover) and (pointer: fine) {
+    .attachment-card:hover {
+        z-index: 20;
+    }
+
+    .attachment-preview:hover {
+        z-index: 30;
+        transform: scale(1.4);
+        box-shadow: 0 18px 45px rgba(31, 41, 55, 0.28);
+    }
+
+}
+
+/*
+ * 4列の添付画像グリッドで、拡大時に端の画像が画面外へはみ出さないようにする。
+ * 左端の画像は右方向へ、右端の画像は左方向へ拡大する。
+ */
+@media (hover: hover) and (pointer: fine) and (min-width: 768px) {
+    .attachment-column:nth-of-type(4n + 1) .attachment-preview {
+        transform-origin: left center;
+    }
+
+    .attachment-column:nth-of-type(4n) .attachment-preview {
+        transform-origin: right center;
+    }
 }
 
 .link-card {
@@ -297,6 +338,132 @@ input[type="submit"] {
     background: var(--yuru-surface);
     box-shadow: var(--yuru-shadow);
 }
+
+/*
+ * タブレットおよびモバイル端末で投稿一覧を画面内に収める。
+ * 各列の割合を明示し、作成日を維持しながらタイトルの可読性も確保する。
+ */
+@media (max-width: 1024px) {
+    .app-table-shell {
+        overflow: hidden;
+    }
+
+    .app-table-shell .table {
+        width: 100%;
+        table-layout: fixed;
+    }
+
+    .app-table-shell th,
+    .app-table-shell td {
+        padding: .55rem .4rem;
+        font-size: .88rem;
+        vertical-align: middle;
+    }
+
+    /*
+     * 番号列は必要最小限の幅にする。
+     */
+    .app-table-shell th:first-child,
+    .app-table-shell td:first-child {
+        width: 10%;
+        text-align: center;
+        white-space: nowrap;
+    }
+
+    /*
+     * タイトル列には十分な幅を割り当てる。
+     * 長いタイトルは省略せず、必要に応じて複数行で表示する。
+     */
+    .app-table-shell th:nth-child(2),
+    .app-table-shell td:nth-child(2) {
+        width: 35%;
+        min-width: 0;
+        white-space: normal;
+        overflow: visible;
+        text-overflow: clip;
+        overflow-wrap: anywhere;
+        word-break: normal;
+    }
+
+    .app-table-shell td:nth-child(2) a {
+        display: block;
+        max-width: 100%;
+        white-space: normal;
+        overflow-wrap: anywhere;
+        word-break: normal;
+        line-height: 1.45;
+    }
+
+    /*
+     * 作成者列は表示領域を確保しつつ、極端に長い名前だけ省略する。
+     */
+    .app-table-shell th:nth-child(3),
+    .app-table-shell td:nth-child(3) {
+        width: 22%;
+        min-width: 0;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+    }
+
+    /*
+     * 作成日列は日付と時刻を表示できる幅を優先して確保する。
+     */
+    .app-table-shell th:last-child,
+    .app-table-shell td:last-child {
+        width: 33%;
+        white-space: nowrap;
+        overflow: visible;
+        text-overflow: clip;
+        font-variant-numeric: tabular-nums;
+    }
+}
+
+/*
+ * 幅の狭いモバイル端末では、文字サイズと余白を少しだけ縮小する。
+ * 作成日は必要に応じて日付と時刻の間で改行し、内容自体は切り捨てない。
+ */
+@media (max-width: 575.98px) {
+    .app-table-shell th,
+    .app-table-shell td {
+        padding: .48rem .28rem;
+        font-size: .82rem;
+    }
+
+    .app-table-shell th:first-child,
+    .app-table-shell td:first-child {
+        width: 10%;
+    }
+
+    .app-table-shell th:nth-child(2),
+    .app-table-shell td:nth-child(2) {
+        width: 36%;
+    }
+
+    .app-table-shell th:nth-child(3),
+    .app-table-shell td:nth-child(3) {
+        width: 21%;
+    }
+
+    .app-table-shell th:last-child,
+    .app-table-shell td:last-child {
+        width: 33%;
+        font-size: .78rem;
+        letter-spacing: -.01em;
+    }
+
+    .app-table-shell th:last-child {
+        white-space: nowrap;
+    }
+
+    .app-table-shell td:last-child {
+        white-space: normal;
+        line-height: 1.3;
+        overflow-wrap: normal;
+        word-break: keep-all;
+    }
+}
+
 
 .app-form-narrow {
     max-width: 620px;

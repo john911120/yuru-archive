@@ -1,78 +1,66 @@
 # 検証記録
 
-## 実施結果
+## 2026-09 改善後の静的確認
 
-0.1の1次リファクタリング後、以下の静的検証を実施しました。
+以下を確認しました。
 
-- `Question` / `Answer` / `SiteUser` / `UploadedFile` のSHA-256を原本と比較し、完全一致を確認
-- ローカルDB接続、HikariCP、`ddl-auto=none`、アップロード先設定が原本と同一であることを確認
-- ControllerからRepositoryへの直接依存が残っていないことを確認
-- 質問登録時の旧 `uploadFilesFromDTOs` 経路が削除され、添付保存が `AttachService` に統合されていることを確認
-- `QuestionRepository` のID型が `Long` であることを確認
-- `System.out.println` / `printStackTrace` / Multipart一時デバッグログをメインJavaソースから除去したことを確認
-- `src/main/resources/static` 配下のJavaScript 5ファイルについて `node --check` がすべて成功
-- Markdownのローカルリンクを検査し、リンク切れ0件を確認
-- `.git` / `.gradle` / `build` / `bin` / `node_modules` が配布対象に含まれていないことを確認
-- Javaソースを `javac -proc:none` で走査し、外部依存クラス不足以外の構文エラーが検出されないことを確認
+- `src/main/java` に `MemoResourceConfig` が存在しない
+- `src/main/resources/static/memo` が存在しない
+- ルートに `package.json` / `package-lock.json` が存在しない
+- 実行コード・テンプレート・ビルド設定に `/memos/**` の参照が存在しない
+- navbarにMFE移動リンクが存在しない
+- legacy `AttachController` が存在しない
+- `AttachService.deleteFile(String)` / `getUploadPath()` が存在しない
+- 質問本文の生データを直接 `th:utext` へ渡す経路を削除
+- `LinkCardRenderService` が通常本文を `CommonUtil.markdown()` 経由でサニタイズすることを確認
+- リンクカードの非HTTP URLを拒否する処理を追加
+- Spring AI BOM 2.0.1を設定
+- jsoup 1.23.2を設定
+- `spring.ai.model.chat=none` により未使用AIモデルの自動構成を停止
+
+## 追加テスト
+
+`LinkCardRenderServiceTest` を追加し、以下をテスト対象としました。
+
+- `<script>` を含む本文がサニタイズされること
+- `onerror` などの危険属性が残らないこと
+- サニタイズ済み本文とサーバー生成リンクカードを同時に表示できること
+- `javascript:` リンクカードが実行可能HTMLにならないこと
+
+既存の添付・質問・回答・会員情報のテストコードは維持しています。
 
 ## DB保護確認
 
-以下のEntityファイルは原本とバイト単位で変更していません。
-
-- `question/Question.java`
-- `answer/Answer.java`
-- `user/SiteUser.java`
-- `attach/entity/UploadedFile.java`
-
-そのため、0.1リファクタリングではテーブル・カラム・外部キーのマッピング変更はありません。
+今回の改善ではEntityのDBマッピング、テーブル、カラム、外部キー、既存PostgreSQLデータを変更していません。
 
 ## Gradleテスト
 
-以下を実行しました。
+本作業環境では Gradle 8.14.5 本体を外部ネットワークから取得できないため、Gradle Wrapperによる実コンパイル・JUnit完走は実施できませんでした。
 
-```bash
-./gradlew clean test --no-daemon
+ローカル開発環境では以下を実行してください。
+
+```bat
+gradlew.bat clean test
+gradlew.bat clean build
 ```
 
-本検証環境では `services.gradle.org` の名前解決ができず、Gradle 8.14.5本体の取得段階で停止しました。
+## ローカル回帰確認項目
 
-```text
-java.net.UnknownHostException: services.gradle.org
-```
-
-したがって、この環境ではSpring依存関係を利用した実コンパイル・JUnit・アプリケーション起動まで完走できていません。
-
-## ローカルSTSでの回帰確認項目
-
-最終的な回帰確認は、Gradle 8.14.5が利用可能なローカル環境で以下を実施してください。
-
-1. `gradlew.bat clean test`
-2. `gradlew.bat clean processResources --no-daemon`
-3. アプリケーション起動
-4. ログイン / ログアウト
-5. 質問一覧・検索
-6. 質問登録
-7. 画像付き質問登録（重複ファイルが生成されないことも確認）
-8. 質問修正・添付追加・添付削除
-9. 質問削除
-10. 回答登録・修正・削除
-11. 回答へのいいね（重複・自己いいねも確認）
-12. Markdown表示
-13. リンクカード表示と外部API失敗時フォールバック
-14. MFEメモ画面 `/memos/`（Vue SPA表示、SPAルーティング、localStorage保存）
-15. 既存PostgreSQLデータの表示
-
-DBスキーマの自動更新は行わず、既存データを利用して確認します。
-
-## MFE Last Flight確認項目
-
-MFEを含む最終コミットでは、次の接続点が現行仕様として存在することを確認対象とします。
-
-- Vue側 `base: '/memos/'`
-- `src/main/resources/static/memo/` にVueビルド成果物を配置
-- `MemoResourceConfig` による `/memos/**` と `/memos/assets/**` の配信
-- `navbar.html` から `/memos/` への遷移
-- メモデータがSpring / PostgreSQLではなくブラウザ `localStorage` に保存されること
-
-次フェーズのMFE分離作業では、これらを「撤去・変更対象一覧」として利用します。
-本節は**Javaプロジェクト内部にMFEが存在する最後の回帰確認記録**です。
+1. アプリケーション起動
+2. ログイン / ログアウト
+3. 会員情報参照・編集
+4. 質問一覧・検索
+5. 質問登録
+6. 画像付き質問登録
+7. 質問修正・添付追加・添付削除
+8. 質問削除
+9. 回答登録・修正・削除
+10. 回答へのいいね
+11. Markdown表示
+12. `<script>` 等を含む入力が実行されないこと
+13. リンクカード表示
+14. 不正スキームのリンクカードが拒否されること
+15. ダーク / ライトテーマ切替
+16. PC / モバイルでナビゲーション位置と一覧表示を確認
+17. `/memos` がMFE画面として提供されないこと
+18. 既存PostgreSQLデータの表示

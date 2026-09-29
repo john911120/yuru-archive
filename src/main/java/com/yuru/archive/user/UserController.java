@@ -1,7 +1,6 @@
 package com.yuru.archive.user;
 
 import org.springframework.dao.DataIntegrityViolationException;
-import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
@@ -11,8 +10,6 @@ import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
-
-import com.yuru.archive.util.GreetingUtil;
 
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -27,11 +24,8 @@ public class UserController {
     private final UserService userService;
 
     @GetMapping("/")
-    public String mainPage(@AuthenticationPrincipal SiteUser user, Model model) {
-        if (user != null) {
-            model.addAttribute("username", user.getUsername());
-            model.addAttribute("greeting", GreetingUtil.getGreetingMessage());
-        }
+    public String mainPage() {
+
         return "main";
     }
 
@@ -114,6 +108,55 @@ public class UserController {
         }
 
         redirectAttributes.addFlashAttribute("profileUpdated", true);
+        return "redirect:/user/profile";
+    }
+
+    @GetMapping("/password")
+    public String changePassword(UserPasswordForm userPasswordForm) {
+        return "password_change";
+    }
+
+    @PostMapping("/password")
+    public String changePassword(
+            Principal principal,
+            @Valid UserPasswordForm userPasswordForm,
+            BindingResult bindingResult,
+            RedirectAttributes redirectAttributes) {
+
+        if (bindingResult.hasErrors()) {
+            return "password_change";
+        }
+
+        if (!userPasswordForm.getNewPassword().equals(userPasswordForm.getNewPasswordConfirm())) {
+            bindingResult.rejectValue(
+                    "newPasswordConfirm",
+                    "passwordInCorrect",
+                    "新しいパスワードが一致しません。");
+            return "password_change";
+        }
+
+        if (userPasswordForm.getCurrentPassword().equals(userPasswordForm.getNewPassword())) {
+            bindingResult.rejectValue(
+                    "newPassword",
+                    "passwordUnchanged",
+                    "現在のパスワードとは異なるパスワードを入力してください。");
+            return "password_change";
+        }
+
+        boolean changed = userService.changePassword(
+                principal.getName(),
+                userPasswordForm.getCurrentPassword(),
+                userPasswordForm.getNewPassword());
+
+        if (!changed) {
+            bindingResult.rejectValue(
+                    "currentPassword",
+                    "passwordMismatch",
+                    "現在のパスワードが正しくありません。");
+            return "password_change";
+        }
+
+        redirectAttributes.addFlashAttribute("passwordChanged", true);
         return "redirect:/user/profile";
     }
 

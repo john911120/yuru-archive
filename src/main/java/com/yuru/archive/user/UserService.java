@@ -42,6 +42,19 @@ public class UserService {
 	}
 
     @Transactional
+    public boolean changePassword(String username, String currentPassword, String newPassword) {
+        SiteUser user = getUser(username);
+
+        if (!passwordEncoder.matches(currentPassword, user.getPassword())) {
+            return false;
+        }
+
+        user.setPassword(passwordEncoder.encode(newPassword));
+        userRepository.save(user);
+        return true;
+    }
+
+    @Transactional
     public SiteUser updateProfile(String username, UserProfileForm form) {
         SiteUser user = getUser(username);
         user.setEmail(form.getEmail().trim());
