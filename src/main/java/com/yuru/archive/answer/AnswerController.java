@@ -4,6 +4,7 @@ import java.security.Principal;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -15,7 +16,6 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.multipart.MultipartFile;
-import org.springframework.web.server.ResponseStatusException;
 
 import com.yuru.archive.attach.service.AttachService;
 import com.yuru.archive.question.Question;
@@ -53,6 +53,10 @@ public class AnswerController {
         }
 
         SiteUser siteUser = userService.getUser(principal.getName());
+        if (hasUploadFiles(uploadFiles)) {
+            attachService.validateFiles(uploadFiles);
+        }
+
         Answer answer = answerService.create(question, answerForm.getContent(), siteUser);
 
         if (hasUploadFiles(uploadFiles)) {
@@ -95,7 +99,7 @@ public class AnswerController {
     }
 
     @PreAuthorize("isAuthenticated()")
-    @GetMapping("/delete/{id}")
+    @PostMapping("/delete/{id}")
     public String answerDelete(Principal principal, @PathVariable("id") Integer id) {
         Answer answer = answerService.getAnswer(id);
         verifyAuthor(answer, principal);
@@ -104,7 +108,7 @@ public class AnswerController {
     }
 
     @PreAuthorize("isAuthenticated()")
-    @GetMapping("/vote/{id}")
+    @PostMapping("/vote/{id}")
     @ResponseBody
     public ResponseEntity<String> vote(@PathVariable("id") Integer id, Principal principal) {
         if (principal == null) {
@@ -123,7 +127,7 @@ public class AnswerController {
 
     private void verifyAuthor(Answer answer, Principal principal) {
         if (!answer.getAuthor().getUsername().equals(principal.getName())) {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "操作権限がありません。");
+            throw new AccessDeniedException("操作権限がありません。");
         }
     }
 

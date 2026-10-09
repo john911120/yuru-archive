@@ -2,7 +2,10 @@ package com.yuru.archive.attach;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 import java.awt.image.BufferedImage;
 import java.io.ByteArrayOutputStream;
@@ -17,6 +20,7 @@ import org.junit.jupiter.api.io.TempDir;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.mock.web.MockMultipartFile;
+import org.springframework.security.access.AccessDeniedException;
 import org.springframework.test.util.ReflectionTestUtils;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -69,4 +73,18 @@ class AttachServiceTest {
         assertEquals("test-image.jpg", result.get(0).getFileName());
         verify(attachFileRepository).save(org.mockito.ArgumentMatchers.any());
     }
+    @Test
+    void cannotDeleteFileThatDoesNotBelongToQuestionAndUser() {
+        AttachServiceImpl attachService = new AttachServiceImpl(attachFileRepository);
+        ReflectionTestUtils.setField(attachService, "uploadPath", tempDir.toString());
+
+        when(attachFileRepository.findByIdInAndQuestion_IdAndUserId(List.of(20L), 100L, 1L))
+                .thenReturn(List.of());
+
+        assertThrows(AccessDeniedException.class,
+                () -> attachService.deleteOwnedFiles(List.of(20L), 100L, 1L));
+
+        verify(attachFileRepository, never()).deleteAll(org.mockito.ArgumentMatchers.any());
+    }
+
 }

@@ -24,11 +24,9 @@ public class ExternalOgService {
     private final Cache<String, OgDto> ogCache;
 
     public OgDto fetch(String targetUrl) {
-        try {
-            validateUrl(targetUrl);
-        } catch (Exception e) {
-            return fallbackAndCache(targetUrl);
-        }
+        // 不正なスキームやローカルネットワーク宛てURLは、
+        // フォールバック表示へ流さずここで拒否します。
+        validateUrl(targetUrl);
 
         OgDto cached = ogCache.getIfPresent(targetUrl);
         if (cached != null) {
@@ -67,7 +65,8 @@ public class ExternalOgService {
                 image = "https://via.placeholder.com/1200x630.png?text=No+Image";
             }
 
-            OgDto dto = new OgDto(url != null ? url : targetUrl, title, description, image);
+            // 画面上のリンク先には、事前検証済みの要求URLのみを使用します。
+            OgDto dto = new OgDto(targetUrl, title, description, image);
             ogCache.put(targetUrl, dto);
             return dto;
         } catch (WebClientResponseException e) {
@@ -87,12 +86,21 @@ public class ExternalOgService {
         if (scheme == null || !(scheme.equalsIgnoreCase("http") || scheme.equalsIgnoreCase("https"))) {
             throw new IllegalArgumentException("Only http/https allowed");
         }
+        if (url.getHost() == null || url.getHost().isBlank() || url.getUserInfo() != null) {
+            throw new IllegalArgumentException("Valid public host required");
+        }
 
         try {
-            InetAddress address = InetAddress.getByName(url.getHost());
-            if (address.isLoopbackAddress() || address.isSiteLocalAddress() || address.isLinkLocalAddress()) {
-                throw new IllegalArgumentException("Private/loopback host not allowed");
+            for (InetAddress address : InetAddress.getAllByName(url.getHost())) {
+                if (address.isAnyLocalAddress()
+                        || address.isLoopbackAddress()
+                        || address.isSiteLocalAddress()
+                        || address.isLinkLocalAddress()) {
+                    throw new IllegalArgumentException("Private/loopback host not allowed");
+                }
             }
+        } catch (IllegalArgumentException e) {
+            throw e;
         } catch (Exception e) {
             throw new IllegalArgumentException("Host resolution failed", e);
         }

@@ -13,6 +13,7 @@ import java.util.List;
 import java.util.UUID;
 
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.security.access.AccessDeniedException;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -21,6 +22,7 @@ import com.yuru.archive.attach.entity.UploadedFile;
 import com.yuru.archive.attach.repository.AttachFileRepository;
 import com.yuru.archive.question.Question;
 import com.yuru.archive.user.SiteUser;
+import com.yuru.archive.util.FileValidator;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -37,6 +39,24 @@ public class AttachServiceImpl implements AttachService {
     private final AttachFileRepository attachFileRepository;
 
     @Override
+    public void validateFiles(MultipartFile[] uploadFiles) {
+        if (uploadFiles == null) {
+            return;
+        }
+
+        for (MultipartFile uploadFile : uploadFiles) {
+            if (uploadFile == null || uploadFile.isEmpty()) {
+                continue;
+            }
+            String fileName = sanitizeOriginalFilename(uploadFile.getOriginalFilename());
+            if (fileName == null) {
+                throw new com.yuru.archive.exception.InvalidUploadFileException("不正なファイル名です。");
+            }
+            FileValidator.validateImage(uploadFile, fileName);
+        }
+    }
+
+    @Override
     public List<AttachFileDTO> uploadFiles(MultipartFile[] uploadFiles, Question question, SiteUser user) {
         List<AttachFileDTO> result = new ArrayList<>();
         if (uploadFiles == null) {
@@ -49,27 +69,29 @@ public class AttachServiceImpl implements AttachService {
             }
 
             String originalName = uploadFile.getOriginalFilename();
-            if (originalName == null || !isAllowedExtension(originalName)) {
-                log.warn("許可されていない拡張子です: {}", originalName);
+            String fileName = sanitizeOriginalFilename(originalName);
+            if (fileName == null) {
+                log.warn("不正なファイル名を拒否しました: {}", originalName);
                 continue;
             }
 
-            String contentType = uploadFile.getContentType();
-            if (contentType == null || !contentType.startsWith("image")) {
-                log.warn("画像ファイルではありません: {}", originalName);
-                continue;
-            }
+            FileValidator.validateImage(uploadFile, fileName);
 
             try {
-                String fileName = originalName.substring(originalName.lastIndexOf('\\') + 1);
                 String folderPath = makeFolder();
                 String uuid = UUID.randomUUID().toString();
                 String folderForDisk = folderPath.replace("/", File.separator);
-                Path savePath = Paths.get(uploadPath, folderForDisk, uuid + "_" + fileName);
+                Path targetDirectory = Paths.get(uploadPath, folderForDisk).toAbsolutePath().normalize();
+                Path savePath = targetDirectory.resolve(uuid + "_" + fileName).normalize();
+
+                if (!savePath.startsWith(targetDirectory)) {
+                    log.warn("アップロード先ディレクトリ外を指すファイル名を拒否しました: {}", originalName);
+                    continue;
+                }
 
                 uploadFile.transferTo(savePath);
 
-                File thumbnail = Paths.get(uploadPath, folderForDisk, "s_" + uuid + "_" + fileName).toFile();
+                File thumbnail = targetDirectory.resolve("s_" + uuid + "_" + fileName).toFile();
                 createThumbnailOrFallback(savePath, thumbnail, originalName);
 
                 Long userId = user != null ? user.getId() : null;
@@ -117,39 +139,47 @@ public class AttachServiceImpl implements AttachService {
     }
 
     @Override
-    public boolean deleteFile(String fileName) {
-        try {
-            File file = new File(uploadPath + File.separator + fileName);
-            boolean deleted = file.delete();
-            File thumbnail = new File(file.getParent(), "s_" + file.getName());
-            if (thumbnail.exists() && !thumbnail.delete()) {
-                log.warn("サムネイルを削除できませんでした: {}", thumbnail.getAbsolutePath());
-            }
-            return deleted;
-        } catch (Exception e) {
-            log.error("添付ファイルの削除に失敗しました: {}", fileName, e);
-            return false;
+    public void deleteOwnedFiles(List<Long> fileIds, Long questionId, Long userId) {
+        if (fileIds == null || fileIds.isEmpty()) {
+            return;
         }
+
+        List<Long> requestedIds = fileIds.stream().distinct().toList();
+        List<UploadedFile> ownedFiles = attachFileRepository
+                .findByIdInAndQuestion_IdAndUserId(requestedIds, questionId, userId);
+
+        if (ownedFiles.size() != requestedIds.size()) {
+            throw new AccessDeniedException("削除対象に権限のない添付ファイルが含まれています。");
+        }
+
+        // 全件の所有権確認が完了してから実ファイルを削除する。
+        // 途中で権限エラーが発生して一部だけ削除される状態を防ぐ。
+        for (UploadedFile file : ownedFiles) {
+            Path original = resolveStoredFile(file, false);
+            Path thumbnail = resolveStoredFile(file, true);
+            deleteIfExists(original.toFile());
+            deleteIfExists(thumbnail.toFile());
+        }
+        attachFileRepository.deleteAll(ownedFiles);
     }
 
-    @Override
-    public boolean deleteFileById(Long fileId) {
-        UploadedFile file = attachFileRepository.findById(fileId)
-                .orElseThrow(() -> new IllegalArgumentException("ファイルが存在しません: " + fileId));
 
-        String folderForDisk = file.getFolderPath().replace("/", File.separator);
-        File original = Paths.get(uploadPath, folderForDisk, file.getUuid() + "_" + file.getFileName()).toFile();
-        File thumbnail = Paths.get(uploadPath, folderForDisk, "s_" + file.getUuid() + "_" + file.getFileName()).toFile();
+    private Path resolveStoredFile(UploadedFile file, boolean thumbnail) {
+        String safeFileName = sanitizeOriginalFilename(file.getFileName());
+        if (safeFileName == null) {
+            throw new IllegalArgumentException("不正な保存ファイル名です: " + file.getId());
+        }
 
-        deleteIfExists(original);
-        deleteIfExists(thumbnail);
-        attachFileRepository.delete(file);
-        return true;
-    }
+        Path uploadRoot = Paths.get(uploadPath).toAbsolutePath().normalize();
+        String storedFolder = file.getFolderPath() == null ? "" : file.getFolderPath().replace('\\', '/');
+        Path targetDirectory = uploadRoot.resolve(storedFolder).normalize();
+        String storedName = (thumbnail ? "s_" : "") + file.getUuid() + "_" + safeFileName;
+        Path target = targetDirectory.resolve(storedName).normalize();
 
-    @Override
-    public String getUploadPath() {
-        return uploadPath;
+        if (!target.startsWith(uploadRoot)) {
+            throw new IllegalArgumentException("アップロード領域外のファイル参照を拒否しました: " + file.getId());
+        }
+        return target;
     }
 
     private String makeFolder() {
@@ -179,13 +209,19 @@ public class AttachServiceImpl implements AttachService {
         }
     }
 
-    private boolean isAllowedExtension(String filename) {
-        String lowerName = filename.toLowerCase();
-        return lowerName.endsWith(".jpg")
-                || lowerName.endsWith(".jpeg")
-                || lowerName.endsWith(".png")
-                || lowerName.endsWith(".gif")
-                || lowerName.endsWith(".webp");
+
+    private String sanitizeOriginalFilename(String originalName) {
+        if (originalName == null || originalName.isBlank()) {
+            return null;
+        }
+
+        String normalized = originalName.replace('\\', '/');
+        String fileName = normalized.substring(normalized.lastIndexOf('/') + 1).trim();
+
+        if (fileName.isBlank() || fileName.equals(".") || fileName.equals("..")) {
+            return null;
+        }
+        return fileName;
     }
 
     private void deleteIfExists(File file) {

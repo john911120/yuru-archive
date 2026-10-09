@@ -5,6 +5,8 @@ import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
+import jakarta.servlet.http.HttpServletRequest;
+
 import java.security.Principal;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -22,6 +24,7 @@ import lombok.extern.slf4j.Slf4j;
 public class UserController {
 
     private final UserService userService;
+    private final UserSessionService userSessionService;
 
     @GetMapping("/")
     public String mainPage() {
@@ -121,7 +124,8 @@ public class UserController {
             Principal principal,
             @Valid UserPasswordForm userPasswordForm,
             BindingResult bindingResult,
-            RedirectAttributes redirectAttributes) {
+            RedirectAttributes redirectAttributes,
+            HttpServletRequest request) {
 
         if (bindingResult.hasErrors()) {
             return "password_change";
@@ -155,6 +159,11 @@ public class UserController {
                     "現在のパスワードが正しくありません。");
             return "password_change";
         }
+
+        String currentSessionId = request.getSession(false) != null
+                ? request.getSession(false).getId()
+                : null;
+        userSessionService.expireOtherSessions(principal.getName(), currentSessionId);
 
         redirectAttributes.addFlashAttribute("passwordChanged", true);
         return "redirect:/user/profile";

@@ -65,6 +65,9 @@ public class QuestionService {
             String content,
             SiteUser user,
             MultipartFile[] uploadFiles) {
+        if (hasUploadFiles(uploadFiles)) {
+            attachService.validateFiles(uploadFiles);
+        }
         Question saved = create(subject, content, user);
         if (hasUploadFiles(uploadFiles)) {
             attachService.uploadFiles(uploadFiles, saved, user);
@@ -86,11 +89,15 @@ public class QuestionService {
             MultipartFile[] uploadFiles,
             List<Long> deleteFileIds,
             SiteUser user) {
-        modify(question, subject, content);
-
-        if (deleteFileIds != null) {
-            deleteFileIds.forEach(attachService::deleteFileById);
+        if (hasUploadFiles(uploadFiles)) {
+            attachService.validateFiles(uploadFiles);
         }
+
+        if (deleteFileIds != null && !deleteFileIds.isEmpty()) {
+            attachService.deleteOwnedFiles(deleteFileIds, question.getId(), user.getId());
+        }
+
+        modify(question, subject, content);
 
         if (hasUploadFiles(uploadFiles)) {
             attachService.uploadFiles(uploadFiles, question, user);

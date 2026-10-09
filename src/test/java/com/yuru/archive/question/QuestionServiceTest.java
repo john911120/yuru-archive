@@ -51,6 +51,7 @@ class QuestionServiceTest {
         Question saved = questionService.createWithAttachments("subject", "content", user, files);
 
         verify(questionRepository).save(saved);
+        verify(attachService).validateFiles(files);
         verify(attachService).uploadFiles(files, saved, user);
     }
 
@@ -68,6 +69,7 @@ class QuestionServiceTest {
     @Test
     void modifyWithAttachmentsDelegatesDeleteAndUploadToAttachService() {
         Question question = new Question();
+        question.setId(99L);
         question.setAuthor(user);
         MultipartFile[] files = {
                 new MockMultipartFile("uploadFiles", "sample.png", "image/png", new byte[] {1})
@@ -81,8 +83,8 @@ class QuestionServiceTest {
                 List.of(10L, 20L),
                 user);
 
-        verify(attachService).deleteFileById(10L);
-        verify(attachService).deleteFileById(20L);
+        verify(attachService).validateFiles(files);
+        verify(attachService).deleteOwnedFiles(List.of(10L, 20L), question.getId(), user.getId());
         verify(attachService).uploadFiles(files, question, user);
     }
 }

@@ -7,6 +7,7 @@ import org.springframework.stereotype.Service;
 import org.thymeleaf.TemplateEngine;
 import org.thymeleaf.context.Context;
 
+import com.yuru.archive.CommonUtil;
 import com.yuru.archive.linkpreview.dto.OgDto;
 
 import lombok.RequiredArgsConstructor;
@@ -22,37 +23,52 @@ public class LinkCardRenderService {
 
     private final ExternalOgService ogService;
     private final TemplateEngine templateEngine;
+    private final CommonUtil commonUtil;
 
     /**
-     * 本文中の [[linkcard url="..."]] をリンクカードHTMLへ変換します。
-     * 外部APIに失敗した場合は通常リンクへフォールバックします。
+     * 本文を安全なHTMLへ変換し、[[linkcard url="..."]] の部分だけを
+     * サーバー側で生成したリンクカードHTMLへ置き換えます。
+     *
+     * ユーザー入力本文は必ず CommonMark + jsoup のサニタイズを通すため、
+     * 生の本文が th:utext へ渡ることはありません。
      */
     public String render(String content) {
         if (content == null || content.isBlank()) {
-            return content;
+            return "";
         }
 
         Matcher matcher = LINKCARD_PATTERN.matcher(content);
-        StringBuffer result = new StringBuffer();
+        StringBuilder result = new StringBuilder();
+        int cursor = 0;
 
         while (matcher.find()) {
-            String url = matcher.group(1);
-            String replacement = renderCardOrFallback(url);
-            matcher.appendReplacement(result, Matcher.quoteReplacement(replacement));
+            appendSanitizedMarkdown(result, content.substring(cursor, matcher.start()));
+            result.append(renderCard(matcher.group(1)));
+            cursor = matcher.end();
         }
-        matcher.appendTail(result);
+
+        appendSanitizedMarkdown(result, content.substring(cursor));
         return result.toString();
     }
 
-    private String renderCardOrFallback(String url) {
+    private void appendSanitizedMarkdown(StringBuilder result, String markdown) {
+        if (markdown != null && !markdown.isEmpty()) {
+            result.append(commonUtil.markdown(markdown));
+        }
+    }
+
+    private String renderCard(String url) {
         try {
             OgDto og = ogService.fetch(url);
             Context context = new Context();
             context.setVariable("og", og);
             return templateEngine.process("card", context);
+        } catch (IllegalArgumentException e) {
+            log.warn("安全ではないリンクカードURLを拒否しました: {}", url);
+            return "<p class=\"text-muted\">無効なリンクカードURLが指定されました。</p>";
         } catch (Exception e) {
-            log.debug("リンクカード生成に失敗したため通常リンクへフォールバックします: {}", url, e);
-            return "<a href=\"" + url + "\" target=\"_blank\" rel=\"noopener noreferrer\">" + url + "</a>";
+            log.debug("リンクカード生成に失敗しました: {}", url, e);
+            return "<p class=\"text-muted\">リンクカードを表示できませんでした。</p>";
         }
     }
 }

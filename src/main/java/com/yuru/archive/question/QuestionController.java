@@ -6,7 +6,7 @@ import java.util.List;
 import java.util.Map;
 
 import org.springframework.data.domain.Page;
-import org.springframework.http.HttpStatus;
+import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -17,7 +17,6 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.multipart.MultipartFile;
-import org.springframework.web.server.ResponseStatusException;
 
 import com.yuru.archive.CommonUtil;
 import com.yuru.archive.answer.AnswerForm;
@@ -155,7 +154,7 @@ public class QuestionController {
     }
 
     @PreAuthorize("isAuthenticated()")
-    @GetMapping("/delete/{id}")
+    @PostMapping("/delete/{id}")
     public String questionDelete(Principal principal, @PathVariable("id") Long id) {
         Question question = questionService.getQuestion(id);
         verifyAuthor(question, principal);
@@ -165,7 +164,7 @@ public class QuestionController {
 
     private void verifyAuthor(Question question, Principal principal) {
         if (!question.getAuthor().getUsername().equals(principal.getName())) {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "操作権限がありません。");
+            throw new AccessDeniedException("操作権限がありません。");
         }
     }
 }

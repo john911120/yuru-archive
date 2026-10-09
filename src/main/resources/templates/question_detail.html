@@ -1,174 +1,180 @@
 <html layout:decorate="~{layout}">
 <div layout:fragment="content" class="container my-3">
-	<div th:if="${errorMessage}" class="alert alert-warning">
-	    [[${errorMessage}]]
-	</div>
-	<!-- 質問 -->
-	<h2 class="border-bottom py-2" th:text="${question.subject}"></h2>
-	<div class="card my-3">
-		<div class="card-body">
-			<!-- ユーザー本文は LinkCardRenderService で Markdown 変換 + jsoup サニタイズ済み -->
-			<div class="question-body" th:utext="${htmlBody}"></div>
+    <div th:if="${errorMessage}" class="alert alert-warning">
+        [[${errorMessage}]]
+    </div>
 
-			<div class="d-flex justify-content-end">
-				<div class="badge bg-light text-dark p-2 text-start">
-					<div class="mb-2">
-						<span th:if="${question.author != null}" th:text="${question.author.username}"></span>
-					</div>
-					<div th:text="${#temporals.format(question.createDate, 'yyyy-MM-dd HH:mm')}"></div>
-				</div>
-			</div>
-			<div class="my-3">
-				<a th:href="@{|/question/modify/${question.id}|}" class="btn btn-sm btn-outline-secondary"
-					sec:authorize="isAuthenticated()"
-					th:if="${question.author != null and #authentication.getPrincipal().getUsername() == question.author.username}"
-					th:text="修正"></a>
-				<a href="javascript:void(0);" th:data-uri="@{|/question/delete/${question.id}|}"
-					class="delete btn btn-sm btn-outline-secondary" sec:authorize="isAuthenticated()"
-					th:if="${question.author != null and #authentication.getPrincipal().getUsername() == question.author.username}"
-					th:text="削除"></a>
-			</div>
-		</div>
-	</div>
-	<!--
-		 添付ファイルが見えるようにしました。
-	 	 添付ファイルがいない場合は、添付ファイルはありません。が表示されます。
-	 -->
-	 <div th:if="${uploadedFiles != null and !uploadedFiles.isEmpty()}">
-	 <!-- thumbnail + download card UI -->
-	 <div th:if="${question.uploadedFileList != null}" class="row mt-4">
-	     <h5>添付ファイル</h5>
-	     <div th:each="file : ${question.uploadedFileList}" class="col-md-3 mb-4 attachment-column">
-	         <div class="card h-100 attachment-card">
-	             <img th:src="@{|/upload/${file.folderPath}/${file.uuid}_${file.fileName}|}"
-	                  class="card-img-top img-fluid attachment-preview"
-	                  alt="添付画像"
-	                  style="width:100%; height:auto; max-height:320px; object-fit:contain;">
+    <h2 class="border-bottom py-2" th:text="${question.subject}"></h2>
+    <div class="card my-3">
+        <div class="card-body">
+            <!-- ユーザー本文は LinkCardRenderService で Markdown 変換 + jsoup サニタイズ済み -->
+            <div class="question-body" th:utext="${htmlBody}"></div>
 
-	             <div class="card-body p-2 text-center">
-	                 <a class="btn btn-sm btn-outline-primary"
-	                    th:href="@{|/upload/${file.folderPath}/${file.uuid}_${file.fileName}|}"
-	                    download>
-	                     ダウンロード
-	                 </a>
-	             </div>
-	         </div>
-	     </div>
-	 </div>
-	 </div>
-		 <div th:if="${question.uploadedFileList == null or question.uploadedFileList.isEmpty()}">
-		   <p>添付ファイルはありません。</p>
-		 </div>
-	 
-	<!-- コメントの数を表示 -->
-	<h5 class="border-bottom my-3 py-2" th:text="|${#lists.size(question.answerList)}個のコメントがあります。|"></h5>
-	<!-- コメントを繰り返し処理 開始 -->
-	<div class="card my-3" th:each="answer : ${question.answerList}">
-		<a th:id="|answer_${answer.id}|"></a>
-		<div class="card-body">
-			<!--<script>alert('XSS')</script>-->
-			<div class="card-text answer-body" th:utext="${answerHtmlMap[answer.id]}"></div>
-			<!-- 3.5.14 PatchUp Code Add -->
-			<!-- <div class="card-text" th:utext="${answer.contentHtml}"></div> -->
-			<div class="d-flex justify-content-end">
-				<div th:if="${answer.modifyDate != null}" class="badge bg-light text-dark p-2 text-start mx-3">
-					<div class="mb-2">modified at</div>
-					<div th:text="${#temporals.format(answer.modifyDate, 'yyyy-MM-dd HH:mm')}"></div>
-				</div>
-				<div class="badge bg-light text-dark p-2 text-start">
-					<div class="mb-2">
-						<span th:if="${answer.author != null}" th:text="${answer.author.username}"></span>
-					</div>
-					<div th:text="${#temporals.format(answer.createDate, 'yyyy-MM-dd HH:mm')}"></div>
-				</div>
-			</div>
-			<div class="my-3">
-				<a href="javascript:void(0);" class="recommend btn btn-sm btn-outline-secondary"
-					th:data-uri="@{|/answer/vote/${answer.id}|}">
-					いいね
-					<span class="badge rounded-pill bg-success" th:text="${#sets.size(answer.voter)}">0</span>
-				</a>
-				<a th:href="@{|/answer/modify/${answer.id}|}" class="btn btn-sm btn-outline-secondary"
-					sec:authorize="isAuthenticated()"	
-					th:if="${answer.author != null and #authentication.getPrincipal().getUsername() == answer.author.username}"
-					th:text="修正"></a>
-				<a href="javascript:void(0);" th:data-uri="@{|/answer/delete/${answer.id}|}"
-					class="delete btn btn-sm btn-outline-secondary" sec:authorize="isAuthenticated()"
-					th:if="${answer.author != null and #authentication.getPrincipal().getUsername() == answer.author.username}"
-					th:text="削除"></a>
-			</div>
-		</div>
-	</div>
-	<!-- コメントを繰り返し処理 終了  -->
-	<!-- コメント作成 -->
-	<form th:action="@{|/answer/create/${question.id}|}" 
-	      th:object="${answerForm}" 
-	      enctype="multipart/form-data" 
-	      method="post" 
-	      class="my-3">
-	    <div th:replace="~{form_errors :: formErrorsFragment}"></div>
-	
-	    <textarea sec:authorize="isAnonymous()" disabled th:field="*{content}" class="form-control" rows="10"></textarea>
-	    <textarea sec:authorize="isAuthenticated()" th:field="*{content}" class="form-control" rows="10"></textarea>
-		
-	    <input type="submit" value="コメント登録" class="btn btn-primary my-2">
-	</form>
+            <div class="d-flex justify-content-end">
+                <div class="badge bg-light text-dark p-2 text-start">
+                    <div class="mb-2">
+                        <span th:if="${question.author != null}" th:text="${question.author.username}"></span>
+                    </div>
+                    <div th:text="${#temporals.format(question.createDate, 'yyyy-MM-dd HH:mm')}"></div>
+                </div>
+            </div>
 
+            <div class="my-3 d-flex gap-2">
+                <a th:href="@{|/question/modify/${question.id}|}"
+                   class="btn btn-sm btn-outline-secondary"
+                   sec:authorize="isAuthenticated()"
+                   th:if="${question.author != null and #authentication.getPrincipal().getUsername() == question.author.username}">
+                    修正
+                </a>
+
+                <form th:action="@{|/question/delete/${question.id}|}"
+                      method="post"
+                      sec:authorize="isAuthenticated()"
+                      th:if="${question.author != null and #authentication.getPrincipal().getUsername() == question.author.username}"
+                      onsubmit="return confirm('本当に削除しますか？');">
+                    <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}" />
+                    <button type="submit" class="btn btn-sm btn-outline-secondary">削除</button>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <div th:if="${uploadedFiles != null and !uploadedFiles.isEmpty()}">
+        <div th:if="${question.uploadedFileList != null}" class="row mt-4">
+            <h5>添付ファイル</h5>
+            <div th:each="file : ${question.uploadedFileList}" class="col-md-3 mb-4 attachment-column">
+                <div class="card h-100 attachment-card">
+                    <img th:src="@{|/upload/${file.folderPath}/${file.uuid}_${file.fileName}|}"
+                         class="card-img-top img-fluid attachment-preview"
+                         alt="添付画像"
+                         style="width:100%; height:auto; max-height:320px; object-fit:contain;">
+                    <div class="card-body p-2 text-center">
+                        <a class="btn btn-sm btn-outline-primary"
+                           th:href="@{|/upload/${file.folderPath}/${file.uuid}_${file.fileName}|}"
+                           download>
+                            ダウンロード
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div th:if="${question.uploadedFileList == null or question.uploadedFileList.isEmpty()}">
+        <p>添付ファイルはありません。</p>
+    </div>
+
+    <h5 class="border-bottom my-3 py-2"
+        th:text="|${#lists.size(question.answerList)}個のコメントがあります。|"></h5>
+
+    <div class="card my-3" th:each="answer : ${question.answerList}">
+        <a th:id="|answer_${answer.id}|"></a>
+        <div class="card-body">
+            <div class="card-text answer-body" th:utext="${answerHtmlMap[answer.id]}"></div>
+
+            <div class="d-flex justify-content-end">
+                <div th:if="${answer.modifyDate != null}"
+                     class="badge bg-light text-dark p-2 text-start mx-3">
+                    <div class="mb-2">modified at</div>
+                    <div th:text="${#temporals.format(answer.modifyDate, 'yyyy-MM-dd HH:mm')}"></div>
+                </div>
+                <div class="badge bg-light text-dark p-2 text-start">
+                    <div class="mb-2">
+                        <span th:if="${answer.author != null}" th:text="${answer.author.username}"></span>
+                    </div>
+                    <div th:text="${#temporals.format(answer.createDate, 'yyyy-MM-dd HH:mm')}"></div>
+                </div>
+            </div>
+
+            <div class="my-3 d-flex gap-2 flex-wrap">
+                <button type="button"
+                        class="recommend btn btn-sm btn-outline-secondary"
+                        th:data-uri="@{|/answer/vote/${answer.id}|}"
+                        th:data-csrf-token="${_csrf.token}"
+                        th:data-csrf-header="${_csrf.headerName}">
+                    いいね
+                    <span class="badge rounded-pill bg-success"
+                          th:text="${#sets.size(answer.voter)}">0</span>
+                </button>
+
+                <a th:href="@{|/answer/modify/${answer.id}|}"
+                   class="btn btn-sm btn-outline-secondary"
+                   sec:authorize="isAuthenticated()"
+                   th:if="${answer.author != null and #authentication.getPrincipal().getUsername() == answer.author.username}">
+                    修正
+                </a>
+
+                <form th:action="@{|/answer/delete/${answer.id}|}"
+                      method="post"
+                      sec:authorize="isAuthenticated()"
+                      th:if="${answer.author != null and #authentication.getPrincipal().getUsername() == answer.author.username}"
+                      onsubmit="return confirm('本当に削除しますか？');">
+                    <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}" />
+                    <button type="submit" class="btn btn-sm btn-outline-secondary">削除</button>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <form th:action="@{|/answer/create/${question.id}|}"
+          th:object="${answerForm}"
+          enctype="multipart/form-data"
+          method="post"
+          class="my-3">
+        <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}" />
+        <div th:replace="~{form_errors :: formErrorsFragment}"></div>
+
+        <textarea sec:authorize="isAnonymous()"
+                  disabled
+                  th:field="*{content}"
+                  class="form-control"
+                  rows="10"></textarea>
+        <textarea sec:authorize="isAuthenticated()"
+                  th:field="*{content}"
+                  class="form-control"
+                  rows="10"></textarea>
+
+        <input type="submit" value="コメント登録" class="btn btn-primary my-2">
+    </form>
 </div>
-<script layout:fragment="script" type='text/javascript'>
-	const delete_elements = document.getElementsByClassName("delete");
-	Array.from(delete_elements).forEach(function (element) {
-		element.addEventListener('click', function () {
-			if (confirm("本当に削除しますよろしいでしょうか?")) {
-				location.href = this.dataset.uri;
-			};
-		});
-	});
 
-	const recommend_elements = document.getElementsByClassName("recommend");
+<script layout:fragment="script" type="text/javascript">
+    const recommendElements = document.getElementsByClassName("recommend");
 
-	Array.from(recommend_elements).forEach(function (element) {
-	    const badge = element.querySelector(".badge");
+    Array.from(recommendElements).forEach(function (element) {
+        const badge = element.querySelector(".badge");
 
-	    element.addEventListener('click', function (event) {
-			event.preventDefault();
-	        // すでに押された場合、二度押しを防止
-	        if (badge.dataset.clicked === "true") {
-	            alert("すでにおすすめしました。");
-	            return;
-	        }
+        element.addEventListener("click", function () {
+            if (badge.dataset.clicked === "true") {
+                alert("すでにおすすめしました。");
+                return;
+            }
 
-	        // ユーザー確認
-	        if (!confirm("お勧めしますよろしいでしょうか?")) {
-	            return;
-	        }
+            if (!confirm("おすすめしますか？")) {
+                return;
+            }
 
-	        // Ajaxリクエスト
-	        fetch(this.dataset.uri, {
-	            method: "GET",
-	            headers: { "X-Requested-With": "XMLHttpRequest" },
-	            credentials: "include"
-	        })
-	        .then(response => {
-	            return response.text().then(text => {
-	                if (!response.ok) {
-	                    throw new Error(text); // サーバー側から送ったメッセージ内容をそのまま表す。
-	                }
-	                return text;
-	            });
-	        })
-	        .then(result => {
-	            // 成功した場合いいね数を画面に反映します。
-	            let currentCount = parseInt(badge.innerText);
-	            badge.innerText = currentCount + 1;
-	            badge.dataset.clicked = "true";
-	        })
-	        .catch(error => {
-	            alert(error.message); // "ログインが必要です。" 等々のサーバーメッセージを出力する
-	        });
-	    });
-	});
+            const csrfHeader = this.dataset.csrfHeader;
+            const csrfToken = this.dataset.csrfToken;
+            const headers = {"X-Requested-With": "XMLHttpRequest"};
+            headers[csrfHeader] = csrfToken;
 
+            fetch(this.dataset.uri, {
+                method: "POST",
+                headers: headers,
+                credentials: "include"
+            })
+            .then(response => response.text().then(text => {
+                if (!response.ok) {
+                    throw new Error(text);
+                }
+                return text;
+            }))
+            .then(() => {
+                badge.innerText = String(parseInt(badge.innerText, 10) + 1);
+                badge.dataset.clicked = "true";
+            })
+            .catch(error => alert(error.message));
+        });
+    });
 </script>
-
 </html>

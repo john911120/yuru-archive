@@ -6,6 +6,12 @@
 				ユーザーID 又は、 パスワードをご確認お願い致します。
 			</div>
 		</div>
+		<div th:if="${param.blocked}" class="alert alert-warning">
+			ログイン失敗が続いたため、しばらくログインを制限しています。
+		</div>
+		<div th:if="${param.expired}" class="alert alert-info">
+			セッションが終了しました。もう一度ログインしてください。
+		</div>
 		<div class="mb-3">
 			<label for="username" class="form-label">ユーザーID</label>
 			<input type="text" name="username" id="username" class="form-control">

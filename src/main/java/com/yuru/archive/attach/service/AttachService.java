@@ -11,13 +11,11 @@ import com.yuru.archive.user.SiteUser;
 
 public interface AttachService {
 
-    boolean deleteFile(String fileName);
+    void validateFiles(MultipartFile[] uploadFiles);
 
-    boolean deleteFileById(Long fileId);
+    void deleteOwnedFiles(List<Long> fileIds, Long questionId, Long userId);
 
     void deleteFileRecordsByQuestionId(Long questionId);
-
-    String getUploadPath();
 
     List<UploadedFile> getFilesByQuestionId(Long questionId);
 
