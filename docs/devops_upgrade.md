@@ -7,7 +7,7 @@ Spring Boot / PostgreSQL アップグレード内容を記録します。
 ## 🔧 対応内容
 | 分類 | 対象 | 概要 |
 |------|------|------|
-| Framework | Spring Boot | 3.5.6 → 4.1.1  |
+| Framework | Spring Boot | 3.5.6 → 4.1.1 → 4.1.2  |
 | Java | JDK | 17 → 21 (準備段階) |
 | DB | PostgreSQL | 外部キー制約とインデックス再構成 |
 | Thymeleaf | Thymeleaf | 検索処理修正 (page=0 reset fix) |
@@ -49,6 +49,9 @@ Spring Boot 4.1 への移行準備段階として、
 ## 🧾 マイナーバージョンアップデート
 - Spring Boot 4.1 → Spring Boot 4.1.1 マイナーバージョンアップデート(20260824)
 - 特定拡張子の添付ファイルが見えなかったことを修正しました。
+- Spring Boot 4.1.1 → Spring Boot 4.1.2 セキュリティパッチアップデート(20261027)
+  - 2026年10月20日に公開されたApache Tomcatの脆弱性への対応
+  - 組み込みTomcat 11.0.24 → 11.0.27
 
 ## License
 This project is **NOT open source**.  
