@@ -1,0 +1,87 @@
+<html layout:decorate="~{layout}">
+<div layout:fragment="content" class="container my-4" style="max-width: 820px;">
+    <div class="mb-3">
+        <h3 class="mb-1">会員情報編集</h3>
+        <p class="text-body-secondary mb-0">メールアドレスと日本住所を更新できます。</p>
+    </div>
+
+    <form th:action="@{/user/profile/edit}" th:object="${userProfileForm}" method="post" class="card shadow-sm">
+        <div class="card-body">
+            <div th:replace="~{form_errors :: formErrorsFragment}"></div>
+
+            <div class="mb-3">
+                <label class="form-label">ユーザーID</label>
+                <input type="text" class="form-control" th:value="${siteUser.username}" readonly>
+                <div class="form-text">ログインIDのため、この画面では変更しません。</div>
+            </div>
+
+            <div class="mb-3">
+                <label for="email" class="form-label">メールアドレス</label>
+                <input type="email" th:field="*{email}" id="email" class="form-control">
+            </div>
+
+            <div class="mb-3">
+                <label for="zipcode" class="form-label">郵便番号</label>
+                <div class="input-group">
+                    <input type="text" th:field="*{zipcode}" id="zipcode" class="form-control" placeholder="例：1000001">
+                    <button type="button" class="btn btn-outline-secondary" onclick="fetchAddress()">住所検索</button>
+                </div>
+            </div>
+
+            <div class="mb-3">
+                <label for="address1" class="form-label">都道府県</label>
+                <input type="text" th:field="*{address1}" id="address1" class="form-control" readonly>
+            </div>
+
+            <div class="mb-3">
+                <label for="address2" class="form-label">市区町村</label>
+                <input type="text" th:field="*{address2}" id="address2" class="form-control" readonly>
+            </div>
+
+            <div class="mb-3">
+                <label for="address3" class="form-label">町名</label>
+                <input type="text" th:field="*{address3}" id="address3" class="form-control" readonly>
+            </div>
+
+            <div class="mb-3">
+                <label for="addressDetail" class="form-label">詳細住所（番地・建物名など）</label>
+                <input type="text" th:field="*{addressDetail}" id="addressDetail" class="form-control" placeholder="例：1丁目2-3 ○○ビル101号室">
+            </div>
+
+            <div class="d-flex gap-2">
+                <button type="submit" class="btn btn-primary">変更を保存</button>
+                <a th:href="@{/user/profile}" class="btn btn-outline-secondary">キャンセル</a>
+            </div>
+        </div>
+    </form>
+</div>
+
+<th:block layout:fragment="script">
+<script>
+function fetchAddress() {
+    const zipcode = document.getElementById("zipcode").value.replace(/-/g, "").trim();
+    if (!/^\d{7}$/.test(zipcode)) {
+        alert("郵便番号は7桁の数字、またはハイフン付きで入力してください。");
+        return;
+    }
+
+    fetch(`https://zipcloud.ibsnet.co.jp/api/search?zipcode=${zipcode}`)
+        .then(response => response.json())
+        .then(data => {
+            if (data.results && data.results.length > 0) {
+                const result = data.results[0];
+                document.getElementById("address1").value = result.address1;
+                document.getElementById("address2").value = result.address2;
+                document.getElementById("address3").value = result.address3;
+            } else {
+                alert("住所が見つかりませんでした。");
+            }
+        })
+        .catch(error => {
+            console.error("住所取得失敗:", error);
+            alert("住所検索サービスに接続できませんでした。時間をおいて再度お試しください。");
+        });
+}
+</script>
+</th:block>
+</html>
