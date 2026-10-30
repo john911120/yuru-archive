@@ -2,7 +2,7 @@
 
 ## 前提
 
-- JDK 21
+- JDK 21（動作確認済み: Temurin 21.0.13+9）
 - PostgreSQL
 - Gradle Wrapper 8.14.5
 - STS / Eclipse または IntelliJ IDEA

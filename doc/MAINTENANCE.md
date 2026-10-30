@@ -37,8 +37,8 @@
 
 主要な基準:
 
-- Java 21
-- Spring Boot 4.1.1
+- Java 21（Temurin 21.0.13+9）
+- Spring Boot 4.1.2（組み込みTomcat 11.0.27）
 - Spring AI BOM 2.0.1
 - jsoup 1.23.2
 - Lombok 1.18.46

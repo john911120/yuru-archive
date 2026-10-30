@@ -34,7 +34,7 @@ Spring Boot × PostgreSQLをベースに、
 
 基本機能の開発完了後も、継続的な保守および機能改善を行っています。
 
-- Java **21**
+- Java **21**（Temurin **21.0.13+9**）
 - Spring Boot **4.1.2**
 - 組み込みTomcat **11.0.27**
 - Gradle Wrapper **8.14.5**
@@ -188,6 +188,34 @@ Tomcat 11.0.25〜11.0.27では複数の脆弱性が修正されています。�
 - ローカル環境で主要機能の動作確認済み
 
 修正内容の詳細は [Apache Tomcat 11 vulnerabilities](https://tomcat.apache.org/security-11.html) を参照してください。
+
+## 2026-10 Java（Temurin）セキュリティパッチ対応
+
+2026年10月20日のOracle Java SE定例更新（Critical Patch Update）と、その後に続いたJSSE関連の緊急セキュリティアラートに対応するため、実行環境のJDKを **Temurin 21.0.11 → 21.0.13** へ更新しました。
+
+| 項目 | 更新前 | 更新後 |
+|---|---|---|
+| JDK | Temurin 21.0.11 | Temurin 21.0.13 |
+| ビルド | - | `OpenJDK Runtime Environment Temurin-21.0.13+9` |
+
+### 今回の更新の経緯
+
+- **10月20日**: Oracle Java SE定例更新。Java 21系は 21.0.13 で修正
+- **10月21日**: JSSE（TLS）に関する緊急セキュリティアラート **CVE-2026-91403**（CVSS 9.1）。eMudhra関連の中間CA証明書の信頼除外
+- **10月24日**: 追加の緊急セキュリティアラート **CVE-2026-114820**（CVSS 9.1）。eMudhra関連のルートCA証明書の削除
+
+10月21日のアラートでは、10月20日にリリースされた 21.0.13 自体も影響対象とされています。そのため、本プロジェクトでは単に 21.0.13 を適用するのではなく、eMudhra関連ルートCA証明書の削除を含むTemurinのビルド **21.0.13+9** を採用しました。
+
+### 影響評価
+
+本プロジェクトは、リンクカード機能でMicrolink APIへ外部HTTPS通信を行っており、JSSE（TLS）の証明書検証は実際に利用している経路です。Tomcatの脆弱性とは異なり直接関係する構成であるため、修正ビルドへの更新を優先して実施しました。
+
+- `build.gradle` の変更なし（`sourceCompatibility = JavaVersion.VERSION_21` のまま）
+- Dockerイメージは `eclipse-temurin:21-jdk` / `21-jre` タグを使用しているため、ベースイメージを更新して再ビルド
+- アプリケーションコード・PostgreSQLスキーマの変更なし
+- ローカル環境・Docker環境で `Temurin-21.0.13+9` での起動および主要機能の動作確認済み
+
+詳細は [Oracle Security Alert CVE-2026-91403](https://www.oracle.com/security-alerts/alert-cve-2026-91403.html)、[Oracle Security Alert CVE-2026-114820](https://www.oracle.com/security-alerts/alert-cve-2026-114820.html)、[Adoptium: October 2026 Eclipse Temurin releases](https://adoptium.net/news/2026/10/temurin-october-2026-emudhra) を参照してください。
 
 ## 起動
 
