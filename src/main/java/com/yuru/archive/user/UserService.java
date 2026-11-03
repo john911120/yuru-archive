@@ -23,7 +23,8 @@ public class UserService {
 		user.setEmail(email);
 		user.setPassword(passwordEncoder.encode(password));
 	    // ✅ ハイフンを除去して保存
-		user.setZipcode(zipcode.replace("-", ""));
+		// 2026-11-03: 郵便番号は任意入力のため、未入力(null)時のNullPointerExceptionを防止
+		user.setZipcode(normalizeZipcode(zipcode));
 		user.setAddress1(address1);
 		user.setAddress2(address2);
 		user.setAddress3(address3);

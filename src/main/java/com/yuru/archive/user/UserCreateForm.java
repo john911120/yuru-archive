@@ -14,7 +14,9 @@ public class UserCreateForm {
 	@NotEmpty(message = "ユーザーIDは必須項目です。")
 	private String username;
 
+	// 2026-11-03: パスワード変更画面（8〜100文字）と同じ長さ制限を会員登録にも適用
 	@NotEmpty(message = "パスワードは必須項目です。")
+	@Size(min = 8, max = 100, message = "パスワードは8文字以上100文字以内で入力してください。")
 	private String password1;
 
 	@NotEmpty(message = "パスワード確認は、必須項目です。")

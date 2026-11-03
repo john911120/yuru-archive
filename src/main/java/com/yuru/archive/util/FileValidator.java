@@ -10,7 +10,11 @@ import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
 
+import java.util.Iterator;
+
 import javax.imageio.ImageIO;
+import javax.imageio.ImageReader;
+import javax.imageio.stream.ImageInputStream;
 
 import org.springframework.web.multipart.MultipartFile;
 
@@ -115,7 +119,51 @@ public final class FileValidator {
         return null;
     }
 
+    /*
+     * 2026-11-03: Decompression bomb対策。
+     * ImageIO.read() は画像全体を展開するため、ファイルサイズが小さくても
+     * 巨大な幅・高さを宣言した画像でメモリを使い切る可能性がある。
+     * デコード前に ImageReader でヘッダーの幅・高さだけを読み取り、上限を超える画像は拒否する。
+     */
+    static final int MAX_IMAGE_SIDE = 8000;
+    static final long MAX_IMAGE_PIXELS = 40_000_000L;
+
+    private static void validateDimensions(byte[] bytes) {
+        try (ImageInputStream input = ImageIO.createImageInputStream(new ByteArrayInputStream(bytes))) {
+            if (input == null) {
+                throw new InvalidUploadFileException("画像ファイルを読み込めませんでした。");
+            }
+            Iterator<ImageReader> readers = ImageIO.getImageReaders(input);
+            if (!readers.hasNext()) {
+                throw new InvalidUploadFileException("画像ファイルをデコードできませんでした。");
+            }
+            ImageReader reader = readers.next();
+            try {
+                reader.setInput(input, true, true);
+                checkDimensions(reader.getWidth(0), reader.getHeight(0));
+            } finally {
+                reader.dispose();
+            }
+        } catch (IOException | RuntimeException e) {
+            if (e instanceof InvalidUploadFileException invalid) {
+                throw invalid;
+            }
+            throw new InvalidUploadFileException("画像ファイルをデコードできませんでした。", e);
+        }
+    }
+
+    private static void checkDimensions(long width, long height) {
+        if (width <= 0 || height <= 0
+                || width > MAX_IMAGE_SIDE
+                || height > MAX_IMAGE_SIDE
+                || width * height > MAX_IMAGE_PIXELS) {
+            throw new InvalidUploadFileException(
+                    "画像サイズが大きすぎます。縦横" + MAX_IMAGE_SIDE + "px以下の画像を使用してください。");
+        }
+    }
+
     private static void validateDecodableImage(byte[] bytes) {
+        validateDimensions(bytes);
         try (ByteArrayInputStream input = new ByteArrayInputStream(bytes)) {
             BufferedImage image = ImageIO.read(input);
             if (image == null || image.getWidth() <= 0 || image.getHeight() <= 0) {
@@ -141,6 +189,36 @@ public final class FileValidator {
         if (!Set.of("VP8 ", "VP8L", "VP8X").contains(chunkType)) {
             throw new InvalidUploadFileException("WebP画像の構造を確認できませんでした。");
         }
+
+        // 2026-11-03: WebPもヘッダーの幅・高さを確認する（Decompression bomb対策）
+        if (bytes.length < 30) {
+            throw new InvalidUploadFileException("破損したWebPファイルです。");
+        }
+        long width;
+        long height;
+        switch (chunkType) {
+            case "VP8X" -> {
+                width = 1 + ((bytes[24] & 0xFF) | (bytes[25] & 0xFF) << 8 | (bytes[26] & 0xFF) << 16);
+                height = 1 + ((bytes[27] & 0xFF) | (bytes[28] & 0xFF) << 8 | (bytes[29] & 0xFF) << 16);
+            }
+            case "VP8L" -> {
+                if ((bytes[20] & 0xFF) != 0x2F) {
+                    throw new InvalidUploadFileException("WebP画像の構造を確認できませんでした。");
+                }
+                long bits = (bytes[21] & 0xFFL) | (bytes[22] & 0xFFL) << 8
+                        | (bytes[23] & 0xFFL) << 16 | (bytes[24] & 0xFFL) << 24;
+                width = 1 + (bits & 0x3FFF);
+                height = 1 + ((bits >> 14) & 0x3FFF);
+            }
+            default -> { // "VP8 "（非可逆圧縮形式）
+                if ((bytes[23] & 0xFF) != 0x9D || (bytes[24] & 0xFF) != 0x01 || (bytes[25] & 0xFF) != 0x2A) {
+                    throw new InvalidUploadFileException("WebP画像の構造を確認できませんでした。");
+                }
+                width = ((bytes[26] & 0xFF) | (bytes[27] & 0xFF) << 8) & 0x3FFF;
+                height = ((bytes[28] & 0xFF) | (bytes[29] & 0xFF) << 8) & 0x3FFF;
+            }
+        }
+        checkDimensions(width, height);
     }
 
     private static boolean startsWith(byte[] source, byte[] prefix) {

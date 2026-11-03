@@ -26,6 +26,7 @@ import com.yuru.archive.attach.service.AttachService;
 import com.yuru.archive.linkpreview.service.LinkCardRenderService;
 import com.yuru.archive.user.SiteUser;
 import com.yuru.archive.user.UserService;
+import com.yuru.archive.util.LogSanitizer;
 
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -50,7 +51,8 @@ public class QuestionController {
             @RequestParam(value = "page", defaultValue = "0") int page,
             @RequestParam(value = "kw", defaultValue = "") String kw,
             @RequestParam(value = "type", defaultValue = "subject") String type) {
-        log.info("page:{}, kw:{}", page, kw);
+        // 2026-11-03: 入力値は改行等を除去してからログへ出力（ログインジェクション対策）
+        log.info("page:{}, kw:{}", page, LogSanitizer.clean(kw));
 
         Page<Question> paging = questionService.getList(page, kw, type);
         Map<Long, Integer> answerCountMap = answerService.getAnswerCountMap(paging.getContent());

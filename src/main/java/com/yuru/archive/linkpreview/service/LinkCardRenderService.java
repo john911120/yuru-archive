@@ -9,6 +9,7 @@ import org.thymeleaf.context.Context;
 
 import com.yuru.archive.CommonUtil;
 import com.yuru.archive.linkpreview.dto.OgDto;
+import com.yuru.archive.util.LogSanitizer;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -20,6 +21,8 @@ public class LinkCardRenderService {
 
     private static final Pattern LINKCARD_PATTERN =
             Pattern.compile("\\[\\[linkcard\\s+url=\"([^\"]+)\"\\s*]]");
+
+    static final int MAX_CARDS_PER_CONTENT = 5;
 
     private final ExternalOgService ogService;
     private final TemplateEngine templateEngine;
@@ -40,10 +43,21 @@ public class LinkCardRenderService {
         Matcher matcher = LINKCARD_PATTERN.matcher(content);
         StringBuilder result = new StringBuilder();
         int cursor = 0;
+        int cardCount = 0;
 
         while (matcher.find()) {
             appendSanitizedMarkdown(result, content.substring(cursor, matcher.start()));
-            result.append(renderCard(matcher.group(1)));
+            // 2026-11-03: 1投稿あたりのリンクカード数を制限する。
+            // カード毎に外部API呼出し（最大5秒の同期待ち）が発生するため、
+            // 大量のカードを含む投稿1件でリクエストスレッドを占有されるのを防ぐ。
+            if (cardCount < MAX_CARDS_PER_CONTENT) {
+                result.append(renderCard(matcher.group(1)));
+            } else {
+                result.append("<p class=\"text-muted\">リンクカードは1つの投稿につき")
+                        .append(MAX_CARDS_PER_CONTENT)
+                        .append("件まで表示されます。</p>");
+            }
+            cardCount++;
             cursor = matcher.end();
         }
 
@@ -64,10 +78,10 @@ public class LinkCardRenderService {
             context.setVariable("og", og);
             return templateEngine.process("card", context);
         } catch (IllegalArgumentException e) {
-            log.warn("安全ではないリンクカードURLを拒否しました: {}", url);
+            log.warn("安全ではないリンクカードURLを拒否しました: {}", LogSanitizer.clean(url));
             return "<p class=\"text-muted\">無効なリンクカードURLが指定されました。</p>";
         } catch (Exception e) {
-            log.debug("リンクカード生成に失敗しました: {}", url, e);
+            log.debug("リンクカード生成に失敗しました: {}", LogSanitizer.clean(url), e);
             return "<p class=\"text-muted\">リンクカードを表示できませんでした。</p>";
         }
     }

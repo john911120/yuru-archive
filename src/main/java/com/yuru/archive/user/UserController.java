@@ -1,5 +1,6 @@
 package com.yuru.archive.user;
 
+import com.yuru.archive.util.LogSanitizer;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -43,6 +44,12 @@ public class UserController {
             return "signup_form";
         }
 
+        // 2026-11-03: 管理者と誤認されやすいユーザー名の登録を禁止する
+        if (isReservedUsername(userCreateForm.getUsername())) {
+            bindingResult.rejectValue("username", "reservedUsername", "このユーザーIDは使用できません。");
+            return "signup_form";
+        }
+
         if (!userCreateForm.getPassword1().equals(userCreateForm.getPassword2())) {
             bindingResult.rejectValue("password2", "passwordInCorrect", "二つのパスワードが一致しません。");
             return "signup_form";
@@ -59,11 +66,11 @@ public class UserController {
                     userCreateForm.getAddress3(),
                     userCreateForm.getAddressDetail());
         } catch (DataIntegrityViolationException e) {
-            log.warn("ユーザ登録に失敗しました。既存ユーザの可能性があります: {}", userCreateForm.getUsername());
+            log.warn("ユーザ登録に失敗しました。既存ユーザの可能性があります: {}", LogSanitizer.clean(userCreateForm.getUsername()));
             bindingResult.reject("signupFailed", "既に登録されたユーザです。");
             return "signup_form";
         } catch (Exception e) {
-            log.error("ユーザ登録中にエラーが発生しました: {}", userCreateForm.getUsername(), e);
+            log.error("ユーザ登録中にエラーが発生しました: {}", LogSanitizer.clean(userCreateForm.getUsername()), e);
             bindingResult.reject("signupFailed", "ユーザ登録に失敗しました。");
             return "signup_form";
         }
@@ -104,7 +111,7 @@ public class UserController {
         try {
             userService.updateProfile(principal.getName(), userProfileForm);
         } catch (DataIntegrityViolationException e) {
-            log.warn("会員情報の更新に失敗しました。メールアドレス重複の可能性があります: {}", userProfileForm.getEmail());
+            log.warn("会員情報の更新に失敗しました。メールアドレス重複の可能性があります: {}", LogSanitizer.clean(userProfileForm.getEmail()));
             bindingResult.rejectValue("email", "duplicateEmail", "既に使用されているメールアドレスです。");
             model.addAttribute("siteUser", currentUser);
             return "profile_edit";
@@ -172,5 +179,16 @@ public class UserController {
     @GetMapping("/login")
     public String login() {
         return "login_form";
+    }
+
+    private static final java.util.Set<String> RESERVED_USERNAMES = java.util.Set.of(
+            "admin", "administrator", "root", "system", "superuser", "manager", "operator");
+
+    static boolean isReservedUsername(String username) {
+        if (username == null) {
+            return false;
+        }
+        String normalized = username.trim().toLowerCase(java.util.Locale.ROOT);
+        return RESERVED_USERNAMES.contains(normalized) || normalized.startsWith("admin");
     }
 }

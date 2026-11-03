@@ -15,6 +15,8 @@ import java.util.UUID;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.support.TransactionSynchronization;
+import org.springframework.transaction.support.TransactionSynchronizationManager;
 import org.springframework.web.multipart.MultipartFile;
 
 import com.yuru.archive.attach.dto.AttachFileDTO;
@@ -23,6 +25,7 @@ import com.yuru.archive.attach.repository.AttachFileRepository;
 import com.yuru.archive.question.Question;
 import com.yuru.archive.user.SiteUser;
 import com.yuru.archive.util.FileValidator;
+import com.yuru.archive.util.LogSanitizer;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -71,7 +74,7 @@ public class AttachServiceImpl implements AttachService {
             String originalName = uploadFile.getOriginalFilename();
             String fileName = sanitizeOriginalFilename(originalName);
             if (fileName == null) {
-                log.warn("不正なファイル名を拒否しました: {}", originalName);
+                log.warn("不正なファイル名を拒否しました: {}", LogSanitizer.clean(originalName));
                 continue;
             }
 
@@ -85,7 +88,7 @@ public class AttachServiceImpl implements AttachService {
                 Path savePath = targetDirectory.resolve(uuid + "_" + fileName).normalize();
 
                 if (!savePath.startsWith(targetDirectory)) {
-                    log.warn("アップロード先ディレクトリ外を指すファイル名を拒否しました: {}", originalName);
+                    log.warn("アップロード先ディレクトリ外を指すファイル名を拒否しました: {}", LogSanitizer.clean(originalName));
                     continue;
                 }
 
@@ -110,7 +113,7 @@ public class AttachServiceImpl implements AttachService {
                     log.info("添付ファイルを保存しました: fileName={}, questionId={}", fileName, question.getId());
                 }
             } catch (IOException e) {
-                log.error("添付ファイルの保存に失敗しました: {}", originalName, e);
+                log.error("添付ファイルの保存に失敗しました: {}", LogSanitizer.clean(originalName), e);
             }
         }
 
@@ -136,6 +139,36 @@ public class AttachServiceImpl implements AttachService {
     @Override
     public void deleteFileRecordsByQuestionId(Long questionId) {
         attachFileRepository.deleteByQuestion_Id(questionId);
+    }
+
+    @Override
+    public void deleteFilesByQuestionId(Long questionId) {
+        // 2026-11-03: 従来はDBレコードのみ削除し、実ファイルが /upload/** で公開されたまま残っていた。
+        List<UploadedFile> files = attachFileRepository.findByQuestion_Id(questionId);
+        List<Path> targets = new ArrayList<>();
+        for (UploadedFile file : files) {
+            try {
+                targets.add(resolveStoredFile(file, false));
+                targets.add(resolveStoredFile(file, true));
+            } catch (IllegalArgumentException e) {
+                log.warn("削除対象の保存パスを解決できませんでした: id={}", file.getId());
+            }
+        }
+
+        attachFileRepository.deleteByQuestion_Id(questionId);
+
+        // DB削除がRollbackされた場合に実ファイルだけ消えないよう、Commit後に削除する
+        Runnable deletePhysicalFiles = () -> targets.forEach(path -> deleteIfExists(path.toFile()));
+        if (TransactionSynchronizationManager.isSynchronizationActive()) {
+            TransactionSynchronizationManager.registerSynchronization(new TransactionSynchronization() {
+                @Override
+                public void afterCommit() {
+                    deletePhysicalFiles.run();
+                }
+            });
+        } else {
+            deletePhysicalFiles.run();
+        }
     }
 
     @Override

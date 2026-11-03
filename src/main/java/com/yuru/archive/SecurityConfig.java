@@ -56,13 +56,27 @@ public class SecurityConfig {
                 .authenticated()
                 .anyRequest().permitAll());
 
-        // 状態変更系の通常エンドポイントではCSRF保護を有効にする。
-        // H2 Consoleはローカル検証用のため、従来どおり例外扱いとする。
-        http.csrf(csrf -> csrf.ignoringRequestMatchers(
-                matcher.matcher("/h2-console/**")));
+        // 2026-11-03: H2 Console（未使用）のCSRF除外を撤去し、全エンドポイントでCSRF保護を有効にする。
+        // CSRFはSpring Securityの既定で有効のため、除外設定を持たない。
 
-        http.headers(headers -> headers.addHeaderWriter(
-                new XFrameOptionsHeaderWriter(XFrameOptionsHeaderWriter.XFrameOptionsMode.SAMEORIGIN)));
+        // 2026-11-03: Content-Security-Policyを追加（XSS発生時の被害軽減・多層防御）。
+        // 既存テンプレートにインラインscript / onclick / style属性が残っているため、
+        // 現時点では 'unsafe-inline' を許可する。外部スクリプトの読込・object・base改変・
+        // 外部へのフォーム送信・他サイトからのframe埋込は禁止する。
+        http.headers(headers -> headers
+                .addHeaderWriter(new XFrameOptionsHeaderWriter(
+                        XFrameOptionsHeaderWriter.XFrameOptionsMode.SAMEORIGIN))
+                .contentSecurityPolicy(csp -> csp.policyDirectives(
+                        "default-src 'self'; "
+                        + "script-src 'self' 'unsafe-inline'; "
+                        + "style-src 'self' 'unsafe-inline'; "
+                        + "img-src 'self' data: https:; "
+                        + "font-src 'self'; "
+                        + "connect-src 'self' https://zipcloud.ibsnet.co.jp; "
+                        + "object-src 'none'; "
+                        + "base-uri 'self'; "
+                        + "form-action 'self'; "
+                        + "frame-ancestors 'self'")));
 
         http.formLogin(form -> form
                 .loginPage("/user/login")

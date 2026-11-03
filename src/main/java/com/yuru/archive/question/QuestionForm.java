@@ -18,5 +18,7 @@ public class QuestionForm {
 	private String subject;
 
 	@NotEmpty(message = "コンテンツは必須項目です。")
+	// 2026-11-03: 閲覧毎にMarkdown変換を行うため、本文の長さに上限を設ける
+	@Size(max = 20000, message = "本文は20000文字以内で入力してください。")
 	private String content;
 }

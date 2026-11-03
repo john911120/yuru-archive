@@ -50,7 +50,9 @@ class StateChangeHttpContractTest {
                 questionService,
                 answerService,
                 userService,
-                attachService);
+                attachService,
+                linkCardRenderService,
+                commonUtil);
 
         mockMvc = MockMvcBuilders
                 .standaloneSetup(questionController, answerController)

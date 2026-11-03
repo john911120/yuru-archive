@@ -29,7 +29,8 @@ public class QuestionService {
 
     @Transactional(readOnly = true)
     public Page<Question> getList(int page, String kw, String type) {
-        Pageable pageable = PageRequest.of(page, 10, Sort.by(Sort.Order.desc("createDate")));
+        // 2026-11-03: 負のページ番号で PageRequest.of() が例外を投げないよう補正
+        Pageable pageable = PageRequest.of(Math.max(page, 0), 10, Sort.by(Sort.Order.desc("createDate")));
 
         if (kw == null || kw.trim().isEmpty()) {
             return questionRepository.findAll(pageable);
@@ -109,7 +110,8 @@ public class QuestionService {
     }
 
     public void deleteQuestionWithFiles(Long questionId) {
-        attachService.deleteFileRecordsByQuestionId(questionId);
+        // 2026-11-03: DBレコードだけでなく実ファイルも削除する（Commit後）
+        attachService.deleteFilesByQuestionId(questionId);
         Question question = questionRepository.findById(questionId)
                 .orElseThrow(() -> new DataNotFoundException("該当の質問が見つかりませんでした"));
         questionRepository.delete(question);

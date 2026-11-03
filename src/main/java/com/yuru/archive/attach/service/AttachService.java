@@ -17,6 +17,12 @@ public interface AttachService {
 
     void deleteFileRecordsByQuestionId(Long questionId);
 
+    /**
+     * 2026-11-03 追加: 質問に紐づく添付ファイルのDBレコードと実ファイル（原本・サムネイル）を削除する。
+     * 実ファイルはTransactionのCommit後に削除する。
+     */
+    void deleteFilesByQuestionId(Long questionId);
+
     List<UploadedFile> getFilesByQuestionId(Long questionId);
 
     List<AttachFileDTO> uploadFiles(MultipartFile[] uploadFiles);
