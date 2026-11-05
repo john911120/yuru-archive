@@ -49,6 +49,17 @@ class SomeIntegrationTest { ... }
 2. 左の一覧から **CI** を選ぶ
 3. 右上の **Run workflow** を押し、ブランチ（`main`）と実行するタスクを選んで **Run workflow** を押す
 
+## 使用している Actions のバージョン管理（Dependabot）
+
+`ci.yml` で使っている Actions（checkout・setup-java・setup-gradle・upload-artifact）は、Dependabot が月に1回、新しいバージョンを確認する。
+
+- 設定ファイル：`.github/dependabot.yml`
+- 更新があると、まとめて1件の Pull Request が自動で作られる（タイトル・本文は英語。コミットメッセージの先頭に `CI` が付く）
+- PR 上で CI が実行されるので、✅ を確認して **Merge** する
+- Merge 後は、ローカルで `git pull` して最新にする
+
+Gradle の依存関係（Spring Boot など）は、現時点では Dependabot の対象にしていない。
+
 ## 注意点
 
 - 現在の統合テスト（`YuruArchiveApplicationTests`）は `@Disabled` のため、`integrationTest` ではスキップされる

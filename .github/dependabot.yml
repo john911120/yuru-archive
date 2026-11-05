@@ -1,0 +1,15 @@
+# Dependabot：ci.yml で使っている GitHub Actions の新しいバージョンを、月に1回確認する。
+# 更新があれば、まとめて1件の Pull Request が作られる（PR上で CI が実行される）。
+# CI が成功していれば、PR 画面で Merge するだけでよい。
+version: 2
+updates:
+  - package-ecosystem: github-actions
+    directory: /
+    schedule:
+      interval: monthly
+    groups:
+      github-actions:
+        patterns:
+          - "*"
+    commit-message:
+      prefix: "CI"

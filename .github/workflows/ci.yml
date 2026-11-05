@@ -31,16 +31,19 @@ jobs:
     timeout-minutes: 20
     steps:
       - name: ソースを取得
-        uses: actions/checkout@v4
+        uses: actions/checkout@v7
 
       - name: JDK 21（Temurin）を準備
-        uses: actions/setup-java@v4
+        uses: actions/setup-java@v5
         with:
           distribution: temurin
           java-version: '21'
 
       - name: Gradle を準備
-        uses: gradle/actions/setup-gradle@v4
+        uses: gradle/actions/setup-gradle@v6
+        with:
+          # オープンソースのキャッシュ（GitHub Actions cache）を使う
+          cache-provider: basic
 
       - name: テストを実行
         env:
@@ -50,7 +53,7 @@ jobs:
 
       - name: テスト結果を保存（失敗時の確認用）
         if: always()
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: test-reports
           path: build/reports/tests/

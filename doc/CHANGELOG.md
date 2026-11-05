@@ -2,6 +2,13 @@
 
 ## 0.1
 
+### 2026-11 CI で使用する Actions の更新・Dependabot 導入
+
+- Node.js 20 の非推奨警告に対応し、Actions を Node.js 24 対応版へ更新（checkout v7、setup-java v5、setup-gradle v6、upload-artifact v7）
+- setup-gradle のキャッシュをオープンソースの basic に指定
+- `.github/dependabot.yml` を追加。GitHub Actions の新しいバージョンを月1回確認し、まとめて1件の PR を作成
+- アプリケーションコード・DBスキーマの変更なし
+
 ### 2026-11 CI（GitHub Actions）の試験導入
 
 - `.github/workflows/ci.yml` を追加。main への push と Pull Request で `./gradlew check` を自動実行
