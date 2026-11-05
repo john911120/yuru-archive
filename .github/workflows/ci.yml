@@ -1,0 +1,58 @@
+# CI（GitHub Actions）
+# main への push と Pull Request で、自動的にビルドとテストを実行する。
+# Actions タブの「Run workflow」から、実行するテストの範囲を選んで手動実行することもできる。
+# どのテストを実行するかは build.gradle（test / integrationTest タスク）で決め、このファイルは原則変更しない。
+name: CI
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+  workflow_dispatch:
+    inputs:
+      task:
+        description: 実行する Gradle タスク（check = すべて / test = 単体テストのみ / integrationTest = 統合テストのみ）
+        type: choice
+        options: [ check, test, integrationTest ]
+        default: check
+
+# リポジトリの読み取りだけを許可する
+permissions:
+  contents: read
+
+# 同じブランチで新しい実行が始まったら、古い実行は取り消す
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - name: ソースを取得
+        uses: actions/checkout@v4
+
+      - name: JDK 21（Temurin）を準備
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '21'
+
+      - name: Gradle を準備
+        uses: gradle/actions/setup-gradle@v4
+
+      - name: テストを実行
+        env:
+          # 手動実行では選んだタスク、push / Pull Request では check を実行する
+          TASK: ${{ inputs.task || 'check' }}
+        run: ./gradlew "$TASK"
+
+      - name: テスト結果を保存（失敗時の確認用）
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: test-reports
+          path: build/reports/tests/
+          if-no-files-found: ignore
+          retention-days: 14

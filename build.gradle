@@ -53,6 +53,26 @@ tasks.withType(JavaCompile).configureEach {
     options.encoding = 'UTF-8'
 }
 
+// 通常のテスト：@Tag("integration") の付いたテストを除いて実行する（短時間で終わる単体テスト）
 tasks.named('test') {
-    useJUnitPlatform()
+    useJUnitPlatform {
+        excludeTags 'integration'
+    }
+}
+
+// 統合テスト：@Tag("integration") の付いたテストだけを実行する（Springコンテキスト・DBを使う時間のかかるテスト）
+def integrationTest = tasks.register('integrationTest', Test) {
+    description = '@Tag("integration") の付いた統合テストを実行する'
+    group = 'verification'
+    testClassesDirs = sourceSets.test.output.classesDirs
+    classpath = sourceSets.test.runtimeClasspath
+    useJUnitPlatform {
+        includeTags 'integration'
+    }
+    shouldRunAfter tasks.named('test')
+}
+
+// check（CIの標準タスク）で、単体テストと統合テストの両方を実行する
+tasks.named('check') {
+    dependsOn integrationTest
 }

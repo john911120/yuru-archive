@@ -2,6 +2,13 @@
 
 ## 0.1
 
+### 2026-11 CI（GitHub Actions）の試験導入
+
+- `.github/workflows/ci.yml` を追加。main への push と Pull Request で `./gradlew check` を自動実行
+- Actions タブから、実行するテストの範囲（check / test / integrationTest）を選んで手動実行できるようにした
+- `build.gradle` でテストを単体テスト（`test`）と統合テスト（`integrationTest`、`@Tag("integration")`）に分離
+- アプリケーションコード・DBスキーマの変更なし。詳細は [CI（GitHub Actions）](./CI.md)
+
 ### 2026-10 Java（Temurin）セキュリティパッチ
 
 - 2026年10月20日のOracle Java SE定例更新、および10月21日・24日のJSSE緊急セキュリティアラート（CVE-2026-91403／CVE-2026-114820）への対応

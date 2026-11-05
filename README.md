@@ -312,6 +312,7 @@ Spring BootのRabbitMQ自動構成に関する脆弱性 **CVE-2026-40971** へ�
 - [保守方針](./doc/MAINTENANCE.md)
 - [0.1 リファクタリング](./doc/REFACTORING_0.1.md)
 - [検証記録](./doc/VERIFICATION.md)
+- [CI（GitHub Actions）](./doc/CI.md)
 - [2026-11-03 コード点検・セキュリティ修正記録](./doc/11-03checkCode.md)
 - [変更履歴](./doc/CHANGELOG.md)
 - [過去の開発履歴概要](./doc/DEVELOPMENT_HISTORY.md)
