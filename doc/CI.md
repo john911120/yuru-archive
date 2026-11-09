@@ -10,7 +10,7 @@
 | Pull Request の作成・更新 | `./gradlew check` |
 | Actions タブから手動実行 | 選んだタスク（`check` / `test` / `integrationTest`） |
 
-- 実行環境：GitHub の Ubuntu サーバー、JDK 21（Temurin）
+- 実行環境：GitHub の Ubuntu サーバー、JDK 21（Temurin）、Gradle 9.8.2（Gradle Wrapper）
 - 定義ファイル：`.github/workflows/ci.yml`（GitHub の決まりにより、この場所から移動できない）
 - 結果：リポジトリの **Actions** タブ、またはコミット横の ✅ / ❌ で確認する
 - テスト結果のHTMLレポートは、各実行ページの「Artifacts」から `test-reports` をダウンロードできる（14日間保存）

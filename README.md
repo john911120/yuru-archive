@@ -37,7 +37,7 @@ Spring Boot × PostgreSQLをベースに、
 - Java **21**（Temurin **21.0.13+9**）
 - Spring Boot **4.1.2**
 - 組み込みTomcat **11.0.27**
-- Gradle Wrapper **8.14.5**
+- Gradle Wrapper **9.8.2**
 - PostgreSQL
 - Docker / Docker Compose
 - Spring AI BOM **2.0.1**
